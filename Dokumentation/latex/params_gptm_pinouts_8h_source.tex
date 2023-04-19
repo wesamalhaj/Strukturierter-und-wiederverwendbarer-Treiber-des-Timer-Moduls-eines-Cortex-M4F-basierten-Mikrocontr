@@ -1,0 +1,35 @@
+\doxysection{params\+Gptm\+Pinouts.\+h}
+\label{params_gptm_pinouts_8h_source}\index{params/gptm/params/gptm/paramsGptmPinouts.h@{params/gptm/params/gptm/paramsGptmPinouts.h}}
+
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00001 \textcolor{comment}{/*}}
+\DoxyCodeLine{00002 \textcolor{comment}{ * paramsGptmPinouts.h}}
+\DoxyCodeLine{00003 \textcolor{comment}{ *}}
+\DoxyCodeLine{00004 \textcolor{comment}{ *  Created on: 07.04.2022}}
+\DoxyCodeLine{00005 \textcolor{comment}{ *}}
+\DoxyCodeLine{00006 \textcolor{comment}{ */}}
+\DoxyCodeLine{00007 }
+\DoxyCodeLine{00008 \textcolor{preprocessor}{\#ifndef PARAMS\_GPTM\_PARAMS\_GPTM\_PARAMSGPTMPINOUTS\_H\_}}
+\DoxyCodeLine{00009 \textcolor{preprocessor}{\#define PARAMS\_GPTM\_PARAMS\_GPTM\_PARAMSGPTMPINOUTS\_H\_}}
+\DoxyCodeLine{00010 }
+\DoxyCodeLine{00011 \textcolor{preprocessor}{\#include "{}hal/gpio/halGpio.h"{}}}
+\DoxyCodeLine{00012 }
+\DoxyCodeLine{00020 \textcolor{keyword}{enum} ParamsGptmPinoutCount \{}
+\DoxyCodeLine{00021     paramsGptmPinoutCount = 1}
+\DoxyCodeLine{00022 \};}
+\DoxyCodeLine{00023 }
+\DoxyCodeLine{00024 \textcolor{keyword}{static} \textcolor{keyword}{const} \textcolor{keyword}{struct }gptmPinoutSetup\_ paramsGptmPinoutSetups[paramsGptmPinoutCount] =}
+\DoxyCodeLine{00025 \{}
+\DoxyCodeLine{00026     \textcolor{comment}{//paramsUart2RxPD4TxPD5 [0]}}
+\DoxyCodeLine{00027     \{}
+\DoxyCodeLine{00028         .uartCore\_ = uart2Core\_,}
+\DoxyCodeLine{00029         .rxPresent\_ = \textcolor{keyword}{true},}
+\DoxyCodeLine{00030         .rxPin\_ = halGpioU2RxPD4,}
+\DoxyCodeLine{00031         .txPresent\_ = \textcolor{keyword}{true},}
+\DoxyCodeLine{00032         .txPin\_ = halGpioU2TxPD5}
+\DoxyCodeLine{00033     \}}
+\DoxyCodeLine{00034 \};}
+\DoxyCodeLine{00035 }
+\DoxyCodeLine{00036 \textcolor{preprocessor}{\#endif }\textcolor{comment}{/* PARAMS\_GPTM\_PARAMS\_GPTM\_PARAMSGPTMPINOUTS\_H\_ */}\textcolor{preprocessor}{}}
+
+\end{DoxyCode}

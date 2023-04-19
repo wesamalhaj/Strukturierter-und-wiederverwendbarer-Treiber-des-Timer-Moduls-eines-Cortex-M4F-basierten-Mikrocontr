@@ -1,0 +1,120 @@
+\doxysection{gpio\+Shi.\+h}
+\label{gpio_shi_8h_source}\index{hal/gpio/include/gpioShi.h@{hal/gpio/include/gpioShi.h}}
+
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00001 \textcolor{comment}{//*****************************************************************************}}
+\DoxyCodeLine{00002 \textcolor{comment}{// Name        : gpioShi.h}}
+\DoxyCodeLine{00003 \textcolor{comment}{// Author      : Ole Rönna }}
+\DoxyCodeLine{00004 \textcolor{comment}{// Maintainer  : Prof. Dr. Paweł Buczek }}
+\DoxyCodeLine{00005 \textcolor{comment}{// Version     : 0.4 }}
+\DoxyCodeLine{00006 \textcolor{comment}{// Copyright   : All rights reserved }}
+\DoxyCodeLine{00007 \textcolor{comment}{// Description : }}
+\DoxyCodeLine{00008 \textcolor{comment}{// This code was generated from a template. Manual changes to this file will }}
+\DoxyCodeLine{00009 \textcolor{comment}{// be overwritten if the code is regenerated. }}
+\DoxyCodeLine{00010 \textcolor{comment}{//}}
+\DoxyCodeLine{00011 \textcolor{comment}{//*****************************************************************************}}
+\DoxyCodeLine{00012 }
+\DoxyCodeLine{00013 \textcolor{preprocessor}{\#ifndef HAL\_GPIOSHI\_H\_}}
+\DoxyCodeLine{00014 \textcolor{preprocessor}{\#define HAL\_GPIOSHI\_H\_}}
+\DoxyCodeLine{00015 }
+\DoxyCodeLine{00016 \textcolor{preprocessor}{\#include "{}hal/gpio/halGpioShiCores.h"{}}}
+\DoxyCodeLine{00017 \textcolor{preprocessor}{\#include "{}stdint.h"{}}}
+\DoxyCodeLine{00018 }
+\DoxyCodeLine{00019 \textcolor{comment}{//*****************************************************************************}}
+\DoxyCodeLine{00020 \textcolor{comment}{//}}
+\DoxyCodeLine{00021 \textcolor{comment}{// gpio registers}}
+\DoxyCodeLine{00022 \textcolor{comment}{//}}
+\DoxyCodeLine{00023 \textcolor{comment}{//*****************************************************************************}}
+\DoxyCodeLine{00024 }
+\DoxyCodeLine{00025 \textcolor{keyword}{enum} GpioRegisters\_ \{}
+\DoxyCodeLine{00026     gpioGpioData\_ = 0x000003FC,}
+\DoxyCodeLine{00027     gpioGpioDir\_ = 0x00000400,}
+\DoxyCodeLine{00028     gpioGpioIs\_ = 0x00000404,}
+\DoxyCodeLine{00029     gpioGpioBe\_ = 0x00000408,}
+\DoxyCodeLine{00030     gpioGpioEv\_ = 0x0000040C,}
+\DoxyCodeLine{00031     gpioGpioIm\_ = 0x00000410,}
+\DoxyCodeLine{00032     gpioGpioRis\_ = 0x00000414,}
+\DoxyCodeLine{00033     gpioGpioMis\_ = 0x00000418,}
+\DoxyCodeLine{00034     gpioGpioIcr\_ = 0x0000041C,}
+\DoxyCodeLine{00035     gpioGpioAfsel\_ = 0x00000420,}
+\DoxyCodeLine{00036     gpioGpioDr2r\_ = 0x00000500,}
+\DoxyCodeLine{00037     gpioGpioDr4r\_ = 0x00000504,}
+\DoxyCodeLine{00038     gpioGpioDr8r\_ = 0x00000508,}
+\DoxyCodeLine{00039     gpioGpioOdr\_ = 0x0000050C,}
+\DoxyCodeLine{00040     gpioGpioPur\_ = 0x00000510,}
+\DoxyCodeLine{00041     gpioGpioPdr\_ = 0x00000514,}
+\DoxyCodeLine{00042     gpioGpioDen\_ = 0x0000051C,}
+\DoxyCodeLine{00043     gpioGpioPctl\_ = 0x0000052C,}
+\DoxyCodeLine{00044     gpioGpioSi\_ = 0x00000538}
+\DoxyCodeLine{00045 \};}
+\DoxyCodeLine{00046 }
+\DoxyCodeLine{00047 }
+\DoxyCodeLine{00048 \textcolor{keyword}{enum} GpioGpioSiSumValues\_ \{}
+\DoxyCodeLine{00049     gpioGpioSiSumSum\_ = 0x00000000,}
+\DoxyCodeLine{00050     gpioGpioSiSumNoSum\_ = 0x00000001}
+\DoxyCodeLine{00051 \};}
+\DoxyCodeLine{00052 }
+\DoxyCodeLine{00053 uint32\_t gpioShiReadGpioData\_(\textcolor{keyword}{enum} HalGpioCores \textcolor{keyword}{const} core);}
+\DoxyCodeLine{00054 \textcolor{keywordtype}{void} gpioShiWriteGpioData\_(\textcolor{keyword}{enum} HalGpioCores \textcolor{keyword}{const} core, uint32\_t \textcolor{keyword}{const} registerValue);}
+\DoxyCodeLine{00055 }
+\DoxyCodeLine{00056 uint32\_t gpioShiReadGpioDir\_(\textcolor{keyword}{enum} HalGpioCores \textcolor{keyword}{const} core);}
+\DoxyCodeLine{00057 \textcolor{keywordtype}{void} gpioShiWriteGpioDir\_(\textcolor{keyword}{enum} HalGpioCores \textcolor{keyword}{const} core, uint32\_t \textcolor{keyword}{const} registerValue);}
+\DoxyCodeLine{00058 }
+\DoxyCodeLine{00059 uint32\_t gpioShiReadGpioIs\_(\textcolor{keyword}{enum} HalGpioCores \textcolor{keyword}{const} core);}
+\DoxyCodeLine{00060 \textcolor{keywordtype}{void} gpioShiWriteGpioIs\_(\textcolor{keyword}{enum} HalGpioCores \textcolor{keyword}{const} core, uint32\_t \textcolor{keyword}{const} registerValue);}
+\DoxyCodeLine{00061 }
+\DoxyCodeLine{00062 uint32\_t gpioShiReadGpioBe\_(\textcolor{keyword}{enum} HalGpioCores \textcolor{keyword}{const} core);}
+\DoxyCodeLine{00063 \textcolor{keywordtype}{void} gpioShiWriteGpioBe\_(\textcolor{keyword}{enum} HalGpioCores \textcolor{keyword}{const} core, uint32\_t \textcolor{keyword}{const} registerValue);}
+\DoxyCodeLine{00064 }
+\DoxyCodeLine{00065 uint32\_t gpioShiReadGpioEv\_(\textcolor{keyword}{enum} HalGpioCores \textcolor{keyword}{const} core);}
+\DoxyCodeLine{00066 \textcolor{keywordtype}{void} gpioShiWriteGpioEv\_(\textcolor{keyword}{enum} HalGpioCores \textcolor{keyword}{const} core, uint32\_t \textcolor{keyword}{const} registerValue);}
+\DoxyCodeLine{00067 }
+\DoxyCodeLine{00068 uint32\_t gpioShiReadGpioIm\_(\textcolor{keyword}{enum} HalGpioCores \textcolor{keyword}{const} core);}
+\DoxyCodeLine{00069 \textcolor{keywordtype}{void} gpioShiWriteGpioIm\_(\textcolor{keyword}{enum} HalGpioCores \textcolor{keyword}{const} core, uint32\_t \textcolor{keyword}{const} registerValue);}
+\DoxyCodeLine{00070 }
+\DoxyCodeLine{00071 uint32\_t gpioShiReadGpioRis\_(\textcolor{keyword}{enum} HalGpioCores \textcolor{keyword}{const} core);}
+\DoxyCodeLine{00072 \textcolor{keywordtype}{void} gpioShiWriteGpioRis\_(\textcolor{keyword}{enum} HalGpioCores \textcolor{keyword}{const} core, uint32\_t \textcolor{keyword}{const} registerValue);}
+\DoxyCodeLine{00073 }
+\DoxyCodeLine{00074 uint32\_t gpioShiReadGpioMis\_(\textcolor{keyword}{enum} HalGpioCores \textcolor{keyword}{const} core);}
+\DoxyCodeLine{00075 \textcolor{keywordtype}{void} gpioShiWriteGpioMis\_(\textcolor{keyword}{enum} HalGpioCores \textcolor{keyword}{const} core, uint32\_t \textcolor{keyword}{const} registerValue);}
+\DoxyCodeLine{00076 }
+\DoxyCodeLine{00077 uint32\_t gpioShiReadGpioIcr\_(\textcolor{keyword}{enum} HalGpioCores \textcolor{keyword}{const} core);}
+\DoxyCodeLine{00078 \textcolor{keywordtype}{void} gpioShiWriteGpioIcr\_(\textcolor{keyword}{enum} HalGpioCores \textcolor{keyword}{const} core, uint32\_t \textcolor{keyword}{const} registerValue);}
+\DoxyCodeLine{00079 }
+\DoxyCodeLine{00080 uint32\_t gpioShiReadGpioAfsel\_(\textcolor{keyword}{enum} HalGpioCores \textcolor{keyword}{const} core);}
+\DoxyCodeLine{00081 \textcolor{keywordtype}{void} gpioShiWriteGpioAfsel\_(\textcolor{keyword}{enum} HalGpioCores \textcolor{keyword}{const} core, uint32\_t \textcolor{keyword}{const} registerValue);}
+\DoxyCodeLine{00082 }
+\DoxyCodeLine{00083 uint32\_t gpioShiReadGpioDr2r\_(\textcolor{keyword}{enum} HalGpioCores \textcolor{keyword}{const} core);}
+\DoxyCodeLine{00084 \textcolor{keywordtype}{void} gpioShiWriteGpioDr2r\_(\textcolor{keyword}{enum} HalGpioCores \textcolor{keyword}{const} core, uint32\_t \textcolor{keyword}{const} registerValue);}
+\DoxyCodeLine{00085 }
+\DoxyCodeLine{00086 uint32\_t gpioShiReadGpioDr4r\_(\textcolor{keyword}{enum} HalGpioCores \textcolor{keyword}{const} core);}
+\DoxyCodeLine{00087 \textcolor{keywordtype}{void} gpioShiWriteGpioDr4r\_(\textcolor{keyword}{enum} HalGpioCores \textcolor{keyword}{const} core, uint32\_t \textcolor{keyword}{const} registerValue);}
+\DoxyCodeLine{00088 }
+\DoxyCodeLine{00089 uint32\_t gpioShiReadGpioDr8r\_(\textcolor{keyword}{enum} HalGpioCores \textcolor{keyword}{const} core);}
+\DoxyCodeLine{00090 \textcolor{keywordtype}{void} gpioShiWriteGpioDr8r\_(\textcolor{keyword}{enum} HalGpioCores \textcolor{keyword}{const} core, uint32\_t \textcolor{keyword}{const} registerValue);}
+\DoxyCodeLine{00091 }
+\DoxyCodeLine{00092 uint32\_t gpioShiReadGpioOdr\_(\textcolor{keyword}{enum} HalGpioCores \textcolor{keyword}{const} core);}
+\DoxyCodeLine{00093 \textcolor{keywordtype}{void} gpioShiWriteGpioOdr\_(\textcolor{keyword}{enum} HalGpioCores \textcolor{keyword}{const} core, uint32\_t \textcolor{keyword}{const} registerValue);}
+\DoxyCodeLine{00094 }
+\DoxyCodeLine{00095 uint32\_t gpioShiReadGpioPur\_(\textcolor{keyword}{enum} HalGpioCores \textcolor{keyword}{const} core);}
+\DoxyCodeLine{00096 \textcolor{keywordtype}{void} gpioShiWriteGpioPur\_(\textcolor{keyword}{enum} HalGpioCores \textcolor{keyword}{const} core, uint32\_t \textcolor{keyword}{const} registerValue);}
+\DoxyCodeLine{00097 }
+\DoxyCodeLine{00098 uint32\_t gpioShiReadGpioPdr\_(\textcolor{keyword}{enum} HalGpioCores \textcolor{keyword}{const} core);}
+\DoxyCodeLine{00099 \textcolor{keywordtype}{void} gpioShiWriteGpioPdr\_(\textcolor{keyword}{enum} HalGpioCores \textcolor{keyword}{const} core, uint32\_t \textcolor{keyword}{const} registerValue);}
+\DoxyCodeLine{00100 }
+\DoxyCodeLine{00101 uint32\_t gpioShiReadGpioDen\_(\textcolor{keyword}{enum} HalGpioCores \textcolor{keyword}{const} core);}
+\DoxyCodeLine{00102 \textcolor{keywordtype}{void} gpioShiWriteGpioDen\_(\textcolor{keyword}{enum} HalGpioCores \textcolor{keyword}{const} core, uint32\_t \textcolor{keyword}{const} registerValue);}
+\DoxyCodeLine{00103 }
+\DoxyCodeLine{00104 uint32\_t gpioShiReadGpioPctl\_(\textcolor{keyword}{enum} HalGpioCores \textcolor{keyword}{const} core);}
+\DoxyCodeLine{00105 \textcolor{keywordtype}{void} gpioShiWriteGpioPctl\_(\textcolor{keyword}{enum} HalGpioCores \textcolor{keyword}{const} core, uint32\_t \textcolor{keyword}{const} registerValue);}
+\DoxyCodeLine{00106 }
+\DoxyCodeLine{00107 uint32\_t gpioShiReadGpioSi\_(\textcolor{keyword}{enum} HalGpioCores \textcolor{keyword}{const} core);}
+\DoxyCodeLine{00108 \textcolor{keywordtype}{void} gpioShiWriteGpioSi\_(\textcolor{keyword}{enum} HalGpioCores \textcolor{keyword}{const} core, uint32\_t \textcolor{keyword}{const} registerValue);}
+\DoxyCodeLine{00109 }
+\DoxyCodeLine{00110 \textcolor{keywordtype}{void} gpioShiWriteGpioSiSum\_(\textcolor{keyword}{enum} HalGpioCores \textcolor{keyword}{const} core, \textcolor{keyword}{enum} GpioGpioSiSumValues\_ \textcolor{keyword}{const} sum);}
+\DoxyCodeLine{00111 \textcolor{keywordtype}{void} gpioShiWriteUIGpioSiSum\_(uint32\_t * \textcolor{keyword}{const} registerValue, \textcolor{keyword}{enum} GpioGpioSiSumValues\_ \textcolor{keyword}{const} sum);}
+\DoxyCodeLine{00112 }
+\DoxyCodeLine{00113 }
+\DoxyCodeLine{00114 \textcolor{preprocessor}{\#endif}}
+
+\end{DoxyCode}

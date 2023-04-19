@@ -1,0 +1,650 @@
+\doxysection{port.\+c}
+\label{port_8c_source}\index{rtos/FreeRTOS/source/portable/CCS/ARM\_CM4F/port.c@{rtos/FreeRTOS/source/portable/CCS/ARM\_CM4F/port.c}}
+
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00001 \textcolor{comment}{/*}}
+\DoxyCodeLine{00002 \textcolor{comment}{ * FreeRTOS Kernel V10.2.1}}
+\DoxyCodeLine{00003 \textcolor{comment}{ * Copyright (C) 2019 Amazon.com, Inc. or its affiliates.  All Rights Reserved.}}
+\DoxyCodeLine{00004 \textcolor{comment}{ *}}
+\DoxyCodeLine{00005 \textcolor{comment}{ * Permission is hereby granted, free of charge, to any person obtaining a copy of}}
+\DoxyCodeLine{00006 \textcolor{comment}{ * this software and associated documentation files (the "{}Software"{}), to deal in}}
+\DoxyCodeLine{00007 \textcolor{comment}{ * the Software without restriction, including without limitation the rights to}}
+\DoxyCodeLine{00008 \textcolor{comment}{ * use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of}}
+\DoxyCodeLine{00009 \textcolor{comment}{ * the Software, and to permit persons to whom the Software is furnished to do so,}}
+\DoxyCodeLine{00010 \textcolor{comment}{ * subject to the following conditions:}}
+\DoxyCodeLine{00011 \textcolor{comment}{ *}}
+\DoxyCodeLine{00012 \textcolor{comment}{ * The above copyright notice and this permission notice shall be included in all}}
+\DoxyCodeLine{00013 \textcolor{comment}{ * copies or substantial portions of the Software.}}
+\DoxyCodeLine{00014 \textcolor{comment}{ *}}
+\DoxyCodeLine{00015 \textcolor{comment}{ * THE SOFTWARE IS PROVIDED "{}AS IS"{}, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR}}
+\DoxyCodeLine{00016 \textcolor{comment}{ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS}}
+\DoxyCodeLine{00017 \textcolor{comment}{ * FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR}}
+\DoxyCodeLine{00018 \textcolor{comment}{ * COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER}}
+\DoxyCodeLine{00019 \textcolor{comment}{ * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN}}
+\DoxyCodeLine{00020 \textcolor{comment}{ * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.}}
+\DoxyCodeLine{00021 \textcolor{comment}{ *}}
+\DoxyCodeLine{00022 \textcolor{comment}{ * http://www.FreeRTOS.org}}
+\DoxyCodeLine{00023 \textcolor{comment}{ * http://aws.amazon.com/freertos}}
+\DoxyCodeLine{00024 \textcolor{comment}{ *}}
+\DoxyCodeLine{00025 \textcolor{comment}{ * 1 tab == 4 spaces!}}
+\DoxyCodeLine{00026 \textcolor{comment}{ */}}
+\DoxyCodeLine{00027 }
+\DoxyCodeLine{00028 \textcolor{comment}{/*-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/}}
+\DoxyCodeLine{00029 \textcolor{comment}{ * Implementation of functions defined in portable.h for the ARM CM4F port.}}
+\DoxyCodeLine{00030 \textcolor{comment}{ *-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/*/}}
+\DoxyCodeLine{00031 }
+\DoxyCodeLine{00032 \textcolor{comment}{/* Scheduler includes. */}}
+\DoxyCodeLine{00033 \textcolor{preprocessor}{\#include "{}FreeRTOS.h"{}}}
+\DoxyCodeLine{00034 \textcolor{preprocessor}{\#include "{}task.h"{}}}
+\DoxyCodeLine{00035 }
+\DoxyCodeLine{00036 \textcolor{preprocessor}{\#ifndef \_\_TI\_VFP\_SUPPORT\_\_}}
+\DoxyCodeLine{00037 \textcolor{preprocessor}{    \#error This port can only be used when the project options are configured to enable hardware floating point support.}}
+\DoxyCodeLine{00038 \textcolor{preprocessor}{\#endif}}
+\DoxyCodeLine{00039 }
+\DoxyCodeLine{00040 \textcolor{preprocessor}{\#if( configMAX\_SYSCALL\_INTERRUPT\_PRIORITY == 0 )}}
+\DoxyCodeLine{00041 \textcolor{preprocessor}{    \#error configMAX\_SYSCALL\_INTERRUPT\_PRIORITY must not be set to 0.  See http:}\textcolor{comment}{//www.FreeRTOS.org/RTOS-\/Cortex-\/M3-\/M4.html}}
+\DoxyCodeLine{00042 \textcolor{preprocessor}{\#endif}}
+\DoxyCodeLine{00043 }
+\DoxyCodeLine{00044 \textcolor{preprocessor}{\#ifndef configSYSTICK\_CLOCK\_HZ}}
+\DoxyCodeLine{00045 \textcolor{preprocessor}{    \#define configSYSTICK\_CLOCK\_HZ configCPU\_CLOCK\_HZ}}
+\DoxyCodeLine{00046     \textcolor{comment}{/* Ensure the SysTick is clocked at the same frequency as the core. */}}
+\DoxyCodeLine{00047 \textcolor{preprocessor}{    \#define portNVIC\_SYSTICK\_CLK\_BIT    ( 1UL << 2UL )}}
+\DoxyCodeLine{00048 \textcolor{preprocessor}{\#else}}
+\DoxyCodeLine{00049     \textcolor{comment}{/* The way the SysTick is clocked is not modified in case it is not the same}}
+\DoxyCodeLine{00050 \textcolor{comment}{    as the core. */}}
+\DoxyCodeLine{00051 \textcolor{preprocessor}{    \#define portNVIC\_SYSTICK\_CLK\_BIT    ( 0 )}}
+\DoxyCodeLine{00052 \textcolor{preprocessor}{\#endif}}
+\DoxyCodeLine{00053 }
+\DoxyCodeLine{00054 \textcolor{comment}{/* Constants required to manipulate the core.  Registers first... */}}
+\DoxyCodeLine{00055 \textcolor{preprocessor}{\#define portNVIC\_SYSTICK\_CTRL\_REG           ( * ( ( volatile uint32\_t * ) 0xe000e010 ) )}}
+\DoxyCodeLine{00056 \textcolor{preprocessor}{\#define portNVIC\_SYSTICK\_LOAD\_REG           ( * ( ( volatile uint32\_t * ) 0xe000e014 ) )}}
+\DoxyCodeLine{00057 \textcolor{preprocessor}{\#define portNVIC\_SYSTICK\_CURRENT\_VALUE\_REG  ( * ( ( volatile uint32\_t * ) 0xe000e018 ) )}}
+\DoxyCodeLine{00058 \textcolor{preprocessor}{\#define portNVIC\_SYSPRI2\_REG                ( * ( ( volatile uint32\_t * ) 0xe000ed20 ) )}}
+\DoxyCodeLine{00059 \textcolor{comment}{/* ...then bits in the registers. */}}
+\DoxyCodeLine{00060 \textcolor{preprocessor}{\#define portNVIC\_SYSTICK\_INT\_BIT            ( 1UL << 1UL )}}
+\DoxyCodeLine{00061 \textcolor{preprocessor}{\#define portNVIC\_SYSTICK\_ENABLE\_BIT         ( 1UL << 0UL )}}
+\DoxyCodeLine{00062 \textcolor{preprocessor}{\#define portNVIC\_SYSTICK\_COUNT\_FLAG\_BIT     ( 1UL << 16UL )}}
+\DoxyCodeLine{00063 \textcolor{preprocessor}{\#define portNVIC\_PENDSVCLEAR\_BIT            ( 1UL << 27UL )}}
+\DoxyCodeLine{00064 \textcolor{preprocessor}{\#define portNVIC\_PEND\_SYSTICK\_CLEAR\_BIT     ( 1UL << 25UL )}}
+\DoxyCodeLine{00065 }
+\DoxyCodeLine{00066 \textcolor{preprocessor}{\#define portNVIC\_PENDSV\_PRI                 ( ( ( uint32\_t ) configKERNEL\_INTERRUPT\_PRIORITY ) << 16UL )}}
+\DoxyCodeLine{00067 \textcolor{preprocessor}{\#define portNVIC\_SYSTICK\_PRI                ( ( ( uint32\_t ) configKERNEL\_INTERRUPT\_PRIORITY ) << 24UL )}}
+\DoxyCodeLine{00068 }
+\DoxyCodeLine{00069 \textcolor{comment}{/* Constants required to check the validity of an interrupt priority. */}}
+\DoxyCodeLine{00070 \textcolor{preprocessor}{\#define portFIRST\_USER\_INTERRUPT\_NUMBER     ( 16 )}}
+\DoxyCodeLine{00071 \textcolor{preprocessor}{\#define portNVIC\_IP\_REGISTERS\_OFFSET\_16     ( 0xE000E3F0 )}}
+\DoxyCodeLine{00072 \textcolor{preprocessor}{\#define portAIRCR\_REG                       ( * ( ( volatile uint32\_t * ) 0xE000ED0C ) )}}
+\DoxyCodeLine{00073 \textcolor{preprocessor}{\#define portMAX\_8\_BIT\_VALUE                 ( ( uint8\_t ) 0xff )}}
+\DoxyCodeLine{00074 \textcolor{preprocessor}{\#define portTOP\_BIT\_OF\_BYTE                 ( ( uint8\_t ) 0x80 )}}
+\DoxyCodeLine{00075 \textcolor{preprocessor}{\#define portMAX\_PRIGROUP\_BITS               ( ( uint8\_t ) 7 )}}
+\DoxyCodeLine{00076 \textcolor{preprocessor}{\#define portPRIORITY\_GROUP\_MASK             ( 0x07UL << 8UL )}}
+\DoxyCodeLine{00077 \textcolor{preprocessor}{\#define portPRIGROUP\_SHIFT                  ( 8UL )}}
+\DoxyCodeLine{00078 }
+\DoxyCodeLine{00079 \textcolor{comment}{/* Masks off all bits but the VECTACTIVE bits in the ICSR register. */}}
+\DoxyCodeLine{00080 \textcolor{preprocessor}{\#define portVECTACTIVE\_MASK                 ( 0xFFUL )}}
+\DoxyCodeLine{00081 }
+\DoxyCodeLine{00082 \textcolor{comment}{/* Constants required to manipulate the VFP. */}}
+\DoxyCodeLine{00083 \textcolor{preprocessor}{\#define portFPCCR                           ( ( volatile uint32\_t * ) 0xe000ef34 ) }\textcolor{comment}{/* Floating point context control register. */}\textcolor{preprocessor}{}}
+\DoxyCodeLine{00084 \textcolor{preprocessor}{\#define portASPEN\_AND\_LSPEN\_BITS            ( 0x3UL << 30UL )}}
+\DoxyCodeLine{00085 }
+\DoxyCodeLine{00086 \textcolor{comment}{/* Constants required to set up the initial stack. */}}
+\DoxyCodeLine{00087 \textcolor{preprocessor}{\#define portINITIAL\_XPSR                    ( 0x01000000 )}}
+\DoxyCodeLine{00088 \textcolor{preprocessor}{\#define portINITIAL\_EXC\_RETURN              ( 0xfffffffd )}}
+\DoxyCodeLine{00089 }
+\DoxyCodeLine{00090 \textcolor{comment}{/* The systick is a 24-\/bit counter. */}}
+\DoxyCodeLine{00091 \textcolor{preprocessor}{\#define portMAX\_24\_BIT\_NUMBER               ( 0xffffffUL )}}
+\DoxyCodeLine{00092 }
+\DoxyCodeLine{00093 \textcolor{comment}{/* A fiddle factor to estimate the number of SysTick counts that would have}}
+\DoxyCodeLine{00094 \textcolor{comment}{occurred while the SysTick counter is stopped during tickless idle}}
+\DoxyCodeLine{00095 \textcolor{comment}{calculations. */}}
+\DoxyCodeLine{00096 \textcolor{preprocessor}{\#define portMISSED\_COUNTS\_FACTOR            ( 45UL )}}
+\DoxyCodeLine{00097 }
+\DoxyCodeLine{00098 \textcolor{comment}{/* For strict compliance with the Cortex-\/M spec the task start address should}}
+\DoxyCodeLine{00099 \textcolor{comment}{have bit-\/0 clear, as it is loaded into the PC on exit from an ISR. */}}
+\DoxyCodeLine{00100 \textcolor{preprocessor}{\#define portSTART\_ADDRESS\_MASK      ( ( StackType\_t ) 0xfffffffeUL )}}
+\DoxyCodeLine{00101 }
+\DoxyCodeLine{00102 \textcolor{comment}{/*}}
+\DoxyCodeLine{00103 \textcolor{comment}{ * Setup the timer to generate the tick interrupts.  The implementation in this}}
+\DoxyCodeLine{00104 \textcolor{comment}{ * file is weak to allow application writers to change the timer used to}}
+\DoxyCodeLine{00105 \textcolor{comment}{ * generate the tick interrupt.}}
+\DoxyCodeLine{00106 \textcolor{comment}{ */}}
+\DoxyCodeLine{00107 \textcolor{keywordtype}{void} vPortSetupTimerInterrupt( \textcolor{keywordtype}{void} );}
+\DoxyCodeLine{00108 }
+\DoxyCodeLine{00109 \textcolor{comment}{/*}}
+\DoxyCodeLine{00110 \textcolor{comment}{ * Exception handlers.}}
+\DoxyCodeLine{00111 \textcolor{comment}{ */}}
+\DoxyCodeLine{00112 \textcolor{keywordtype}{void} xPortSysTickHandler( \textcolor{keywordtype}{void} );}
+\DoxyCodeLine{00113 }
+\DoxyCodeLine{00114 \textcolor{comment}{/*}}
+\DoxyCodeLine{00115 \textcolor{comment}{ * Start first task is a separate function so it can be tested in isolation.}}
+\DoxyCodeLine{00116 \textcolor{comment}{ */}}
+\DoxyCodeLine{00117 \textcolor{keyword}{extern} \textcolor{keywordtype}{void} vPortStartFirstTask( \textcolor{keywordtype}{void} );}
+\DoxyCodeLine{00118 }
+\DoxyCodeLine{00119 \textcolor{comment}{/*}}
+\DoxyCodeLine{00120 \textcolor{comment}{ * Turn the VFP on.}}
+\DoxyCodeLine{00121 \textcolor{comment}{ */}}
+\DoxyCodeLine{00122 \textcolor{keyword}{extern} \textcolor{keywordtype}{void} vPortEnableVFP( \textcolor{keywordtype}{void} );}
+\DoxyCodeLine{00123 }
+\DoxyCodeLine{00124 \textcolor{comment}{/*}}
+\DoxyCodeLine{00125 \textcolor{comment}{ * Used to catch tasks that attempt to return from their implementing function.}}
+\DoxyCodeLine{00126 \textcolor{comment}{ */}}
+\DoxyCodeLine{00127 \textcolor{keyword}{static} \textcolor{keywordtype}{void} prvTaskExitError( \textcolor{keywordtype}{void} );}
+\DoxyCodeLine{00128 }
+\DoxyCodeLine{00129 \textcolor{comment}{/*-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/*/}}
+\DoxyCodeLine{00130 }
+\DoxyCodeLine{00131 \textcolor{comment}{/* Required to allow portasm.asm access the configMAX\_SYSCALL\_INTERRUPT\_PRIORITY}}
+\DoxyCodeLine{00132 \textcolor{comment}{setting. */}}
+\DoxyCodeLine{00133 \textcolor{keyword}{const} uint32\_t ulMaxSyscallInterruptPriority = configMAX\_SYSCALL\_INTERRUPT\_PRIORITY;}
+\DoxyCodeLine{00134 }
+\DoxyCodeLine{00135 \textcolor{comment}{/* Each task maintains its own interrupt status in the critical nesting}}
+\DoxyCodeLine{00136 \textcolor{comment}{variable. */}}
+\DoxyCodeLine{00137 \textcolor{keyword}{static} UBaseType\_t uxCriticalNesting = 0xaaaaaaaa;}
+\DoxyCodeLine{00138 }
+\DoxyCodeLine{00139 \textcolor{comment}{/*}}
+\DoxyCodeLine{00140 \textcolor{comment}{ * The number of SysTick increments that make up one tick period.}}
+\DoxyCodeLine{00141 \textcolor{comment}{ */}}
+\DoxyCodeLine{00142 \textcolor{preprocessor}{\#if( configUSE\_TICKLESS\_IDLE == 1 )}}
+\DoxyCodeLine{00143     \textcolor{keyword}{static} uint32\_t ulTimerCountsForOneTick = 0;}
+\DoxyCodeLine{00144 \textcolor{preprocessor}{\#endif }\textcolor{comment}{/* configUSE\_TICKLESS\_IDLE */}\textcolor{preprocessor}{}}
+\DoxyCodeLine{00145 }
+\DoxyCodeLine{00146 \textcolor{comment}{/*}}
+\DoxyCodeLine{00147 \textcolor{comment}{ * The maximum number of tick periods that can be suppressed is limited by the}}
+\DoxyCodeLine{00148 \textcolor{comment}{ * 24 bit resolution of the SysTick timer.}}
+\DoxyCodeLine{00149 \textcolor{comment}{ */}}
+\DoxyCodeLine{00150 \textcolor{preprocessor}{\#if( configUSE\_TICKLESS\_IDLE == 1 )}}
+\DoxyCodeLine{00151     \textcolor{keyword}{static} uint32\_t xMaximumPossibleSuppressedTicks = 0;}
+\DoxyCodeLine{00152 \textcolor{preprocessor}{\#endif }\textcolor{comment}{/* configUSE\_TICKLESS\_IDLE */}\textcolor{preprocessor}{}}
+\DoxyCodeLine{00153 }
+\DoxyCodeLine{00154 \textcolor{comment}{/*}}
+\DoxyCodeLine{00155 \textcolor{comment}{ * Compensate for the CPU cycles that pass while the SysTick is stopped (low}}
+\DoxyCodeLine{00156 \textcolor{comment}{ * power functionality only.}}
+\DoxyCodeLine{00157 \textcolor{comment}{ */}}
+\DoxyCodeLine{00158 \textcolor{preprocessor}{\#if( configUSE\_TICKLESS\_IDLE == 1 )}}
+\DoxyCodeLine{00159     \textcolor{keyword}{static} uint32\_t ulStoppedTimerCompensation = 0;}
+\DoxyCodeLine{00160 \textcolor{preprocessor}{\#endif }\textcolor{comment}{/* configUSE\_TICKLESS\_IDLE */}\textcolor{preprocessor}{}}
+\DoxyCodeLine{00161 }
+\DoxyCodeLine{00162 \textcolor{comment}{/*}}
+\DoxyCodeLine{00163 \textcolor{comment}{ * Used by the portASSERT\_IF\_INTERRUPT\_PRIORITY\_INVALID() macro to ensure}}
+\DoxyCodeLine{00164 \textcolor{comment}{ * FreeRTOS API functions are not called from interrupts that have been assigned}}
+\DoxyCodeLine{00165 \textcolor{comment}{ * a priority above configMAX\_SYSCALL\_INTERRUPT\_PRIORITY.}}
+\DoxyCodeLine{00166 \textcolor{comment}{ */}}
+\DoxyCodeLine{00167 \textcolor{preprocessor}{\#if ( configASSERT\_DEFINED == 1 )}}
+\DoxyCodeLine{00168      \textcolor{keyword}{static} uint8\_t ucMaxSysCallPriority = 0;}
+\DoxyCodeLine{00169      \textcolor{keyword}{static} uint32\_t ulMaxPRIGROUPValue = 0;}
+\DoxyCodeLine{00170      \textcolor{keyword}{static} \textcolor{keyword}{const} \textcolor{keyword}{volatile} uint8\_t * \textcolor{keyword}{const} pcInterruptPriorityRegisters = ( uint8\_t * ) portNVIC\_IP\_REGISTERS\_OFFSET\_16;}
+\DoxyCodeLine{00171 \textcolor{preprocessor}{\#endif }\textcolor{comment}{/* configASSERT\_DEFINED */}\textcolor{preprocessor}{}}
+\DoxyCodeLine{00172 }
+\DoxyCodeLine{00173 \textcolor{comment}{/*-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/*/}}
+\DoxyCodeLine{00174 }
+\DoxyCodeLine{00175 \textcolor{comment}{/*}}
+\DoxyCodeLine{00176 \textcolor{comment}{ * See header file for description.}}
+\DoxyCodeLine{00177 \textcolor{comment}{ */}}
+\DoxyCodeLine{00178 StackType\_t *pxPortInitialiseStack( StackType\_t *pxTopOfStack, TaskFunction\_t pxCode, \textcolor{keywordtype}{void} *pvParameters )}
+\DoxyCodeLine{00179 \{}
+\DoxyCodeLine{00180     \textcolor{comment}{/* Simulate the stack frame as it would be created by a context switch}}
+\DoxyCodeLine{00181 \textcolor{comment}{    interrupt. */}}
+\DoxyCodeLine{00182 }
+\DoxyCodeLine{00183     \textcolor{comment}{/* Offset added to account for the way the MCU uses the stack on entry/exit}}
+\DoxyCodeLine{00184 \textcolor{comment}{    of interrupts, and to ensure alignment. */}}
+\DoxyCodeLine{00185     pxTopOfStack-\/-\/;}
+\DoxyCodeLine{00186 }
+\DoxyCodeLine{00187     *pxTopOfStack = portINITIAL\_XPSR;   \textcolor{comment}{/* xPSR */}}
+\DoxyCodeLine{00188     pxTopOfStack-\/-\/;}
+\DoxyCodeLine{00189     *pxTopOfStack = ( ( StackType\_t ) pxCode ) \& portSTART\_ADDRESS\_MASK;    \textcolor{comment}{/* PC */}}
+\DoxyCodeLine{00190     pxTopOfStack-\/-\/;}
+\DoxyCodeLine{00191     *pxTopOfStack = ( StackType\_t ) prvTaskExitError;   \textcolor{comment}{/* LR */}}
+\DoxyCodeLine{00192 }
+\DoxyCodeLine{00193     \textcolor{comment}{/* Save code space by skipping register initialisation. */}}
+\DoxyCodeLine{00194     pxTopOfStack -\/= 5;  \textcolor{comment}{/* R12, R3, R2 and R1. */}}
+\DoxyCodeLine{00195     *pxTopOfStack = ( StackType\_t ) pvParameters;   \textcolor{comment}{/* R0 */}}
+\DoxyCodeLine{00196 }
+\DoxyCodeLine{00197     \textcolor{comment}{/* A save method is being used that requires each task to maintain its}}
+\DoxyCodeLine{00198 \textcolor{comment}{    own exec return value. */}}
+\DoxyCodeLine{00199     pxTopOfStack-\/-\/;}
+\DoxyCodeLine{00200     *pxTopOfStack = portINITIAL\_EXC\_RETURN;}
+\DoxyCodeLine{00201 }
+\DoxyCodeLine{00202     pxTopOfStack -\/= 8;  \textcolor{comment}{/* R11, R10, R9, R8, R7, R6, R5 and R4. */}}
+\DoxyCodeLine{00203 }
+\DoxyCodeLine{00204     \textcolor{keywordflow}{return} pxTopOfStack;}
+\DoxyCodeLine{00205 \}}
+\DoxyCodeLine{00206 \textcolor{comment}{/*-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/*/}}
+\DoxyCodeLine{00207 }
+\DoxyCodeLine{00208 \textcolor{keyword}{static} \textcolor{keywordtype}{void} prvTaskExitError( \textcolor{keywordtype}{void} )}
+\DoxyCodeLine{00209 \{}
+\DoxyCodeLine{00210     \textcolor{comment}{/* A function that implements a task must not exit or attempt to return to}}
+\DoxyCodeLine{00211 \textcolor{comment}{    its caller as there is nothing to return to.  If a task wants to exit it}}
+\DoxyCodeLine{00212 \textcolor{comment}{    should instead call vTaskDelete( NULL ).}}
+\DoxyCodeLine{00213 \textcolor{comment}{}}
+\DoxyCodeLine{00214 \textcolor{comment}{    Artificially force an assert() to be triggered if configASSERT() is}}
+\DoxyCodeLine{00215 \textcolor{comment}{    defined, then stop here so application writers can catch the error. */}}
+\DoxyCodeLine{00216     configASSERT( uxCriticalNesting == \string~0UL );}
+\DoxyCodeLine{00217     portDISABLE\_INTERRUPTS();}
+\DoxyCodeLine{00218     \textcolor{keywordflow}{for}( ;; );}
+\DoxyCodeLine{00219 \}}
+\DoxyCodeLine{00220 \textcolor{comment}{/*-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/*/}}
+\DoxyCodeLine{00221 }
+\DoxyCodeLine{00222 \textcolor{comment}{/*}}
+\DoxyCodeLine{00223 \textcolor{comment}{ * See header file for description.}}
+\DoxyCodeLine{00224 \textcolor{comment}{ */}}
+\DoxyCodeLine{00225 BaseType\_t xPortStartScheduler( \textcolor{keywordtype}{void} )}
+\DoxyCodeLine{00226 \{}
+\DoxyCodeLine{00227 \textcolor{preprocessor}{    \#if( configASSERT\_DEFINED == 1 )}}
+\DoxyCodeLine{00228     \{}
+\DoxyCodeLine{00229         \textcolor{keyword}{volatile} uint32\_t ulOriginalPriority;}
+\DoxyCodeLine{00230         \textcolor{keyword}{volatile} uint8\_t * \textcolor{keyword}{const} pucFirstUserPriorityRegister = ( uint8\_t * ) ( portNVIC\_IP\_REGISTERS\_OFFSET\_16 + portFIRST\_USER\_INTERRUPT\_NUMBER );}
+\DoxyCodeLine{00231         \textcolor{keyword}{volatile} uint8\_t ucMaxPriorityValue;}
+\DoxyCodeLine{00232 }
+\DoxyCodeLine{00233         \textcolor{comment}{/* Determine the maximum priority from which ISR safe FreeRTOS API}}
+\DoxyCodeLine{00234 \textcolor{comment}{        functions can be called.  ISR safe functions are those that end in}}
+\DoxyCodeLine{00235 \textcolor{comment}{        "{}FromISR"{}.  FreeRTOS maintains separate thread and ISR API functions to}}
+\DoxyCodeLine{00236 \textcolor{comment}{        ensure interrupt entry is as fast and simple as possible.}}
+\DoxyCodeLine{00237 \textcolor{comment}{}}
+\DoxyCodeLine{00238 \textcolor{comment}{        Save the interrupt priority value that is about to be clobbered. */}}
+\DoxyCodeLine{00239         ulOriginalPriority = *pucFirstUserPriorityRegister;}
+\DoxyCodeLine{00240 }
+\DoxyCodeLine{00241         \textcolor{comment}{/* Determine the number of priority bits available.  First write to all}}
+\DoxyCodeLine{00242 \textcolor{comment}{        possible bits. */}}
+\DoxyCodeLine{00243         *pucFirstUserPriorityRegister = portMAX\_8\_BIT\_VALUE;}
+\DoxyCodeLine{00244 }
+\DoxyCodeLine{00245         \textcolor{comment}{/* Read the value back to see how many bits stuck. */}}
+\DoxyCodeLine{00246         ucMaxPriorityValue = *pucFirstUserPriorityRegister;}
+\DoxyCodeLine{00247 }
+\DoxyCodeLine{00248         \textcolor{comment}{/* Use the same mask on the maximum system call priority. */}}
+\DoxyCodeLine{00249         ucMaxSysCallPriority = configMAX\_SYSCALL\_INTERRUPT\_PRIORITY \& ucMaxPriorityValue;}
+\DoxyCodeLine{00250 }
+\DoxyCodeLine{00251         \textcolor{comment}{/* Calculate the maximum acceptable priority group value for the number}}
+\DoxyCodeLine{00252 \textcolor{comment}{        of bits read back. */}}
+\DoxyCodeLine{00253         ulMaxPRIGROUPValue = portMAX\_PRIGROUP\_BITS;}
+\DoxyCodeLine{00254         \textcolor{keywordflow}{while}( ( ucMaxPriorityValue \& portTOP\_BIT\_OF\_BYTE ) == portTOP\_BIT\_OF\_BYTE )}
+\DoxyCodeLine{00255         \{}
+\DoxyCodeLine{00256             ulMaxPRIGROUPValue-\/-\/;}
+\DoxyCodeLine{00257             ucMaxPriorityValue <<= ( uint8\_t ) 0x01;}
+\DoxyCodeLine{00258         \}}
+\DoxyCodeLine{00259 }
+\DoxyCodeLine{00260 \textcolor{preprocessor}{        \#ifdef \_\_NVIC\_PRIO\_BITS}}
+\DoxyCodeLine{00261         \{}
+\DoxyCodeLine{00262             \textcolor{comment}{/* Check the CMSIS configuration that defines the number of}}
+\DoxyCodeLine{00263 \textcolor{comment}{            priority bits matches the number of priority bits actually queried}}
+\DoxyCodeLine{00264 \textcolor{comment}{            from the hardware. */}}
+\DoxyCodeLine{00265             configASSERT( ( portMAX\_PRIGROUP\_BITS -\/ ulMaxPRIGROUPValue ) == \_\_NVIC\_PRIO\_BITS );}
+\DoxyCodeLine{00266         \}}
+\DoxyCodeLine{00267 \textcolor{preprocessor}{        \#endif}}
+\DoxyCodeLine{00268         }
+\DoxyCodeLine{00269 \textcolor{preprocessor}{        \#ifdef configPRIO\_BITS}}
+\DoxyCodeLine{00270         \{}
+\DoxyCodeLine{00271             \textcolor{comment}{/* Check the FreeRTOS configuration that defines the number of}}
+\DoxyCodeLine{00272 \textcolor{comment}{            priority bits matches the number of priority bits actually queried}}
+\DoxyCodeLine{00273 \textcolor{comment}{            from the hardware. */}}
+\DoxyCodeLine{00274             configASSERT( ( portMAX\_PRIGROUP\_BITS -\/ ulMaxPRIGROUPValue ) == configPRIO\_BITS );}
+\DoxyCodeLine{00275         \}}
+\DoxyCodeLine{00276 \textcolor{preprocessor}{        \#endif}}
+\DoxyCodeLine{00277 }
+\DoxyCodeLine{00278         \textcolor{comment}{/* Shift the priority group value back to its position within the AIRCR}}
+\DoxyCodeLine{00279 \textcolor{comment}{        register. */}}
+\DoxyCodeLine{00280         ulMaxPRIGROUPValue <<= portPRIGROUP\_SHIFT;}
+\DoxyCodeLine{00281         ulMaxPRIGROUPValue \&= portPRIORITY\_GROUP\_MASK;}
+\DoxyCodeLine{00282 }
+\DoxyCodeLine{00283         \textcolor{comment}{/* Restore the clobbered interrupt priority register to its original}}
+\DoxyCodeLine{00284 \textcolor{comment}{        value. */}}
+\DoxyCodeLine{00285         *pucFirstUserPriorityRegister = ulOriginalPriority;}
+\DoxyCodeLine{00286     \}}
+\DoxyCodeLine{00287 \textcolor{preprocessor}{    \#endif }\textcolor{comment}{/* conifgASSERT\_DEFINED */}\textcolor{preprocessor}{}}
+\DoxyCodeLine{00288 }
+\DoxyCodeLine{00289     \textcolor{comment}{/* Make PendSV and SysTick the lowest priority interrupts. */}}
+\DoxyCodeLine{00290     portNVIC\_SYSPRI2\_REG |= portNVIC\_PENDSV\_PRI;}
+\DoxyCodeLine{00291     portNVIC\_SYSPRI2\_REG |= portNVIC\_SYSTICK\_PRI;}
+\DoxyCodeLine{00292 }
+\DoxyCodeLine{00293     \textcolor{comment}{/* Start the timer that generates the tick ISR.  Interrupts are disabled}}
+\DoxyCodeLine{00294 \textcolor{comment}{    here already. */}}
+\DoxyCodeLine{00295     vPortSetupTimerInterrupt();}
+\DoxyCodeLine{00296 }
+\DoxyCodeLine{00297     \textcolor{comment}{/* Initialise the critical nesting count ready for the first task. */}}
+\DoxyCodeLine{00298     uxCriticalNesting = 0;}
+\DoxyCodeLine{00299 }
+\DoxyCodeLine{00300     \textcolor{comment}{/* Ensure the VFP is enabled -\/ it should be anyway. */}}
+\DoxyCodeLine{00301     vPortEnableVFP();}
+\DoxyCodeLine{00302 }
+\DoxyCodeLine{00303     \textcolor{comment}{/* Lazy save always. */}}
+\DoxyCodeLine{00304     *( portFPCCR ) |= portASPEN\_AND\_LSPEN\_BITS;}
+\DoxyCodeLine{00305 }
+\DoxyCodeLine{00306     \textcolor{comment}{/* Start the first task. */}}
+\DoxyCodeLine{00307     vPortStartFirstTask();}
+\DoxyCodeLine{00308 }
+\DoxyCodeLine{00309     \textcolor{comment}{/* Should not get here! */}}
+\DoxyCodeLine{00310     \textcolor{keywordflow}{return} 0;}
+\DoxyCodeLine{00311 \}}
+\DoxyCodeLine{00312 \textcolor{comment}{/*-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/*/}}
+\DoxyCodeLine{00313 }
+\DoxyCodeLine{00314 \textcolor{keywordtype}{void} vPortEndScheduler( \textcolor{keywordtype}{void} )}
+\DoxyCodeLine{00315 \{}
+\DoxyCodeLine{00316     \textcolor{comment}{/* Not implemented in ports where there is nothing to return to.}}
+\DoxyCodeLine{00317 \textcolor{comment}{    Artificially force an assert. */}}
+\DoxyCodeLine{00318     configASSERT( uxCriticalNesting == 1000UL );}
+\DoxyCodeLine{00319 \}}
+\DoxyCodeLine{00320 \textcolor{comment}{/*-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/*/}}
+\DoxyCodeLine{00321 }
+\DoxyCodeLine{00322 \textcolor{keywordtype}{void} vPortEnterCritical( \textcolor{keywordtype}{void} )}
+\DoxyCodeLine{00323 \{}
+\DoxyCodeLine{00324     portDISABLE\_INTERRUPTS();}
+\DoxyCodeLine{00325     uxCriticalNesting++;}
+\DoxyCodeLine{00326 }
+\DoxyCodeLine{00327     \textcolor{comment}{/* This is not the interrupt safe version of the enter critical function so}}
+\DoxyCodeLine{00328 \textcolor{comment}{    assert() if it is being called from an interrupt context.  Only API}}
+\DoxyCodeLine{00329 \textcolor{comment}{    functions that end in "{}FromISR"{} can be used in an interrupt.  Only assert if}}
+\DoxyCodeLine{00330 \textcolor{comment}{    the critical nesting count is 1 to protect against recursive calls if the}}
+\DoxyCodeLine{00331 \textcolor{comment}{    assert function also uses a critical section. */}}
+\DoxyCodeLine{00332     \textcolor{keywordflow}{if}( uxCriticalNesting == 1 )}
+\DoxyCodeLine{00333     \{}
+\DoxyCodeLine{00334         configASSERT( ( portNVIC\_INT\_CTRL\_REG \& portVECTACTIVE\_MASK ) == 0 );}
+\DoxyCodeLine{00335     \}}
+\DoxyCodeLine{00336 \}}
+\DoxyCodeLine{00337 \textcolor{comment}{/*-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/*/}}
+\DoxyCodeLine{00338 }
+\DoxyCodeLine{00339 \textcolor{keywordtype}{void} vPortExitCritical( \textcolor{keywordtype}{void} )}
+\DoxyCodeLine{00340 \{}
+\DoxyCodeLine{00341     configASSERT( uxCriticalNesting );}
+\DoxyCodeLine{00342     uxCriticalNesting-\/-\/;}
+\DoxyCodeLine{00343     \textcolor{keywordflow}{if}( uxCriticalNesting == 0 )}
+\DoxyCodeLine{00344     \{}
+\DoxyCodeLine{00345         portENABLE\_INTERRUPTS();}
+\DoxyCodeLine{00346     \}}
+\DoxyCodeLine{00347 \}}
+\DoxyCodeLine{00348 \textcolor{comment}{/*-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/*/}}
+\DoxyCodeLine{00349 }
+\DoxyCodeLine{00350 \textcolor{keywordtype}{void} xPortSysTickHandler( \textcolor{keywordtype}{void} )}
+\DoxyCodeLine{00351 \{}
+\DoxyCodeLine{00352     \textcolor{comment}{/* The SysTick runs at the lowest interrupt priority, so when this interrupt}}
+\DoxyCodeLine{00353 \textcolor{comment}{    executes all interrupts must be unmasked.  There is therefore no need to}}
+\DoxyCodeLine{00354 \textcolor{comment}{    save and then restore the interrupt mask value as its value is already}}
+\DoxyCodeLine{00355 \textcolor{comment}{    known. */}}
+\DoxyCodeLine{00356     ( void ) portSET\_INTERRUPT\_MASK\_FROM\_ISR();}
+\DoxyCodeLine{00357     \{}
+\DoxyCodeLine{00358         \textcolor{comment}{/* Increment the RTOS tick. */}}
+\DoxyCodeLine{00359         \textcolor{keywordflow}{if}( xTaskIncrementTick() != pdFALSE )}
+\DoxyCodeLine{00360         \{}
+\DoxyCodeLine{00361             \textcolor{comment}{/* A context switch is required.  Context switching is performed in}}
+\DoxyCodeLine{00362 \textcolor{comment}{            the PendSV interrupt.  Pend the PendSV interrupt. */}}
+\DoxyCodeLine{00363             portNVIC\_INT\_CTRL\_REG = portNVIC\_PENDSVSET\_BIT;}
+\DoxyCodeLine{00364         \}}
+\DoxyCodeLine{00365     \}}
+\DoxyCodeLine{00366     portCLEAR\_INTERRUPT\_MASK\_FROM\_ISR( 0 );}
+\DoxyCodeLine{00367 \}}
+\DoxyCodeLine{00368 \textcolor{comment}{/*-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/*/}}
+\DoxyCodeLine{00369 }
+\DoxyCodeLine{00370 \textcolor{preprocessor}{\#if( configUSE\_TICKLESS\_IDLE == 1 )}}
+\DoxyCodeLine{00371 }
+\DoxyCodeLine{00372 \textcolor{preprocessor}{    \#pragma WEAK( vPortSuppressTicksAndSleep )}}
+\DoxyCodeLine{00373     \textcolor{keywordtype}{void} vPortSuppressTicksAndSleep( TickType\_t xExpectedIdleTime )}
+\DoxyCodeLine{00374     \{}
+\DoxyCodeLine{00375     uint32\_t ulReloadValue, ulCompleteTickPeriods, ulCompletedSysTickDecrements;}
+\DoxyCodeLine{00376     TickType\_t xModifiableIdleTime;}
+\DoxyCodeLine{00377 }
+\DoxyCodeLine{00378         \textcolor{comment}{/* Make sure the SysTick reload value does not overflow the counter. */}}
+\DoxyCodeLine{00379         \textcolor{keywordflow}{if}( xExpectedIdleTime > xMaximumPossibleSuppressedTicks )}
+\DoxyCodeLine{00380         \{}
+\DoxyCodeLine{00381             xExpectedIdleTime = xMaximumPossibleSuppressedTicks;}
+\DoxyCodeLine{00382         \}}
+\DoxyCodeLine{00383 }
+\DoxyCodeLine{00384         \textcolor{comment}{/* Stop the SysTick momentarily.  The time the SysTick is stopped for}}
+\DoxyCodeLine{00385 \textcolor{comment}{        is accounted for as best it can be, but using the tickless mode will}}
+\DoxyCodeLine{00386 \textcolor{comment}{        inevitably result in some tiny drift of the time maintained by the}}
+\DoxyCodeLine{00387 \textcolor{comment}{        kernel with respect to calendar time. */}}
+\DoxyCodeLine{00388         portNVIC\_SYSTICK\_CTRL\_REG \&= \string~portNVIC\_SYSTICK\_ENABLE\_BIT;}
+\DoxyCodeLine{00389 }
+\DoxyCodeLine{00390         \textcolor{comment}{/* Calculate the reload value required to wait xExpectedIdleTime}}
+\DoxyCodeLine{00391 \textcolor{comment}{        tick periods.  -\/1 is used because this code will execute part way}}
+\DoxyCodeLine{00392 \textcolor{comment}{        through one of the tick periods. */}}
+\DoxyCodeLine{00393         ulReloadValue = portNVIC\_SYSTICK\_CURRENT\_VALUE\_REG + ( ulTimerCountsForOneTick * ( xExpectedIdleTime -\/ 1UL ) );}
+\DoxyCodeLine{00394         \textcolor{keywordflow}{if}( ulReloadValue > ulStoppedTimerCompensation )}
+\DoxyCodeLine{00395         \{}
+\DoxyCodeLine{00396             ulReloadValue -\/= ulStoppedTimerCompensation;}
+\DoxyCodeLine{00397         \}}
+\DoxyCodeLine{00398 }
+\DoxyCodeLine{00399         \textcolor{comment}{/* Enter a critical section but don't use the taskENTER\_CRITICAL()}}
+\DoxyCodeLine{00400 \textcolor{comment}{        method as that will mask interrupts that should exit sleep mode. */}}
+\DoxyCodeLine{00401         \_\_asm( \textcolor{stringliteral}{"{}    cpsid i"{}} );}
+\DoxyCodeLine{00402         \_\_asm( \textcolor{stringliteral}{"{}    dsb"{}} );}
+\DoxyCodeLine{00403         \_\_asm( \textcolor{stringliteral}{"{}    isb"{}} );}
+\DoxyCodeLine{00404 }
+\DoxyCodeLine{00405 }
+\DoxyCodeLine{00406         \textcolor{comment}{/* If a context switch is pending or a task is waiting for the scheduler}}
+\DoxyCodeLine{00407 \textcolor{comment}{        to be unsuspended then abandon the low power entry. */}}
+\DoxyCodeLine{00408         \textcolor{keywordflow}{if}( eTaskConfirmSleepModeStatus() == eAbortSleep )}
+\DoxyCodeLine{00409         \{}
+\DoxyCodeLine{00410             \textcolor{comment}{/* Restart from whatever is left in the count register to complete}}
+\DoxyCodeLine{00411 \textcolor{comment}{            this tick period. */}}
+\DoxyCodeLine{00412             portNVIC\_SYSTICK\_LOAD\_REG = portNVIC\_SYSTICK\_CURRENT\_VALUE\_REG;}
+\DoxyCodeLine{00413 }
+\DoxyCodeLine{00414             \textcolor{comment}{/* Restart SysTick. */}}
+\DoxyCodeLine{00415             portNVIC\_SYSTICK\_CTRL\_REG |= portNVIC\_SYSTICK\_ENABLE\_BIT;}
+\DoxyCodeLine{00416 }
+\DoxyCodeLine{00417             \textcolor{comment}{/* Reset the reload register to the value required for normal tick}}
+\DoxyCodeLine{00418 \textcolor{comment}{            periods. */}}
+\DoxyCodeLine{00419             portNVIC\_SYSTICK\_LOAD\_REG = ulTimerCountsForOneTick -\/ 1UL;}
+\DoxyCodeLine{00420 }
+\DoxyCodeLine{00421             \textcolor{comment}{/* Re-\/enable interrupts -\/ see comments above \_\_disable\_interrupt()}}
+\DoxyCodeLine{00422 \textcolor{comment}{            call above. */}}
+\DoxyCodeLine{00423             \_\_asm( \textcolor{stringliteral}{"{}    cpsie i"{}} );}
+\DoxyCodeLine{00424         \}}
+\DoxyCodeLine{00425         \textcolor{keywordflow}{else}}
+\DoxyCodeLine{00426         \{}
+\DoxyCodeLine{00427             \textcolor{comment}{/* Set the new reload value. */}}
+\DoxyCodeLine{00428             portNVIC\_SYSTICK\_LOAD\_REG = ulReloadValue;}
+\DoxyCodeLine{00429 }
+\DoxyCodeLine{00430             \textcolor{comment}{/* Clear the SysTick count flag and set the count value back to}}
+\DoxyCodeLine{00431 \textcolor{comment}{            zero. */}}
+\DoxyCodeLine{00432             portNVIC\_SYSTICK\_CURRENT\_VALUE\_REG = 0UL;}
+\DoxyCodeLine{00433 }
+\DoxyCodeLine{00434             \textcolor{comment}{/* Restart SysTick. */}}
+\DoxyCodeLine{00435             portNVIC\_SYSTICK\_CTRL\_REG |= portNVIC\_SYSTICK\_ENABLE\_BIT;}
+\DoxyCodeLine{00436 }
+\DoxyCodeLine{00437             \textcolor{comment}{/* Sleep until something happens.  configPRE\_SLEEP\_PROCESSING() can}}
+\DoxyCodeLine{00438 \textcolor{comment}{            set its parameter to 0 to indicate that its implementation contains}}
+\DoxyCodeLine{00439 \textcolor{comment}{            its own wait for interrupt or wait for event instruction, and so wfi}}
+\DoxyCodeLine{00440 \textcolor{comment}{            should not be executed again.  However, the original expected idle}}
+\DoxyCodeLine{00441 \textcolor{comment}{            time variable must remain unmodified, so a copy is taken. */}}
+\DoxyCodeLine{00442             xModifiableIdleTime = xExpectedIdleTime;}
+\DoxyCodeLine{00443             configPRE\_SLEEP\_PROCESSING( xModifiableIdleTime );}
+\DoxyCodeLine{00444             \textcolor{keywordflow}{if}( xModifiableIdleTime > 0 )}
+\DoxyCodeLine{00445             \{}
+\DoxyCodeLine{00446                 \_\_asm( \textcolor{stringliteral}{"{}    dsb"{}} );}
+\DoxyCodeLine{00447                 \_\_asm( \textcolor{stringliteral}{"{}    wfi"{}} );}
+\DoxyCodeLine{00448                 \_\_asm( \textcolor{stringliteral}{"{}    isb"{}} );}
+\DoxyCodeLine{00449             \}}
+\DoxyCodeLine{00450             configPOST\_SLEEP\_PROCESSING( xExpectedIdleTime );}
+\DoxyCodeLine{00451 }
+\DoxyCodeLine{00452             \textcolor{comment}{/* Re-\/enable interrupts to allow the interrupt that brought the MCU}}
+\DoxyCodeLine{00453 \textcolor{comment}{            out of sleep mode to execute immediately.  see comments above}}
+\DoxyCodeLine{00454 \textcolor{comment}{            \_\_disable\_interrupt() call above. */}}
+\DoxyCodeLine{00455             \_\_asm( \textcolor{stringliteral}{"{}    cpsie i"{}} );}
+\DoxyCodeLine{00456             \_\_asm( \textcolor{stringliteral}{"{}    dsb"{}} );}
+\DoxyCodeLine{00457             \_\_asm( \textcolor{stringliteral}{"{}    isb"{}} );}
+\DoxyCodeLine{00458 }
+\DoxyCodeLine{00459             \textcolor{comment}{/* Disable interrupts again because the clock is about to be stopped}}
+\DoxyCodeLine{00460 \textcolor{comment}{            and interrupts that execute while the clock is stopped will increase}}
+\DoxyCodeLine{00461 \textcolor{comment}{            any slippage between the time maintained by the RTOS and calendar}}
+\DoxyCodeLine{00462 \textcolor{comment}{            time. */}}
+\DoxyCodeLine{00463             \_\_asm( \textcolor{stringliteral}{"{}    cpsid i"{}} );}
+\DoxyCodeLine{00464             \_\_asm( \textcolor{stringliteral}{"{}    dsb"{}} );}
+\DoxyCodeLine{00465             \_\_asm( \textcolor{stringliteral}{"{}    isb"{}} );}
+\DoxyCodeLine{00466 }
+\DoxyCodeLine{00467             \textcolor{comment}{/* Disable the SysTick clock without reading the}}
+\DoxyCodeLine{00468 \textcolor{comment}{            portNVIC\_SYSTICK\_CTRL\_REG register to ensure the}}
+\DoxyCodeLine{00469 \textcolor{comment}{            portNVIC\_SYSTICK\_COUNT\_FLAG\_BIT is not cleared if it is set.  Again,}}
+\DoxyCodeLine{00470 \textcolor{comment}{            the time the SysTick is stopped for is accounted for as best it can}}
+\DoxyCodeLine{00471 \textcolor{comment}{            be, but using the tickless mode will inevitably result in some tiny}}
+\DoxyCodeLine{00472 \textcolor{comment}{            drift of the time maintained by the kernel with respect to calendar}}
+\DoxyCodeLine{00473 \textcolor{comment}{            time*/}}
+\DoxyCodeLine{00474             portNVIC\_SYSTICK\_CTRL\_REG = ( portNVIC\_SYSTICK\_CLK\_BIT | portNVIC\_SYSTICK\_INT\_BIT );}
+\DoxyCodeLine{00475 }
+\DoxyCodeLine{00476             \textcolor{comment}{/* Determine if the SysTick clock has already counted to zero and}}
+\DoxyCodeLine{00477 \textcolor{comment}{            been set back to the current reload value (the reload back being}}
+\DoxyCodeLine{00478 \textcolor{comment}{            correct for the entire expected idle time) or if the SysTick is yet}}
+\DoxyCodeLine{00479 \textcolor{comment}{            to count to zero (in which case an interrupt other than the SysTick}}
+\DoxyCodeLine{00480 \textcolor{comment}{            must have brought the system out of sleep mode). */}}
+\DoxyCodeLine{00481             \textcolor{keywordflow}{if}( ( portNVIC\_SYSTICK\_CTRL\_REG \& portNVIC\_SYSTICK\_COUNT\_FLAG\_BIT ) != 0 )}
+\DoxyCodeLine{00482             \{}
+\DoxyCodeLine{00483                 uint32\_t ulCalculatedLoadValue;}
+\DoxyCodeLine{00484 }
+\DoxyCodeLine{00485                 \textcolor{comment}{/* The tick interrupt is already pending, and the SysTick count}}
+\DoxyCodeLine{00486 \textcolor{comment}{                reloaded with ulReloadValue.  Reset the}}
+\DoxyCodeLine{00487 \textcolor{comment}{                portNVIC\_SYSTICK\_LOAD\_REG with whatever remains of this tick}}
+\DoxyCodeLine{00488 \textcolor{comment}{                period. */}}
+\DoxyCodeLine{00489                 ulCalculatedLoadValue = ( ulTimerCountsForOneTick -\/ 1UL ) -\/ ( ulReloadValue -\/ portNVIC\_SYSTICK\_CURRENT\_VALUE\_REG );}
+\DoxyCodeLine{00490 }
+\DoxyCodeLine{00491                 \textcolor{comment}{/* Don't allow a tiny value, or values that have somehow}}
+\DoxyCodeLine{00492 \textcolor{comment}{                underflowed because the post sleep hook did something}}
+\DoxyCodeLine{00493 \textcolor{comment}{                that took too long. */}}
+\DoxyCodeLine{00494                 \textcolor{keywordflow}{if}( ( ulCalculatedLoadValue < ulStoppedTimerCompensation ) || ( ulCalculatedLoadValue > ulTimerCountsForOneTick ) )}
+\DoxyCodeLine{00495                 \{}
+\DoxyCodeLine{00496                     ulCalculatedLoadValue = ( ulTimerCountsForOneTick -\/ 1UL );}
+\DoxyCodeLine{00497                 \}}
+\DoxyCodeLine{00498 }
+\DoxyCodeLine{00499                 portNVIC\_SYSTICK\_LOAD\_REG = ulCalculatedLoadValue;}
+\DoxyCodeLine{00500 }
+\DoxyCodeLine{00501                 \textcolor{comment}{/* As the pending tick will be processed as soon as this}}
+\DoxyCodeLine{00502 \textcolor{comment}{                function exits, the tick value maintained by the tick is stepped}}
+\DoxyCodeLine{00503 \textcolor{comment}{                forward by one less than the time spent waiting. */}}
+\DoxyCodeLine{00504                 ulCompleteTickPeriods = xExpectedIdleTime -\/ 1UL;}
+\DoxyCodeLine{00505             \}}
+\DoxyCodeLine{00506             \textcolor{keywordflow}{else}}
+\DoxyCodeLine{00507             \{}
+\DoxyCodeLine{00508                 \textcolor{comment}{/* Something other than the tick interrupt ended the sleep.}}
+\DoxyCodeLine{00509 \textcolor{comment}{                Work out how long the sleep lasted rounded to complete tick}}
+\DoxyCodeLine{00510 \textcolor{comment}{                periods (not the ulReload value which accounted for part}}
+\DoxyCodeLine{00511 \textcolor{comment}{                ticks). */}}
+\DoxyCodeLine{00512                 ulCompletedSysTickDecrements = ( xExpectedIdleTime * ulTimerCountsForOneTick ) -\/ portNVIC\_SYSTICK\_CURRENT\_VALUE\_REG;}
+\DoxyCodeLine{00513 }
+\DoxyCodeLine{00514                 \textcolor{comment}{/* How many complete tick periods passed while the processor}}
+\DoxyCodeLine{00515 \textcolor{comment}{                was waiting? */}}
+\DoxyCodeLine{00516                 ulCompleteTickPeriods = ulCompletedSysTickDecrements / ulTimerCountsForOneTick;}
+\DoxyCodeLine{00517 }
+\DoxyCodeLine{00518                 \textcolor{comment}{/* The reload value is set to whatever fraction of a single tick}}
+\DoxyCodeLine{00519 \textcolor{comment}{                period remains. */}}
+\DoxyCodeLine{00520                 portNVIC\_SYSTICK\_LOAD\_REG = ( ( ulCompleteTickPeriods + 1UL ) * ulTimerCountsForOneTick ) -\/ ulCompletedSysTickDecrements;}
+\DoxyCodeLine{00521             \}}
+\DoxyCodeLine{00522 }
+\DoxyCodeLine{00523             \textcolor{comment}{/* Restart SysTick so it runs from portNVIC\_SYSTICK\_LOAD\_REG}}
+\DoxyCodeLine{00524 \textcolor{comment}{            again, then set portNVIC\_SYSTICK\_LOAD\_REG back to its standard}}
+\DoxyCodeLine{00525 \textcolor{comment}{            value. */}}
+\DoxyCodeLine{00526             portNVIC\_SYSTICK\_CURRENT\_VALUE\_REG = 0UL;}
+\DoxyCodeLine{00527             portNVIC\_SYSTICK\_CTRL\_REG |= portNVIC\_SYSTICK\_ENABLE\_BIT;}
+\DoxyCodeLine{00528             vTaskStepTick( ulCompleteTickPeriods );}
+\DoxyCodeLine{00529             portNVIC\_SYSTICK\_LOAD\_REG = ulTimerCountsForOneTick -\/ 1UL;}
+\DoxyCodeLine{00530 }
+\DoxyCodeLine{00531             \textcolor{comment}{/* Exit with interrpts enabled. */}}
+\DoxyCodeLine{00532             \_\_asm( \textcolor{stringliteral}{"{}    cpsie i"{}} );}
+\DoxyCodeLine{00533         \}}
+\DoxyCodeLine{00534     \}}
+\DoxyCodeLine{00535 }
+\DoxyCodeLine{00536 \textcolor{preprocessor}{\#endif }\textcolor{comment}{/* configUSE\_TICKLESS\_IDLE */}\textcolor{preprocessor}{}}
+\DoxyCodeLine{00537 \textcolor{comment}{/*-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/*/}}
+\DoxyCodeLine{00538 }
+\DoxyCodeLine{00539 \textcolor{comment}{/*}}
+\DoxyCodeLine{00540 \textcolor{comment}{ * Setup the systick timer to generate the tick interrupts at the required}}
+\DoxyCodeLine{00541 \textcolor{comment}{ * frequency.}}
+\DoxyCodeLine{00542 \textcolor{comment}{ */}}
+\DoxyCodeLine{00543 \textcolor{preprocessor}{\#pragma WEAK( vPortSetupTimerInterrupt )}}
+\DoxyCodeLine{00544 \textcolor{keywordtype}{void} vPortSetupTimerInterrupt( \textcolor{keywordtype}{void} )}
+\DoxyCodeLine{00545 \{}
+\DoxyCodeLine{00546     \textcolor{comment}{/* Calculate the constants required to configure the tick interrupt. */}}
+\DoxyCodeLine{00547 \textcolor{preprocessor}{    \#if( configUSE\_TICKLESS\_IDLE == 1 )}}
+\DoxyCodeLine{00548     \{}
+\DoxyCodeLine{00549         ulTimerCountsForOneTick = ( configSYSTICK\_CLOCK\_HZ / configTICK\_RATE\_HZ );}
+\DoxyCodeLine{00550         xMaximumPossibleSuppressedTicks = portMAX\_24\_BIT\_NUMBER / ulTimerCountsForOneTick;}
+\DoxyCodeLine{00551         ulStoppedTimerCompensation = portMISSED\_COUNTS\_FACTOR / ( configCPU\_CLOCK\_HZ / configSYSTICK\_CLOCK\_HZ );}
+\DoxyCodeLine{00552     \}}
+\DoxyCodeLine{00553 \textcolor{preprocessor}{    \#endif }\textcolor{comment}{/* configUSE\_TICKLESS\_IDLE */}\textcolor{preprocessor}{}}
+\DoxyCodeLine{00554 }
+\DoxyCodeLine{00555     \textcolor{comment}{/* Stop and clear the SysTick. */}}
+\DoxyCodeLine{00556     portNVIC\_SYSTICK\_CTRL\_REG = 0UL;}
+\DoxyCodeLine{00557     portNVIC\_SYSTICK\_CURRENT\_VALUE\_REG = 0UL;}
+\DoxyCodeLine{00558 }
+\DoxyCodeLine{00559     \textcolor{comment}{/* Configure SysTick to interrupt at the requested rate. */}}
+\DoxyCodeLine{00560     portNVIC\_SYSTICK\_LOAD\_REG = ( configSYSTICK\_CLOCK\_HZ / configTICK\_RATE\_HZ ) -\/ 1UL;}
+\DoxyCodeLine{00561     portNVIC\_SYSTICK\_CTRL\_REG = ( portNVIC\_SYSTICK\_CLK\_BIT | portNVIC\_SYSTICK\_INT\_BIT | portNVIC\_SYSTICK\_ENABLE\_BIT );}
+\DoxyCodeLine{00562 \}}
+\DoxyCodeLine{00563 \textcolor{comment}{/*-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/*/}}
+\DoxyCodeLine{00564 }
+\DoxyCodeLine{00565 \textcolor{preprocessor}{\#if( configASSERT\_DEFINED == 1 )}}
+\DoxyCodeLine{00566 }
+\DoxyCodeLine{00567     \textcolor{keywordtype}{void} vPortValidateInterruptPriority( \textcolor{keywordtype}{void} )}
+\DoxyCodeLine{00568     \{}
+\DoxyCodeLine{00569     \textcolor{keyword}{extern} uint32\_t ulPortGetIPSR( \textcolor{keywordtype}{void} );}
+\DoxyCodeLine{00570     uint32\_t ulCurrentInterrupt;}
+\DoxyCodeLine{00571     uint8\_t ucCurrentPriority;}
+\DoxyCodeLine{00572 }
+\DoxyCodeLine{00573         ulCurrentInterrupt = ulPortGetIPSR();}
+\DoxyCodeLine{00574 }
+\DoxyCodeLine{00575         \textcolor{comment}{/* Is the interrupt number a user defined interrupt? */}}
+\DoxyCodeLine{00576         \textcolor{keywordflow}{if}( ulCurrentInterrupt >= portFIRST\_USER\_INTERRUPT\_NUMBER )}
+\DoxyCodeLine{00577         \{}
+\DoxyCodeLine{00578             \textcolor{comment}{/* Look up the interrupt's priority. */}}
+\DoxyCodeLine{00579             ucCurrentPriority = pcInterruptPriorityRegisters[ ulCurrentInterrupt ];}
+\DoxyCodeLine{00580 }
+\DoxyCodeLine{00581             \textcolor{comment}{/* The following assertion will fail if a service routine (ISR) for}}
+\DoxyCodeLine{00582 \textcolor{comment}{            an interrupt that has been assigned a priority above}}
+\DoxyCodeLine{00583 \textcolor{comment}{            configMAX\_SYSCALL\_INTERRUPT\_PRIORITY calls an ISR safe FreeRTOS API}}
+\DoxyCodeLine{00584 \textcolor{comment}{            function.  ISR safe FreeRTOS API functions must *only* be called}}
+\DoxyCodeLine{00585 \textcolor{comment}{            from interrupts that have been assigned a priority at or below}}
+\DoxyCodeLine{00586 \textcolor{comment}{            configMAX\_SYSCALL\_INTERRUPT\_PRIORITY.}}
+\DoxyCodeLine{00587 \textcolor{comment}{}}
+\DoxyCodeLine{00588 \textcolor{comment}{            Numerically low interrupt priority numbers represent logically high}}
+\DoxyCodeLine{00589 \textcolor{comment}{            interrupt priorities, therefore the priority of the interrupt must}}
+\DoxyCodeLine{00590 \textcolor{comment}{            be set to a value equal to or numerically *higher* than}}
+\DoxyCodeLine{00591 \textcolor{comment}{            configMAX\_SYSCALL\_INTERRUPT\_PRIORITY.}}
+\DoxyCodeLine{00592 \textcolor{comment}{}}
+\DoxyCodeLine{00593 \textcolor{comment}{            Interrupts that use the FreeRTOS API must not be left at their}}
+\DoxyCodeLine{00594 \textcolor{comment}{            default priority of zero as that is the highest possible priority,}}
+\DoxyCodeLine{00595 \textcolor{comment}{            which is guaranteed to be above configMAX\_SYSCALL\_INTERRUPT\_PRIORITY,}}
+\DoxyCodeLine{00596 \textcolor{comment}{            and therefore also guaranteed to be invalid.}}
+\DoxyCodeLine{00597 \textcolor{comment}{}}
+\DoxyCodeLine{00598 \textcolor{comment}{            FreeRTOS maintains separate thread and ISR API functions to ensure}}
+\DoxyCodeLine{00599 \textcolor{comment}{            interrupt entry is as fast and simple as possible.}}
+\DoxyCodeLine{00600 \textcolor{comment}{}}
+\DoxyCodeLine{00601 \textcolor{comment}{            The following links provide detailed information:}}
+\DoxyCodeLine{00602 \textcolor{comment}{            http://www.freertos.org/RTOS-\/Cortex-\/M3-\/M4.html}}
+\DoxyCodeLine{00603 \textcolor{comment}{            http://www.freertos.org/FAQHelp.html */}}
+\DoxyCodeLine{00604             configASSERT( ucCurrentPriority >= ucMaxSysCallPriority );}
+\DoxyCodeLine{00605         \}}
+\DoxyCodeLine{00606 }
+\DoxyCodeLine{00607         \textcolor{comment}{/* Priority grouping:  The interrupt controller (NVIC) allows the bits}}
+\DoxyCodeLine{00608 \textcolor{comment}{        that define each interrupt's priority to be split between bits that}}
+\DoxyCodeLine{00609 \textcolor{comment}{        define the interrupt's pre-\/emption priority bits and bits that define}}
+\DoxyCodeLine{00610 \textcolor{comment}{        the interrupt's sub-\/priority.  For simplicity all bits must be defined}}
+\DoxyCodeLine{00611 \textcolor{comment}{        to be pre-\/emption priority bits.  The following assertion will fail if}}
+\DoxyCodeLine{00612 \textcolor{comment}{        this is not the case (if some bits represent a sub-\/priority).}}
+\DoxyCodeLine{00613 \textcolor{comment}{}}
+\DoxyCodeLine{00614 \textcolor{comment}{        If the application only uses CMSIS libraries for interrupt}}
+\DoxyCodeLine{00615 \textcolor{comment}{        configuration then the correct setting can be achieved on all Cortex-\/M}}
+\DoxyCodeLine{00616 \textcolor{comment}{        devices by calling NVIC\_SetPriorityGrouping( 0 ); before starting the}}
+\DoxyCodeLine{00617 \textcolor{comment}{        scheduler.  Note however that some vendor specific peripheral libraries}}
+\DoxyCodeLine{00618 \textcolor{comment}{        assume a non-\/zero priority group setting, in which cases using a value}}
+\DoxyCodeLine{00619 \textcolor{comment}{        of zero will result in unpredictable behaviour. */}}
+\DoxyCodeLine{00620         configASSERT( ( portAIRCR\_REG \& portPRIORITY\_GROUP\_MASK ) <= ulMaxPRIGROUPValue );}
+\DoxyCodeLine{00621     \}}
+\DoxyCodeLine{00622 }
+\DoxyCodeLine{00623 \textcolor{preprocessor}{\#endif }\textcolor{comment}{/* configASSERT\_DEFINED */}\textcolor{preprocessor}{}}
+\DoxyCodeLine{00624 }
+\DoxyCodeLine{00625 }
+\DoxyCodeLine{00626 }
+\DoxyCodeLine{00627 }
+\DoxyCodeLine{00628 }
+\DoxyCodeLine{00629 }
+\DoxyCodeLine{00630 }
+\DoxyCodeLine{00631 }
+\DoxyCodeLine{00632 }
+\DoxyCodeLine{00633 }
+\DoxyCodeLine{00634 }
+\DoxyCodeLine{00635 }
+\DoxyCodeLine{00636 }
+\DoxyCodeLine{00637 }
+\DoxyCodeLine{00638 }
+\DoxyCodeLine{00639 }
+\DoxyCodeLine{00640 }
+\DoxyCodeLine{00641 }
+\DoxyCodeLine{00642 }
+\DoxyCodeLine{00643 }
+\DoxyCodeLine{00644 }
+
+\end{DoxyCode}

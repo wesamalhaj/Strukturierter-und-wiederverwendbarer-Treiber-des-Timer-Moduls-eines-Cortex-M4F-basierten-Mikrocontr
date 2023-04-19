@@ -1,0 +1,359 @@
+\doxysection{croutine.\+c}
+\label{croutine_8c_source}\index{rtos/FreeRTOS/source/croutine.c@{rtos/FreeRTOS/source/croutine.c}}
+
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00001 \textcolor{comment}{/*}}
+\DoxyCodeLine{00002 \textcolor{comment}{ * FreeRTOS Kernel V10.2.1}}
+\DoxyCodeLine{00003 \textcolor{comment}{ * Copyright (C) 2019 Amazon.com, Inc. or its affiliates.  All Rights Reserved.}}
+\DoxyCodeLine{00004 \textcolor{comment}{ *}}
+\DoxyCodeLine{00005 \textcolor{comment}{ * Permission is hereby granted, free of charge, to any person obtaining a copy of}}
+\DoxyCodeLine{00006 \textcolor{comment}{ * this software and associated documentation files (the "{}Software"{}), to deal in}}
+\DoxyCodeLine{00007 \textcolor{comment}{ * the Software without restriction, including without limitation the rights to}}
+\DoxyCodeLine{00008 \textcolor{comment}{ * use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of}}
+\DoxyCodeLine{00009 \textcolor{comment}{ * the Software, and to permit persons to whom the Software is furnished to do so,}}
+\DoxyCodeLine{00010 \textcolor{comment}{ * subject to the following conditions:}}
+\DoxyCodeLine{00011 \textcolor{comment}{ *}}
+\DoxyCodeLine{00012 \textcolor{comment}{ * The above copyright notice and this permission notice shall be included in all}}
+\DoxyCodeLine{00013 \textcolor{comment}{ * copies or substantial portions of the Software.}}
+\DoxyCodeLine{00014 \textcolor{comment}{ *}}
+\DoxyCodeLine{00015 \textcolor{comment}{ * THE SOFTWARE IS PROVIDED "{}AS IS"{}, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR}}
+\DoxyCodeLine{00016 \textcolor{comment}{ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS}}
+\DoxyCodeLine{00017 \textcolor{comment}{ * FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR}}
+\DoxyCodeLine{00018 \textcolor{comment}{ * COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER}}
+\DoxyCodeLine{00019 \textcolor{comment}{ * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN}}
+\DoxyCodeLine{00020 \textcolor{comment}{ * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.}}
+\DoxyCodeLine{00021 \textcolor{comment}{ *}}
+\DoxyCodeLine{00022 \textcolor{comment}{ * http://www.FreeRTOS.org}}
+\DoxyCodeLine{00023 \textcolor{comment}{ * http://aws.amazon.com/freertos}}
+\DoxyCodeLine{00024 \textcolor{comment}{ *}}
+\DoxyCodeLine{00025 \textcolor{comment}{ * 1 tab == 4 spaces!}}
+\DoxyCodeLine{00026 \textcolor{comment}{ */}}
+\DoxyCodeLine{00027 }
+\DoxyCodeLine{00028 \textcolor{preprocessor}{\#include "{}FreeRTOS.h"{}}}
+\DoxyCodeLine{00029 \textcolor{preprocessor}{\#include "{}task.h"{}}}
+\DoxyCodeLine{00030 \textcolor{preprocessor}{\#include "{}croutine.h"{}}}
+\DoxyCodeLine{00031 }
+\DoxyCodeLine{00032 \textcolor{comment}{/* Remove the whole file is co-\/routines are not being used. */}}
+\DoxyCodeLine{00033 \textcolor{preprocessor}{\#if( configUSE\_CO\_ROUTINES != 0 )}}
+\DoxyCodeLine{00034 }
+\DoxyCodeLine{00035 \textcolor{comment}{/*}}
+\DoxyCodeLine{00036 \textcolor{comment}{ * Some kernel aware debuggers require data to be viewed to be global, rather}}
+\DoxyCodeLine{00037 \textcolor{comment}{ * than file scope.}}
+\DoxyCodeLine{00038 \textcolor{comment}{ */}}
+\DoxyCodeLine{00039 \textcolor{preprocessor}{\#ifdef portREMOVE\_STATIC\_QUALIFIER}}
+\DoxyCodeLine{00040 \textcolor{preprocessor}{    \#define static}}
+\DoxyCodeLine{00041 \textcolor{preprocessor}{\#endif}}
+\DoxyCodeLine{00042 }
+\DoxyCodeLine{00043 }
+\DoxyCodeLine{00044 \textcolor{comment}{/* Lists for ready and blocked co-\/routines. -\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/*/}}
+\DoxyCodeLine{00045 \textcolor{keyword}{static} List\_t pxReadyCoRoutineLists[ configMAX\_CO\_ROUTINE\_PRIORITIES ];   \textcolor{comment}{/*< Prioritised ready co-\/routines. */}}
+\DoxyCodeLine{00046 \textcolor{keyword}{static} List\_t xDelayedCoRoutineList1;                                 \textcolor{comment}{/*< Delayed co-\/routines. */}}
+\DoxyCodeLine{00047 \textcolor{keyword}{static} List\_t xDelayedCoRoutineList2;                                 \textcolor{comment}{/*< Delayed co-\/routines (two lists are used -\/ one for delays that have overflowed the current tick count. */}}
+\DoxyCodeLine{00048 \textcolor{keyword}{static} List\_t * pxDelayedCoRoutineList;                                   \textcolor{comment}{/*< Points to the delayed co-\/routine list currently being used. */}}
+\DoxyCodeLine{00049 \textcolor{keyword}{static} List\_t * pxOverflowDelayedCoRoutineList;                           \textcolor{comment}{/*< Points to the delayed co-\/routine list currently being used to hold co-\/routines that have overflowed the current tick count. */}}
+\DoxyCodeLine{00050 \textcolor{keyword}{static} List\_t xPendingReadyCoRoutineList;                             \textcolor{comment}{/*< Holds co-\/routines that have been readied by an external event.  They cannot be added directly to the ready lists as the ready lists cannot be accessed by interrupts. */}}
+\DoxyCodeLine{00051 }
+\DoxyCodeLine{00052 \textcolor{comment}{/* Other file private variables. -\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/*/}}
+\DoxyCodeLine{00053 CRCB\_t * pxCurrentCoRoutine = NULL;}
+\DoxyCodeLine{00054 \textcolor{keyword}{static} UBaseType\_t uxTopCoRoutineReadyPriority = 0;}
+\DoxyCodeLine{00055 \textcolor{keyword}{static} TickType\_t xCoRoutineTickCount = 0, xLastTickCount = 0, xPassedTicks = 0;}
+\DoxyCodeLine{00056 }
+\DoxyCodeLine{00057 \textcolor{comment}{/* The initial state of the co-\/routine when it is created. */}}
+\DoxyCodeLine{00058 \textcolor{preprocessor}{\#define corINITIAL\_STATE    ( 0 )}}
+\DoxyCodeLine{00059 }
+\DoxyCodeLine{00060 \textcolor{comment}{/*}}
+\DoxyCodeLine{00061 \textcolor{comment}{ * Place the co-\/routine represented by pxCRCB into the appropriate ready queue}}
+\DoxyCodeLine{00062 \textcolor{comment}{ * for the priority.  It is inserted at the end of the list.}}
+\DoxyCodeLine{00063 \textcolor{comment}{ *}}
+\DoxyCodeLine{00064 \textcolor{comment}{ * This macro accesses the co-\/routine ready lists and therefore must not be}}
+\DoxyCodeLine{00065 \textcolor{comment}{ * used from within an ISR.}}
+\DoxyCodeLine{00066 \textcolor{comment}{ */}}
+\DoxyCodeLine{00067 \textcolor{preprocessor}{\#define prvAddCoRoutineToReadyQueue( pxCRCB )                                                                       \(\backslash\)}}
+\DoxyCodeLine{00068 \textcolor{preprocessor}{\{                                                                                                                   \(\backslash\)}}
+\DoxyCodeLine{00069 \textcolor{preprocessor}{    if( pxCRCB-\/>uxPriority > uxTopCoRoutineReadyPriority )                                                          \(\backslash\)}}
+\DoxyCodeLine{00070 \textcolor{preprocessor}{    \{                                                                                                               \(\backslash\)}}
+\DoxyCodeLine{00071 \textcolor{preprocessor}{        uxTopCoRoutineReadyPriority = pxCRCB-\/>uxPriority;                                                           \(\backslash\)}}
+\DoxyCodeLine{00072 \textcolor{preprocessor}{    \}                                                                                                               \(\backslash\)}}
+\DoxyCodeLine{00073 \textcolor{preprocessor}{    vListInsertEnd( ( List\_t * ) \&( pxReadyCoRoutineLists[ pxCRCB-\/>uxPriority ] ), \&( pxCRCB-\/>xGenericListItem ) ); \(\backslash\)}}
+\DoxyCodeLine{00074 \textcolor{preprocessor}{\}}}
+\DoxyCodeLine{00075 }
+\DoxyCodeLine{00076 \textcolor{comment}{/*}}
+\DoxyCodeLine{00077 \textcolor{comment}{ * Utility to ready all the lists used by the scheduler.  This is called}}
+\DoxyCodeLine{00078 \textcolor{comment}{ * automatically upon the creation of the first co-\/routine.}}
+\DoxyCodeLine{00079 \textcolor{comment}{ */}}
+\DoxyCodeLine{00080 \textcolor{keyword}{static} \textcolor{keywordtype}{void} prvInitialiseCoRoutineLists( \textcolor{keywordtype}{void} );}
+\DoxyCodeLine{00081 }
+\DoxyCodeLine{00082 \textcolor{comment}{/*}}
+\DoxyCodeLine{00083 \textcolor{comment}{ * Co-\/routines that are readied by an interrupt cannot be placed directly into}}
+\DoxyCodeLine{00084 \textcolor{comment}{ * the ready lists (there is no mutual exclusion).  Instead they are placed in}}
+\DoxyCodeLine{00085 \textcolor{comment}{ * in the pending ready list in order that they can later be moved to the ready}}
+\DoxyCodeLine{00086 \textcolor{comment}{ * list by the co-\/routine scheduler.}}
+\DoxyCodeLine{00087 \textcolor{comment}{ */}}
+\DoxyCodeLine{00088 \textcolor{keyword}{static} \textcolor{keywordtype}{void} prvCheckPendingReadyList( \textcolor{keywordtype}{void} );}
+\DoxyCodeLine{00089 }
+\DoxyCodeLine{00090 \textcolor{comment}{/*}}
+\DoxyCodeLine{00091 \textcolor{comment}{ * Macro that looks at the list of co-\/routines that are currently delayed to}}
+\DoxyCodeLine{00092 \textcolor{comment}{ * see if any require waking.}}
+\DoxyCodeLine{00093 \textcolor{comment}{ *}}
+\DoxyCodeLine{00094 \textcolor{comment}{ * Co-\/routines are stored in the queue in the order of their wake time -\/}}
+\DoxyCodeLine{00095 \textcolor{comment}{ * meaning once one co-\/routine has been found whose timer has not expired}}
+\DoxyCodeLine{00096 \textcolor{comment}{ * we need not look any further down the list.}}
+\DoxyCodeLine{00097 \textcolor{comment}{ */}}
+\DoxyCodeLine{00098 \textcolor{keyword}{static} \textcolor{keywordtype}{void} prvCheckDelayedList( \textcolor{keywordtype}{void} );}
+\DoxyCodeLine{00099 }
+\DoxyCodeLine{00100 \textcolor{comment}{/*-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/*/}}
+\DoxyCodeLine{00101 }
+\DoxyCodeLine{00102 BaseType\_t xCoRoutineCreate( crCOROUTINE\_CODE pxCoRoutineCode, UBaseType\_t uxPriority, UBaseType\_t uxIndex )}
+\DoxyCodeLine{00103 \{}
+\DoxyCodeLine{00104 BaseType\_t xReturn;}
+\DoxyCodeLine{00105 CRCB\_t *pxCoRoutine;}
+\DoxyCodeLine{00106 }
+\DoxyCodeLine{00107     \textcolor{comment}{/* Allocate the memory that will store the co-\/routine control block. */}}
+\DoxyCodeLine{00108     pxCoRoutine = ( CRCB\_t * ) pvPortMalloc( \textcolor{keyword}{sizeof}( CRCB\_t ) );}
+\DoxyCodeLine{00109     \textcolor{keywordflow}{if}( pxCoRoutine )}
+\DoxyCodeLine{00110     \{}
+\DoxyCodeLine{00111         \textcolor{comment}{/* If pxCurrentCoRoutine is NULL then this is the first co-\/routine to}}
+\DoxyCodeLine{00112 \textcolor{comment}{        be created and the co-\/routine data structures need initialising. */}}
+\DoxyCodeLine{00113         \textcolor{keywordflow}{if}( pxCurrentCoRoutine == NULL )}
+\DoxyCodeLine{00114         \{}
+\DoxyCodeLine{00115             pxCurrentCoRoutine = pxCoRoutine;}
+\DoxyCodeLine{00116             prvInitialiseCoRoutineLists();}
+\DoxyCodeLine{00117         \}}
+\DoxyCodeLine{00118 }
+\DoxyCodeLine{00119         \textcolor{comment}{/* Check the priority is within limits. */}}
+\DoxyCodeLine{00120         \textcolor{keywordflow}{if}( uxPriority >= configMAX\_CO\_ROUTINE\_PRIORITIES )}
+\DoxyCodeLine{00121         \{}
+\DoxyCodeLine{00122             uxPriority = configMAX\_CO\_ROUTINE\_PRIORITIES -\/ 1;}
+\DoxyCodeLine{00123         \}}
+\DoxyCodeLine{00124 }
+\DoxyCodeLine{00125         \textcolor{comment}{/* Fill out the co-\/routine control block from the function parameters. */}}
+\DoxyCodeLine{00126         pxCoRoutine-\/>uxState = corINITIAL\_STATE;}
+\DoxyCodeLine{00127         pxCoRoutine-\/>uxPriority = uxPriority;}
+\DoxyCodeLine{00128         pxCoRoutine-\/>uxIndex = uxIndex;}
+\DoxyCodeLine{00129         pxCoRoutine-\/>pxCoRoutineFunction = pxCoRoutineCode;}
+\DoxyCodeLine{00130 }
+\DoxyCodeLine{00131         \textcolor{comment}{/* Initialise all the other co-\/routine control block parameters. */}}
+\DoxyCodeLine{00132         vListInitialiseItem( \&( pxCoRoutine-\/>xGenericListItem ) );}
+\DoxyCodeLine{00133         vListInitialiseItem( \&( pxCoRoutine-\/>xEventListItem ) );}
+\DoxyCodeLine{00134 }
+\DoxyCodeLine{00135         \textcolor{comment}{/* Set the co-\/routine control block as a link back from the ListItem\_t.}}
+\DoxyCodeLine{00136 \textcolor{comment}{        This is so we can get back to the containing CRCB from a generic item}}
+\DoxyCodeLine{00137 \textcolor{comment}{        in a list. */}}
+\DoxyCodeLine{00138         listSET\_LIST\_ITEM\_OWNER( \&( pxCoRoutine-\/>xGenericListItem ), pxCoRoutine );}
+\DoxyCodeLine{00139         listSET\_LIST\_ITEM\_OWNER( \&( pxCoRoutine-\/>xEventListItem ), pxCoRoutine );}
+\DoxyCodeLine{00140 }
+\DoxyCodeLine{00141         \textcolor{comment}{/* Event lists are always in priority order. */}}
+\DoxyCodeLine{00142         listSET\_LIST\_ITEM\_VALUE( \&( pxCoRoutine-\/>xEventListItem ), ( ( TickType\_t ) configMAX\_CO\_ROUTINE\_PRIORITIES -\/ ( TickType\_t ) uxPriority ) );}
+\DoxyCodeLine{00143 }
+\DoxyCodeLine{00144         \textcolor{comment}{/* Now the co-\/routine has been initialised it can be added to the ready}}
+\DoxyCodeLine{00145 \textcolor{comment}{        list at the correct priority. */}}
+\DoxyCodeLine{00146         prvAddCoRoutineToReadyQueue( pxCoRoutine );}
+\DoxyCodeLine{00147 }
+\DoxyCodeLine{00148         xReturn = pdPASS;}
+\DoxyCodeLine{00149     \}}
+\DoxyCodeLine{00150     \textcolor{keywordflow}{else}}
+\DoxyCodeLine{00151     \{}
+\DoxyCodeLine{00152         xReturn = errCOULD\_NOT\_ALLOCATE\_REQUIRED\_MEMORY;}
+\DoxyCodeLine{00153     \}}
+\DoxyCodeLine{00154 }
+\DoxyCodeLine{00155     \textcolor{keywordflow}{return} xReturn;}
+\DoxyCodeLine{00156 \}}
+\DoxyCodeLine{00157 \textcolor{comment}{/*-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/*/}}
+\DoxyCodeLine{00158 }
+\DoxyCodeLine{00159 \textcolor{keywordtype}{void} vCoRoutineAddToDelayedList( TickType\_t xTicksToDelay, List\_t *pxEventList )}
+\DoxyCodeLine{00160 \{}
+\DoxyCodeLine{00161 TickType\_t xTimeToWake;}
+\DoxyCodeLine{00162 }
+\DoxyCodeLine{00163     \textcolor{comment}{/* Calculate the time to wake -\/ this may overflow but this is}}
+\DoxyCodeLine{00164 \textcolor{comment}{    not a problem. */}}
+\DoxyCodeLine{00165     xTimeToWake = xCoRoutineTickCount + xTicksToDelay;}
+\DoxyCodeLine{00166 }
+\DoxyCodeLine{00167     \textcolor{comment}{/* We must remove ourselves from the ready list before adding}}
+\DoxyCodeLine{00168 \textcolor{comment}{    ourselves to the blocked list as the same list item is used for}}
+\DoxyCodeLine{00169 \textcolor{comment}{    both lists. */}}
+\DoxyCodeLine{00170     ( void ) uxListRemove( ( ListItem\_t * ) \&( pxCurrentCoRoutine-\/>xGenericListItem ) );}
+\DoxyCodeLine{00171 }
+\DoxyCodeLine{00172     \textcolor{comment}{/* The list item will be inserted in wake time order. */}}
+\DoxyCodeLine{00173     listSET\_LIST\_ITEM\_VALUE( \&( pxCurrentCoRoutine-\/>xGenericListItem ), xTimeToWake );}
+\DoxyCodeLine{00174 }
+\DoxyCodeLine{00175     \textcolor{keywordflow}{if}( xTimeToWake < xCoRoutineTickCount )}
+\DoxyCodeLine{00176     \{}
+\DoxyCodeLine{00177         \textcolor{comment}{/* Wake time has overflowed.  Place this item in the}}
+\DoxyCodeLine{00178 \textcolor{comment}{        overflow list. */}}
+\DoxyCodeLine{00179         vListInsert( ( List\_t * ) pxOverflowDelayedCoRoutineList, ( ListItem\_t * ) \&( pxCurrentCoRoutine-\/>xGenericListItem ) );}
+\DoxyCodeLine{00180     \}}
+\DoxyCodeLine{00181     \textcolor{keywordflow}{else}}
+\DoxyCodeLine{00182     \{}
+\DoxyCodeLine{00183         \textcolor{comment}{/* The wake time has not overflowed, so we can use the}}
+\DoxyCodeLine{00184 \textcolor{comment}{        current block list. */}}
+\DoxyCodeLine{00185         vListInsert( ( List\_t * ) pxDelayedCoRoutineList, ( ListItem\_t * ) \&( pxCurrentCoRoutine-\/>xGenericListItem ) );}
+\DoxyCodeLine{00186     \}}
+\DoxyCodeLine{00187 }
+\DoxyCodeLine{00188     \textcolor{keywordflow}{if}( pxEventList )}
+\DoxyCodeLine{00189     \{}
+\DoxyCodeLine{00190         \textcolor{comment}{/* Also add the co-\/routine to an event list.  If this is done then the}}
+\DoxyCodeLine{00191 \textcolor{comment}{        function must be called with interrupts disabled. */}}
+\DoxyCodeLine{00192         vListInsert( pxEventList, \&( pxCurrentCoRoutine-\/>xEventListItem ) );}
+\DoxyCodeLine{00193     \}}
+\DoxyCodeLine{00194 \}}
+\DoxyCodeLine{00195 \textcolor{comment}{/*-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/*/}}
+\DoxyCodeLine{00196 }
+\DoxyCodeLine{00197 \textcolor{keyword}{static} \textcolor{keywordtype}{void} prvCheckPendingReadyList( \textcolor{keywordtype}{void} )}
+\DoxyCodeLine{00198 \{}
+\DoxyCodeLine{00199     \textcolor{comment}{/* Are there any co-\/routines waiting to get moved to the ready list?  These}}
+\DoxyCodeLine{00200 \textcolor{comment}{    are co-\/routines that have been readied by an ISR.  The ISR cannot access}}
+\DoxyCodeLine{00201 \textcolor{comment}{    the ready lists itself. */}}
+\DoxyCodeLine{00202     \textcolor{keywordflow}{while}( listLIST\_IS\_EMPTY( \&xPendingReadyCoRoutineList ) == pdFALSE )}
+\DoxyCodeLine{00203     \{}
+\DoxyCodeLine{00204         CRCB\_t *pxUnblockedCRCB;}
+\DoxyCodeLine{00205 }
+\DoxyCodeLine{00206         \textcolor{comment}{/* The pending ready list can be accessed by an ISR. */}}
+\DoxyCodeLine{00207         portDISABLE\_INTERRUPTS();}
+\DoxyCodeLine{00208         \{}
+\DoxyCodeLine{00209             pxUnblockedCRCB = ( CRCB\_t * ) listGET\_OWNER\_OF\_HEAD\_ENTRY( (\&xPendingReadyCoRoutineList) );}
+\DoxyCodeLine{00210             ( void ) uxListRemove( \&( pxUnblockedCRCB-\/>xEventListItem ) );}
+\DoxyCodeLine{00211         \}}
+\DoxyCodeLine{00212         portENABLE\_INTERRUPTS();}
+\DoxyCodeLine{00213 }
+\DoxyCodeLine{00214         ( void ) uxListRemove( \&( pxUnblockedCRCB-\/>xGenericListItem ) );}
+\DoxyCodeLine{00215         prvAddCoRoutineToReadyQueue( pxUnblockedCRCB );}
+\DoxyCodeLine{00216     \}}
+\DoxyCodeLine{00217 \}}
+\DoxyCodeLine{00218 \textcolor{comment}{/*-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/*/}}
+\DoxyCodeLine{00219 }
+\DoxyCodeLine{00220 \textcolor{keyword}{static} \textcolor{keywordtype}{void} prvCheckDelayedList( \textcolor{keywordtype}{void} )}
+\DoxyCodeLine{00221 \{}
+\DoxyCodeLine{00222 CRCB\_t *pxCRCB;}
+\DoxyCodeLine{00223 }
+\DoxyCodeLine{00224     xPassedTicks = xTaskGetTickCount() -\/ xLastTickCount;}
+\DoxyCodeLine{00225     \textcolor{keywordflow}{while}( xPassedTicks )}
+\DoxyCodeLine{00226     \{}
+\DoxyCodeLine{00227         xCoRoutineTickCount++;}
+\DoxyCodeLine{00228         xPassedTicks-\/-\/;}
+\DoxyCodeLine{00229 }
+\DoxyCodeLine{00230         \textcolor{comment}{/* If the tick count has overflowed we need to swap the ready lists. */}}
+\DoxyCodeLine{00231         \textcolor{keywordflow}{if}( xCoRoutineTickCount == 0 )}
+\DoxyCodeLine{00232         \{}
+\DoxyCodeLine{00233             List\_t * pxTemp;}
+\DoxyCodeLine{00234 }
+\DoxyCodeLine{00235             \textcolor{comment}{/* Tick count has overflowed so we need to swap the delay lists.  If there are}}
+\DoxyCodeLine{00236 \textcolor{comment}{            any items in pxDelayedCoRoutineList here then there is an error! */}}
+\DoxyCodeLine{00237             pxTemp = pxDelayedCoRoutineList;}
+\DoxyCodeLine{00238             pxDelayedCoRoutineList = pxOverflowDelayedCoRoutineList;}
+\DoxyCodeLine{00239             pxOverflowDelayedCoRoutineList = pxTemp;}
+\DoxyCodeLine{00240         \}}
+\DoxyCodeLine{00241 }
+\DoxyCodeLine{00242         \textcolor{comment}{/* See if this tick has made a timeout expire. */}}
+\DoxyCodeLine{00243         \textcolor{keywordflow}{while}( listLIST\_IS\_EMPTY( pxDelayedCoRoutineList ) == pdFALSE )}
+\DoxyCodeLine{00244         \{}
+\DoxyCodeLine{00245             pxCRCB = ( CRCB\_t * ) listGET\_OWNER\_OF\_HEAD\_ENTRY( pxDelayedCoRoutineList );}
+\DoxyCodeLine{00246 }
+\DoxyCodeLine{00247             \textcolor{keywordflow}{if}( xCoRoutineTickCount < listGET\_LIST\_ITEM\_VALUE( \&( pxCRCB-\/>xGenericListItem ) ) )}
+\DoxyCodeLine{00248             \{}
+\DoxyCodeLine{00249                 \textcolor{comment}{/* Timeout not yet expired. */}}
+\DoxyCodeLine{00250                 \textcolor{keywordflow}{break};}
+\DoxyCodeLine{00251             \}}
+\DoxyCodeLine{00252 }
+\DoxyCodeLine{00253             portDISABLE\_INTERRUPTS();}
+\DoxyCodeLine{00254             \{}
+\DoxyCodeLine{00255                 \textcolor{comment}{/* The event could have occurred just before this critical}}
+\DoxyCodeLine{00256 \textcolor{comment}{                section.  If this is the case then the generic list item will}}
+\DoxyCodeLine{00257 \textcolor{comment}{                have been moved to the pending ready list and the following}}
+\DoxyCodeLine{00258 \textcolor{comment}{                line is still valid.  Also the pvContainer parameter will have}}
+\DoxyCodeLine{00259 \textcolor{comment}{                been set to NULL so the following lines are also valid. */}}
+\DoxyCodeLine{00260                 ( void ) uxListRemove( \&( pxCRCB-\/>xGenericListItem ) );}
+\DoxyCodeLine{00261 }
+\DoxyCodeLine{00262                 \textcolor{comment}{/* Is the co-\/routine waiting on an event also? */}}
+\DoxyCodeLine{00263                 \textcolor{keywordflow}{if}( pxCRCB-\/>xEventListItem.pxContainer )}
+\DoxyCodeLine{00264                 \{}
+\DoxyCodeLine{00265                     ( void ) uxListRemove( \&( pxCRCB-\/>xEventListItem ) );}
+\DoxyCodeLine{00266                 \}}
+\DoxyCodeLine{00267             \}}
+\DoxyCodeLine{00268             portENABLE\_INTERRUPTS();}
+\DoxyCodeLine{00269 }
+\DoxyCodeLine{00270             prvAddCoRoutineToReadyQueue( pxCRCB );}
+\DoxyCodeLine{00271         \}}
+\DoxyCodeLine{00272     \}}
+\DoxyCodeLine{00273 }
+\DoxyCodeLine{00274     xLastTickCount = xCoRoutineTickCount;}
+\DoxyCodeLine{00275 \}}
+\DoxyCodeLine{00276 \textcolor{comment}{/*-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/*/}}
+\DoxyCodeLine{00277 }
+\DoxyCodeLine{00278 \textcolor{keywordtype}{void} vCoRoutineSchedule( \textcolor{keywordtype}{void} )}
+\DoxyCodeLine{00279 \{}
+\DoxyCodeLine{00280     \textcolor{comment}{/* See if any co-\/routines readied by events need moving to the ready lists. */}}
+\DoxyCodeLine{00281     prvCheckPendingReadyList();}
+\DoxyCodeLine{00282 }
+\DoxyCodeLine{00283     \textcolor{comment}{/* See if any delayed co-\/routines have timed out. */}}
+\DoxyCodeLine{00284     prvCheckDelayedList();}
+\DoxyCodeLine{00285 }
+\DoxyCodeLine{00286     \textcolor{comment}{/* Find the highest priority queue that contains ready co-\/routines. */}}
+\DoxyCodeLine{00287     \textcolor{keywordflow}{while}( listLIST\_IS\_EMPTY( \&( pxReadyCoRoutineLists[ uxTopCoRoutineReadyPriority ] ) ) )}
+\DoxyCodeLine{00288     \{}
+\DoxyCodeLine{00289         \textcolor{keywordflow}{if}( uxTopCoRoutineReadyPriority == 0 )}
+\DoxyCodeLine{00290         \{}
+\DoxyCodeLine{00291             \textcolor{comment}{/* No more co-\/routines to check. */}}
+\DoxyCodeLine{00292             \textcolor{keywordflow}{return};}
+\DoxyCodeLine{00293         \}}
+\DoxyCodeLine{00294         -\/-\/uxTopCoRoutineReadyPriority;}
+\DoxyCodeLine{00295     \}}
+\DoxyCodeLine{00296 }
+\DoxyCodeLine{00297     \textcolor{comment}{/* listGET\_OWNER\_OF\_NEXT\_ENTRY walks through the list, so the co-\/routines}}
+\DoxyCodeLine{00298 \textcolor{comment}{     of the same priority get an equal share of the processor time. */}}
+\DoxyCodeLine{00299     listGET\_OWNER\_OF\_NEXT\_ENTRY( pxCurrentCoRoutine, \&( pxReadyCoRoutineLists[ uxTopCoRoutineReadyPriority ] ) );}
+\DoxyCodeLine{00300 }
+\DoxyCodeLine{00301     \textcolor{comment}{/* Call the co-\/routine. */}}
+\DoxyCodeLine{00302     ( pxCurrentCoRoutine-\/>pxCoRoutineFunction )( pxCurrentCoRoutine, pxCurrentCoRoutine-\/>uxIndex );}
+\DoxyCodeLine{00303 }
+\DoxyCodeLine{00304     \textcolor{keywordflow}{return};}
+\DoxyCodeLine{00305 \}}
+\DoxyCodeLine{00306 \textcolor{comment}{/*-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/*/}}
+\DoxyCodeLine{00307 }
+\DoxyCodeLine{00308 \textcolor{keyword}{static} \textcolor{keywordtype}{void} prvInitialiseCoRoutineLists( \textcolor{keywordtype}{void} )}
+\DoxyCodeLine{00309 \{}
+\DoxyCodeLine{00310 UBaseType\_t uxPriority;}
+\DoxyCodeLine{00311 }
+\DoxyCodeLine{00312     \textcolor{keywordflow}{for}( uxPriority = 0; uxPriority < configMAX\_CO\_ROUTINE\_PRIORITIES; uxPriority++ )}
+\DoxyCodeLine{00313     \{}
+\DoxyCodeLine{00314         vListInitialise( ( List\_t * ) \&( pxReadyCoRoutineLists[ uxPriority ] ) );}
+\DoxyCodeLine{00315     \}}
+\DoxyCodeLine{00316 }
+\DoxyCodeLine{00317     vListInitialise( ( List\_t * ) \&xDelayedCoRoutineList1 );}
+\DoxyCodeLine{00318     vListInitialise( ( List\_t * ) \&xDelayedCoRoutineList2 );}
+\DoxyCodeLine{00319     vListInitialise( ( List\_t * ) \&xPendingReadyCoRoutineList );}
+\DoxyCodeLine{00320 }
+\DoxyCodeLine{00321     \textcolor{comment}{/* Start with pxDelayedCoRoutineList using list1 and the}}
+\DoxyCodeLine{00322 \textcolor{comment}{    pxOverflowDelayedCoRoutineList using list2. */}}
+\DoxyCodeLine{00323     pxDelayedCoRoutineList = \&xDelayedCoRoutineList1;}
+\DoxyCodeLine{00324     pxOverflowDelayedCoRoutineList = \&xDelayedCoRoutineList2;}
+\DoxyCodeLine{00325 \}}
+\DoxyCodeLine{00326 \textcolor{comment}{/*-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/*/}}
+\DoxyCodeLine{00327 }
+\DoxyCodeLine{00328 BaseType\_t xCoRoutineRemoveFromEventList( \textcolor{keyword}{const} List\_t *pxEventList )}
+\DoxyCodeLine{00329 \{}
+\DoxyCodeLine{00330 CRCB\_t *pxUnblockedCRCB;}
+\DoxyCodeLine{00331 BaseType\_t xReturn;}
+\DoxyCodeLine{00332 }
+\DoxyCodeLine{00333     \textcolor{comment}{/* This function is called from within an interrupt.  It can only access}}
+\DoxyCodeLine{00334 \textcolor{comment}{    event lists and the pending ready list.  This function assumes that a}}
+\DoxyCodeLine{00335 \textcolor{comment}{    check has already been made to ensure pxEventList is not empty. */}}
+\DoxyCodeLine{00336     pxUnblockedCRCB = ( CRCB\_t * ) listGET\_OWNER\_OF\_HEAD\_ENTRY( pxEventList );}
+\DoxyCodeLine{00337     ( void ) uxListRemove( \&( pxUnblockedCRCB-\/>xEventListItem ) );}
+\DoxyCodeLine{00338     vListInsertEnd( ( List\_t * ) \&( xPendingReadyCoRoutineList ), \&( pxUnblockedCRCB-\/>xEventListItem ) );}
+\DoxyCodeLine{00339 }
+\DoxyCodeLine{00340     \textcolor{keywordflow}{if}( pxUnblockedCRCB-\/>uxPriority >= pxCurrentCoRoutine-\/>uxPriority )}
+\DoxyCodeLine{00341     \{}
+\DoxyCodeLine{00342         xReturn = pdTRUE;}
+\DoxyCodeLine{00343     \}}
+\DoxyCodeLine{00344     \textcolor{keywordflow}{else}}
+\DoxyCodeLine{00345     \{}
+\DoxyCodeLine{00346         xReturn = pdFALSE;}
+\DoxyCodeLine{00347     \}}
+\DoxyCodeLine{00348 }
+\DoxyCodeLine{00349     \textcolor{keywordflow}{return} xReturn;}
+\DoxyCodeLine{00350 \}}
+\DoxyCodeLine{00351 }
+\DoxyCodeLine{00352 \textcolor{preprocessor}{\#endif }\textcolor{comment}{/* configUSE\_CO\_ROUTINES == 0 */}\textcolor{preprocessor}{}}
+\DoxyCodeLine{00353 }
+
+\end{DoxyCode}

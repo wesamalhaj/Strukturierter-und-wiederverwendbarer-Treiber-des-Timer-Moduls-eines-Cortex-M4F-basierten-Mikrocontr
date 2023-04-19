@@ -1,0 +1,531 @@
+\doxysection{gptm\+Shi.\+h}
+\label{gptm_shi_8h_source}\index{hal/gptm/include/gptmShi.h@{hal/gptm/include/gptmShi.h}}
+
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00001 \textcolor{comment}{//*****************************************************************************}}
+\DoxyCodeLine{00002 \textcolor{comment}{// Name        : gptmShi.h}}
+\DoxyCodeLine{00003 \textcolor{comment}{// Author      : Ole Rönna }}
+\DoxyCodeLine{00004 \textcolor{comment}{// Maintainer  : Prof. Dr. Paweł Buczek }}
+\DoxyCodeLine{00005 \textcolor{comment}{// Version     : 0.4 }}
+\DoxyCodeLine{00006 \textcolor{comment}{// Copyright   : All rights reserved }}
+\DoxyCodeLine{00007 \textcolor{comment}{// Description : }}
+\DoxyCodeLine{00008 \textcolor{comment}{// This code was generated from a template. Manual changes to this file will }}
+\DoxyCodeLine{00009 \textcolor{comment}{// be overwritten if the code is regenerated. }}
+\DoxyCodeLine{00010 \textcolor{comment}{//}}
+\DoxyCodeLine{00011 \textcolor{comment}{//*****************************************************************************}}
+\DoxyCodeLine{00012 }
+\DoxyCodeLine{00013 \textcolor{preprocessor}{\#ifndef HAL\_GPTMSHI\_H\_}}
+\DoxyCodeLine{00014 \textcolor{preprocessor}{\#define HAL\_GPTMSHI\_H\_}}
+\DoxyCodeLine{00015 }
+\DoxyCodeLine{00016 \textcolor{preprocessor}{\#include "{}hal/gptm/halGptmShiCores.h"{}}}
+\DoxyCodeLine{00017 \textcolor{preprocessor}{\#include "{}stdint.h"{}}}
+\DoxyCodeLine{00018 }
+\DoxyCodeLine{00019 \textcolor{comment}{//*****************************************************************************}}
+\DoxyCodeLine{00020 \textcolor{comment}{//}}
+\DoxyCodeLine{00021 \textcolor{comment}{// gptm registers}}
+\DoxyCodeLine{00022 \textcolor{comment}{//}}
+\DoxyCodeLine{00023 \textcolor{comment}{//*****************************************************************************}}
+\DoxyCodeLine{00024 }
+\DoxyCodeLine{00025 \textcolor{keyword}{enum} GptmRegisters\_ \{}
+\DoxyCodeLine{00026     gptmGptmcfg\_ = 0x00000000,}
+\DoxyCodeLine{00027     gptmGptmtamr\_ = 0x00000004,}
+\DoxyCodeLine{00028     gptmGptmtbmr\_ = 0x00000008,}
+\DoxyCodeLine{00029     gptmGptmctl\_ = 0x0000000C,}
+\DoxyCodeLine{00030     gptmGptmtapr\_ = 0x00000038,}
+\DoxyCodeLine{00031     gptmGptmtbpr\_ = 0x0000003C,}
+\DoxyCodeLine{00032     gptmGptmtapmr\_ = 0x00000040,}
+\DoxyCodeLine{00033     gptmGptmtbpmr\_ = 0x00000044}
+\DoxyCodeLine{00034 \};}
+\DoxyCodeLine{00035 }
+\DoxyCodeLine{00036 }
+\DoxyCodeLine{00037 \textcolor{keyword}{enum} GptmGptmcfgGptmcfgValues\_ \{}
+\DoxyCodeLine{00038     gptmGptmcfgGptmcfgConfig16Bit\_ = 0x00000004,}
+\DoxyCodeLine{00039     gptmGptmcfgGptmcfgConfig32BitReal\_ = 0x00000001,}
+\DoxyCodeLine{00040     gptmGptmcfgGptmcfgConfig32Bit\_ = 0x00000000}
+\DoxyCodeLine{00041 \};}
+\DoxyCodeLine{00042 }
+\DoxyCodeLine{00043 \textcolor{keyword}{enum} GptmGptmtamrTamrValues\_ \{}
+\DoxyCodeLine{00044     gptmGptmtamrTamrOneShotTimerMode\_ = 0x00000001,}
+\DoxyCodeLine{00045     gptmGptmtamrTamrPeriodicTimerMode\_ = 0x00000002,}
+\DoxyCodeLine{00046     gptmGptmtamrTamrCaptureMode\_ = 0x00000003}
+\DoxyCodeLine{00047 \};}
+\DoxyCodeLine{00048 }
+\DoxyCodeLine{00049 \textcolor{keyword}{enum} GptmGptmtamrTacmrValues\_ \{}
+\DoxyCodeLine{00050     gptmGptmtamrTacmrEdgeCountMode\_ = 0x00000000,}
+\DoxyCodeLine{00051     gptmGptmtamrTacmrEdgeTimeMode\_ = 0x00000004}
+\DoxyCodeLine{00052 \};}
+\DoxyCodeLine{00053 }
+\DoxyCodeLine{00054 \textcolor{keyword}{enum} GptmGptmtamrTaamsValues\_ \{}
+\DoxyCodeLine{00055     gptmGptmtamrTaamsCaptureOrCompareModeEnabled\_ = 0x00000000,}
+\DoxyCodeLine{00056     gptmGptmtamrTaamsPwmModeEnabled\_ = 0x00000008}
+\DoxyCodeLine{00057 \};}
+\DoxyCodeLine{00058 }
+\DoxyCodeLine{00059 \textcolor{keyword}{enum} GptmGptmtamrTacdirValues\_ \{}
+\DoxyCodeLine{00060     gptmGptmtamrTacdirTimerCountsDown\_ = 0x00000000,}
+\DoxyCodeLine{00061     gptmGptmtamrTacdirTimerCountsUp\_ = 0x00000010}
+\DoxyCodeLine{00062 \};}
+\DoxyCodeLine{00063 }
+\DoxyCodeLine{00064 \textcolor{keyword}{enum} GptmGptmtamrTamieValues\_ \{}
+\DoxyCodeLine{00065     gptmGptmtamrTamieMatchInterruptDisabled\_ = 0x00000000,}
+\DoxyCodeLine{00066     gptmGptmtamrTamieInterruptGenerated\_ = 0x00000020}
+\DoxyCodeLine{00067 \};}
+\DoxyCodeLine{00068 }
+\DoxyCodeLine{00069 \textcolor{keyword}{enum} GptmGptmtamrTawotValues\_ \{}
+\DoxyCodeLine{00070     gptmGptmtamrTawotTimeraNotWaitOnTrigger\_ = 0x00000000,}
+\DoxyCodeLine{00071     gptmGptmtamrTawotTimeraWaitOnTrigger\_ = 0x00000040}
+\DoxyCodeLine{00072 \};}
+\DoxyCodeLine{00073 }
+\DoxyCodeLine{00074 \textcolor{keyword}{enum} GptmGptmtamrTasnapsValues\_ \{}
+\DoxyCodeLine{00075     gptmGptmtamrTasnapsDisableSnapShotMode\_ = 0x00000000,}
+\DoxyCodeLine{00076     gptmGptmtamrTasnapsEnableSnapShotMode\_ = 0x00000080}
+\DoxyCodeLine{00077 \};}
+\DoxyCodeLine{00078 }
+\DoxyCodeLine{00079 \textcolor{keyword}{enum} GptmGptmtamrTaildValues\_ \{}
+\DoxyCodeLine{00080     gptmGptmtamrTaildUpdateGptmtarGptmtavRegisterOnNextCycle\_ = 0x00000000,}
+\DoxyCodeLine{00081     gptmGptmtamrTaildUpdateGptmtarGptmtavRegisterOnNextTimeout\_ = 0x00000100}
+\DoxyCodeLine{00082 \};}
+\DoxyCodeLine{00083 }
+\DoxyCodeLine{00084 \textcolor{keyword}{enum} GptmGptmtamrTapwmieValues\_ \{}
+\DoxyCodeLine{00085     gptmGptmtamrTapwmiePwmCaptureEventInterruptDisabled\_ = 0x00000000,}
+\DoxyCodeLine{00086     gptmGptmtamrTapwmiePwmCaptureEventInterruptEnabled\_ = 0x00000200}
+\DoxyCodeLine{00087 \};}
+\DoxyCodeLine{00088 }
+\DoxyCodeLine{00089 \textcolor{keyword}{enum} GptmGptmtamrTamrsuValues\_ \{}
+\DoxyCodeLine{00090     gptmGptmtamrTamrsuUpdateGptmtarGptmtavRegisterOnNextCycle\_ = 0x00000000,}
+\DoxyCodeLine{00091     gptmGptmtamrTamrsuUpdateGptmtarGptmtavRegisterOnNextTimeout\_ = 0x00000400}
+\DoxyCodeLine{00092 \};}
+\DoxyCodeLine{00093 }
+\DoxyCodeLine{00094 \textcolor{keyword}{enum} GptmGptmtamrTaploValues\_ \{}
+\DoxyCodeLine{00095     gptmGptmtamrTaploOutputUnaffected\_ = 0x00000000,}
+\DoxyCodeLine{00096     gptmGptmtamrTaploOutputInverted\_ = 0x00000800}
+\DoxyCodeLine{00097 \};}
+\DoxyCodeLine{00098 }
+\DoxyCodeLine{00099 \textcolor{keyword}{enum} GptmGptmtamrTacintdValues\_ \{}
+\DoxyCodeLine{00100     gptmGptmtamrTacintdTimeOutInterruptEnabled\_ = 0x00000000,}
+\DoxyCodeLine{00101     gptmGptmtamrTacintdTimeOutInterruptDisabled\_ = 0x00001000}
+\DoxyCodeLine{00102 \};}
+\DoxyCodeLine{00103 }
+\DoxyCodeLine{00104 \textcolor{keyword}{enum} GptmGptmtamrTcactValues\_ \{}
+\DoxyCodeLine{00105     gptmGptmtamrTcactOutputUnaffected\_ = 0x0000C000,}
+\DoxyCodeLine{00106     gptmGptmtamrTcactOutputInverted\_ = 0x0000E000}
+\DoxyCodeLine{00107 \};}
+\DoxyCodeLine{00108 }
+\DoxyCodeLine{00109 \textcolor{keyword}{enum} GptmGptmtbmrTbmrValues\_ \{}
+\DoxyCodeLine{00110     gptmGptmtbmrTbmrOneShotTimerMode\_ = 0x00000001,}
+\DoxyCodeLine{00111     gptmGptmtbmrTbmrPeriodicTimerMode\_ = 0x00000002,}
+\DoxyCodeLine{00112     gptmGptmtbmrTbmrCaptureMode\_ = 0x00000003}
+\DoxyCodeLine{00113 \};}
+\DoxyCodeLine{00114 }
+\DoxyCodeLine{00115 \textcolor{keyword}{enum} GptmGptmtbmrTbcmrValues\_ \{}
+\DoxyCodeLine{00116     gptmGptmtbmrTbcmrEdgeCountMode\_ = 0x00000000,}
+\DoxyCodeLine{00117     gptmGptmtbmrTbcmrEdgeTimeMode\_ = 0x00000004}
+\DoxyCodeLine{00118 \};}
+\DoxyCodeLine{00119 }
+\DoxyCodeLine{00120 \textcolor{keyword}{enum} GptmGptmtbmrTbamsValues\_ \{}
+\DoxyCodeLine{00121     gptmGptmtbmrTbamsCaptureOrCompareModeEnabled\_ = 0x00000000,}
+\DoxyCodeLine{00122     gptmGptmtbmrTbamsPwmModeEnabled\_ = 0x00000008}
+\DoxyCodeLine{00123 \};}
+\DoxyCodeLine{00124 }
+\DoxyCodeLine{00125 \textcolor{keyword}{enum} GptmGptmtbmrTbcdirValues\_ \{}
+\DoxyCodeLine{00126     gptmGptmtbmrTbcdirTimerCountsDown\_ = 0x00000000,}
+\DoxyCodeLine{00127     gptmGptmtbmrTbcdirTimerCountsUp\_ = 0x00000010}
+\DoxyCodeLine{00128 \};}
+\DoxyCodeLine{00129 }
+\DoxyCodeLine{00130 \textcolor{keyword}{enum} GptmGptmtbmrTbmieValues\_ \{}
+\DoxyCodeLine{00131     gptmGptmtbmrTbmieMatchInterruptDisabled\_ = 0x00000000,}
+\DoxyCodeLine{00132     gptmGptmtbmrTbmieInterruptGenerated\_ = 0x00000020}
+\DoxyCodeLine{00133 \};}
+\DoxyCodeLine{00134 }
+\DoxyCodeLine{00135 \textcolor{keyword}{enum} GptmGptmtbmrTbwotValues\_ \{}
+\DoxyCodeLine{00136     gptmGptmtbmrTbwotTimerbNotWaitOnTrigger\_ = 0x00000000,}
+\DoxyCodeLine{00137     gptmGptmtbmrTbwotTimerbWaitOnTrigger\_ = 0x00000040}
+\DoxyCodeLine{00138 \};}
+\DoxyCodeLine{00139 }
+\DoxyCodeLine{00140 \textcolor{keyword}{enum} GptmGptmtbmrTbsnapsValues\_ \{}
+\DoxyCodeLine{00141     gptmGptmtbmrTbsnapsDisableSnapShotMode\_ = 0x00000000,}
+\DoxyCodeLine{00142     gptmGptmtbmrTbsnapsEnableSnapShotMode\_ = 0x00000080}
+\DoxyCodeLine{00143 \};}
+\DoxyCodeLine{00144 }
+\DoxyCodeLine{00145 \textcolor{keyword}{enum} GptmGptmtbmrTbildValues\_ \{}
+\DoxyCodeLine{00146     gptmGptmtbmrTbildUpdateGptmtarGptmtavRegisterOnNextCycle\_ = 0x00000000,}
+\DoxyCodeLine{00147     gptmGptmtbmrTbildUpdateGptmtarGptmtavRegisterOnNextTimeout\_ = 0x00000100}
+\DoxyCodeLine{00148 \};}
+\DoxyCodeLine{00149 }
+\DoxyCodeLine{00150 \textcolor{keyword}{enum} GptmGptmtbmrTbpwmieValues\_ \{}
+\DoxyCodeLine{00151     gptmGptmtbmrTbpwmiePwmCaptureEventInterruptDisabled\_ = 0x00000000,}
+\DoxyCodeLine{00152     gptmGptmtbmrTbpwmiePwmCaptureEventInterruptEnabled\_ = 0x00000200}
+\DoxyCodeLine{00153 \};}
+\DoxyCodeLine{00154 }
+\DoxyCodeLine{00155 \textcolor{keyword}{enum} GptmGptmtbmrTbmrsuValues\_ \{}
+\DoxyCodeLine{00156     gptmGptmtbmrTbmrsuUpdateGptmtarGptmtavRegisterOnNextCycle\_ = 0x00000000,}
+\DoxyCodeLine{00157     gptmGptmtbmrTbmrsuUpdateGptmtarGptmtavRegisterOnNextTimeout\_ = 0x00000400}
+\DoxyCodeLine{00158 \};}
+\DoxyCodeLine{00159 }
+\DoxyCodeLine{00160 \textcolor{keyword}{enum} GptmGptmtbmrTbploValues\_ \{}
+\DoxyCodeLine{00161     gptmGptmtbmrTbploOutputUnaffected\_ = 0x00000000,}
+\DoxyCodeLine{00162     gptmGptmtbmrTbploOutputInverted\_ = 0x00000800}
+\DoxyCodeLine{00163 \};}
+\DoxyCodeLine{00164 }
+\DoxyCodeLine{00165 \textcolor{keyword}{enum} GptmGptmtbmrTbcintdValues\_ \{}
+\DoxyCodeLine{00166     gptmGptmtbmrTbcintdTimeOutInterruptEnabled\_ = 0x00000000,}
+\DoxyCodeLine{00167     gptmGptmtbmrTbcintdTimeOutInterruptDisabled\_ = 0x00001000}
+\DoxyCodeLine{00168 \};}
+\DoxyCodeLine{00169 }
+\DoxyCodeLine{00170 \textcolor{keyword}{enum} GptmGptmtbmrTcactValues\_ \{}
+\DoxyCodeLine{00171     gptmGptmtbmrTcactOutputUnaffected\_ = 0x0000C000,}
+\DoxyCodeLine{00172     gptmGptmtbmrTcactOutputInverted\_ = 0x0000E000}
+\DoxyCodeLine{00173 \};}
+\DoxyCodeLine{00174 }
+\DoxyCodeLine{00175 \textcolor{keyword}{enum} GptmGptmctlTaenValues\_ \{}
+\DoxyCodeLine{00176     gptmGptmctlTaenDisableTimerA\_ = 0x00000000,}
+\DoxyCodeLine{00177     gptmGptmctlTaenEnableTimerA\_ = 0x00000001}
+\DoxyCodeLine{00178 \};}
+\DoxyCodeLine{00179 }
+\DoxyCodeLine{00180 \textcolor{keyword}{enum} GptmGptmctlTastallValues\_ \{}
+\DoxyCodeLine{00181     gptmGptmctlTastallTimerAContinuesCounting\_ = 0x00000000,}
+\DoxyCodeLine{00182     gptmGptmctlTastallTimerAFreezesCounting\_ = 0x00000002}
+\DoxyCodeLine{00183 \};}
+\DoxyCodeLine{00184 }
+\DoxyCodeLine{00185 \textcolor{keyword}{enum} GptmGptmctlTaeventValues\_ \{}
+\DoxyCodeLine{00186     gptmGptmctlTaeventPositiveEdge\_ = 0x00000000,}
+\DoxyCodeLine{00187     gptmGptmctlTaeventNegativeEdge\_ = 0x00000004,}
+\DoxyCodeLine{00188     gptmGptmctlTaeventBothEdges\_ = 0x0000000C}
+\DoxyCodeLine{00189 \};}
+\DoxyCodeLine{00190 }
+\DoxyCodeLine{00191 \textcolor{keyword}{enum} GptmGptmctlRtcenValues\_ \{}
+\DoxyCodeLine{00192     gptmGptmctlRtcenRtcCountingFreezes\_ = 0x00000000,}
+\DoxyCodeLine{00193     gptmGptmctlRtcenRtcCountingContinues\_ = 0x00000010}
+\DoxyCodeLine{00194 \};}
+\DoxyCodeLine{00195 }
+\DoxyCodeLine{00196 \textcolor{keyword}{enum} GptmGptmctlTaoteValues\_ \{}
+\DoxyCodeLine{00197     gptmGptmctlTaoteOutputTimerAAdcTriggerDisabled\_ = 0x00000000,}
+\DoxyCodeLine{00198     gptmGptmctlTaoteOutputTimerAAdcTriggerEnabl\_ = 0x00000020}
+\DoxyCodeLine{00199 \};}
+\DoxyCodeLine{00200 }
+\DoxyCodeLine{00201 \textcolor{keyword}{enum} GptmGptmctlTapwmlValues\_ \{}
+\DoxyCodeLine{00202     gptmGptmctlTapwmlOutputUnaffected\_ = 0x00000000,}
+\DoxyCodeLine{00203     gptmGptmctlTapwmlOutputInverted\_ = 0x00000040}
+\DoxyCodeLine{00204 \};}
+\DoxyCodeLine{00205 }
+\DoxyCodeLine{00206 \textcolor{keyword}{enum} GptmGptmctlTbenValues\_ \{}
+\DoxyCodeLine{00207     gptmGptmctlTbenDisableTimerB\_ = 0x00000000,}
+\DoxyCodeLine{00208     gptmGptmctlTbenEnableTimerB\_ = 0x00000100}
+\DoxyCodeLine{00209 \};}
+\DoxyCodeLine{00210 }
+\DoxyCodeLine{00211 \textcolor{keyword}{enum} GptmGptmctlTbstallValues\_ \{}
+\DoxyCodeLine{00212     gptmGptmctlTbstallTimerBContinuesCounting\_ = 0x00000000,}
+\DoxyCodeLine{00213     gptmGptmctlTbstallTimerBFreezesCounting\_ = 0x00000200}
+\DoxyCodeLine{00214 \};}
+\DoxyCodeLine{00215 }
+\DoxyCodeLine{00216 \textcolor{keyword}{enum} GptmGptmctlTbeventValues\_ \{}
+\DoxyCodeLine{00217     gptmGptmctlTbeventPositiveEdge\_ = 0x00000000,}
+\DoxyCodeLine{00218     gptmGptmctlTbeventNegativeEdge\_ = 0x00000400,}
+\DoxyCodeLine{00219     gptmGptmctlTbeventBothEdges\_ = 0x00000C00}
+\DoxyCodeLine{00220 \};}
+\DoxyCodeLine{00221 }
+\DoxyCodeLine{00222 \textcolor{keyword}{enum} GptmGptmctlTboteValues\_ \{}
+\DoxyCodeLine{00223     gptmGptmctlTboteOutputTimerBAdcTriggerDisabled\_ = 0x00000000,}
+\DoxyCodeLine{00224     gptmGptmctlTboteOutputTimerBAdcTriggerEnabl\_ = 0x00002000}
+\DoxyCodeLine{00225 \};}
+\DoxyCodeLine{00226 }
+\DoxyCodeLine{00227 \textcolor{keyword}{enum} GptmGptmctlTbpwmlValues\_ \{}
+\DoxyCodeLine{00228     gptmGptmctlTbpwmlOutputUnaffected\_ = 0x00000000,}
+\DoxyCodeLine{00229     gptmGptmctlTbpwmlOutputInverted\_ = 0x00004000}
+\DoxyCodeLine{00230 \};}
+\DoxyCodeLine{00231 }
+\DoxyCodeLine{00232 \textcolor{keyword}{enum} GptmGptmtaprTapsrValues\_ \{}
+\DoxyCodeLine{00233     gptmGptmtaprTapsrGptmTimeraPrescale\_ = 0x00000000}
+\DoxyCodeLine{00234 \};}
+\DoxyCodeLine{00235 }
+\DoxyCodeLine{00236 \textcolor{keyword}{enum} GptmGptmtbprTbpsrValues\_ \{}
+\DoxyCodeLine{00237     gptmGptmtbprTbpsrGptmTimerbPrescale\_ = 0x00000000}
+\DoxyCodeLine{00238 \};}
+\DoxyCodeLine{00239 }
+\DoxyCodeLine{00240 \textcolor{keyword}{enum} GptmGptmtapmrTapsmrValues\_ \{}
+\DoxyCodeLine{00241     gptmGptmtapmrTapsmrGptmTimeraPrescaleMatch\_ = 0x00000000}
+\DoxyCodeLine{00242 \};}
+\DoxyCodeLine{00243 }
+\DoxyCodeLine{00244 \textcolor{keyword}{enum} GptmGptmtbpmrTbpsmrValues\_ \{}
+\DoxyCodeLine{00245     gptmGptmtbpmrTbpsmrGptmTimerbPrescaleMatch\_ = 0x00000000}
+\DoxyCodeLine{00246 \};}
+\DoxyCodeLine{00247 }
+\DoxyCodeLine{00248 uint32\_t gptmShiReadGptmcfg\_(\textcolor{keyword}{enum} HalGptmCores \textcolor{keyword}{const} core);}
+\DoxyCodeLine{00249 \textcolor{keywordtype}{void} gptmShiWriteGptmcfg\_(\textcolor{keyword}{enum} HalGptmCores \textcolor{keyword}{const} core, uint32\_t \textcolor{keyword}{const} registerValue);}
+\DoxyCodeLine{00250 }
+\DoxyCodeLine{00251 uint32\_t gptmShiReadGptmtamr\_(\textcolor{keyword}{enum} HalGptmCores \textcolor{keyword}{const} core);}
+\DoxyCodeLine{00252 \textcolor{keywordtype}{void} gptmShiWriteGptmtamr\_(\textcolor{keyword}{enum} HalGptmCores \textcolor{keyword}{const} core, uint32\_t \textcolor{keyword}{const} registerValue);}
+\DoxyCodeLine{00253 }
+\DoxyCodeLine{00254 uint32\_t gptmShiReadGptmtbmr\_(\textcolor{keyword}{enum} HalGptmCores \textcolor{keyword}{const} core);}
+\DoxyCodeLine{00255 \textcolor{keywordtype}{void} gptmShiWriteGptmtbmr\_(\textcolor{keyword}{enum} HalGptmCores \textcolor{keyword}{const} core, uint32\_t \textcolor{keyword}{const} registerValue);}
+\DoxyCodeLine{00256 }
+\DoxyCodeLine{00257 uint32\_t gptmShiReadGptmctl\_(\textcolor{keyword}{enum} HalGptmCores \textcolor{keyword}{const} core);}
+\DoxyCodeLine{00258 \textcolor{keywordtype}{void} gptmShiWriteGptmctl\_(\textcolor{keyword}{enum} HalGptmCores \textcolor{keyword}{const} core, uint32\_t \textcolor{keyword}{const} registerValue);}
+\DoxyCodeLine{00259 }
+\DoxyCodeLine{00260 uint32\_t gptmShiReadGptmtapr\_(\textcolor{keyword}{enum} HalGptmCores \textcolor{keyword}{const} core);}
+\DoxyCodeLine{00261 \textcolor{keywordtype}{void} gptmShiWriteGptmtapr\_(\textcolor{keyword}{enum} HalGptmCores \textcolor{keyword}{const} core, uint32\_t \textcolor{keyword}{const} registerValue);}
+\DoxyCodeLine{00262 }
+\DoxyCodeLine{00263 uint32\_t gptmShiReadGptmtbpr\_(\textcolor{keyword}{enum} HalGptmCores \textcolor{keyword}{const} core);}
+\DoxyCodeLine{00264 \textcolor{keywordtype}{void} gptmShiWriteGptmtbpr\_(\textcolor{keyword}{enum} HalGptmCores \textcolor{keyword}{const} core, uint32\_t \textcolor{keyword}{const} registerValue);}
+\DoxyCodeLine{00265 }
+\DoxyCodeLine{00266 uint32\_t gptmShiReadGptmtapmr\_(\textcolor{keyword}{enum} HalGptmCores \textcolor{keyword}{const} core);}
+\DoxyCodeLine{00267 \textcolor{keywordtype}{void} gptmShiWriteGptmtapmr\_(\textcolor{keyword}{enum} HalGptmCores \textcolor{keyword}{const} core, uint32\_t \textcolor{keyword}{const} registerValue);}
+\DoxyCodeLine{00268 }
+\DoxyCodeLine{00269 uint32\_t gptmShiReadGptmtbpmr\_(\textcolor{keyword}{enum} HalGptmCores \textcolor{keyword}{const} core);}
+\DoxyCodeLine{00270 \textcolor{keywordtype}{void} gptmShiWriteGptmtbpmr\_(\textcolor{keyword}{enum} HalGptmCores \textcolor{keyword}{const} core, uint32\_t \textcolor{keyword}{const} registerValue);}
+\DoxyCodeLine{00271 }
+\DoxyCodeLine{00272 uint32\_t gptmShiReadGptmcfgGptmcfg\_(\textcolor{keyword}{enum} HalGptmCores \textcolor{keyword}{const} core);}
+\DoxyCodeLine{00273 uint32\_t gptmShiReadUIGptmcfgGptmcfg\_(uint32\_t \textcolor{keyword}{const} registerValue);}
+\DoxyCodeLine{00274 }
+\DoxyCodeLine{00275 \textcolor{keywordtype}{void} gptmShiWriteGptmcfgGptmcfg\_(\textcolor{keyword}{enum} HalGptmCores \textcolor{keyword}{const} core, \textcolor{keyword}{enum} GptmGptmcfgGptmcfgValues\_ \textcolor{keyword}{const} gptmcfg);}
+\DoxyCodeLine{00276 \textcolor{keywordtype}{void} gptmShiWriteUIGptmcfgGptmcfg\_(uint32\_t * \textcolor{keyword}{const} registerValue, \textcolor{keyword}{enum} GptmGptmcfgGptmcfgValues\_ \textcolor{keyword}{const} gptmcfg);}
+\DoxyCodeLine{00277 }
+\DoxyCodeLine{00278 uint32\_t gptmShiReadGptmtamrTamr\_(\textcolor{keyword}{enum} HalGptmCores \textcolor{keyword}{const} core);}
+\DoxyCodeLine{00279 uint32\_t gptmShiReadUIGptmtamrTamr\_(uint32\_t \textcolor{keyword}{const} registerValue);}
+\DoxyCodeLine{00280 }
+\DoxyCodeLine{00281 \textcolor{keywordtype}{void} gptmShiWriteGptmtamrTamr\_(\textcolor{keyword}{enum} HalGptmCores \textcolor{keyword}{const} core, \textcolor{keyword}{enum} GptmGptmtamrTamrValues\_ \textcolor{keyword}{const} tamr);}
+\DoxyCodeLine{00282 \textcolor{keywordtype}{void} gptmShiWriteUIGptmtamrTamr\_(uint32\_t * \textcolor{keyword}{const} registerValue, \textcolor{keyword}{enum} GptmGptmtamrTamrValues\_ \textcolor{keyword}{const} tamr);}
+\DoxyCodeLine{00283 }
+\DoxyCodeLine{00284 uint32\_t gptmShiReadGptmtamrTacmr\_(\textcolor{keyword}{enum} HalGptmCores \textcolor{keyword}{const} core);}
+\DoxyCodeLine{00285 uint32\_t gptmShiReadUIGptmtamrTacmr\_(uint32\_t \textcolor{keyword}{const} registerValue);}
+\DoxyCodeLine{00286 }
+\DoxyCodeLine{00287 \textcolor{keywordtype}{void} gptmShiWriteGptmtamrTacmr\_(\textcolor{keyword}{enum} HalGptmCores \textcolor{keyword}{const} core, \textcolor{keyword}{enum} GptmGptmtamrTacmrValues\_ \textcolor{keyword}{const} tacmr);}
+\DoxyCodeLine{00288 \textcolor{keywordtype}{void} gptmShiWriteUIGptmtamrTacmr\_(uint32\_t * \textcolor{keyword}{const} registerValue, \textcolor{keyword}{enum} GptmGptmtamrTacmrValues\_ \textcolor{keyword}{const} tacmr);}
+\DoxyCodeLine{00289 }
+\DoxyCodeLine{00290 uint32\_t gptmShiReadGptmtamrTaams\_(\textcolor{keyword}{enum} HalGptmCores \textcolor{keyword}{const} core);}
+\DoxyCodeLine{00291 uint32\_t gptmShiReadUIGptmtamrTaams\_(uint32\_t \textcolor{keyword}{const} registerValue);}
+\DoxyCodeLine{00292 }
+\DoxyCodeLine{00293 \textcolor{keywordtype}{void} gptmShiWriteGptmtamrTaams\_(\textcolor{keyword}{enum} HalGptmCores \textcolor{keyword}{const} core, \textcolor{keyword}{enum} GptmGptmtamrTaamsValues\_ \textcolor{keyword}{const} taams);}
+\DoxyCodeLine{00294 \textcolor{keywordtype}{void} gptmShiWriteUIGptmtamrTaams\_(uint32\_t * \textcolor{keyword}{const} registerValue, \textcolor{keyword}{enum} GptmGptmtamrTaamsValues\_ \textcolor{keyword}{const} taams);}
+\DoxyCodeLine{00295 }
+\DoxyCodeLine{00296 uint32\_t gptmShiReadGptmtamrTacdir\_(\textcolor{keyword}{enum} HalGptmCores \textcolor{keyword}{const} core);}
+\DoxyCodeLine{00297 uint32\_t gptmShiReadUIGptmtamrTacdir\_(uint32\_t \textcolor{keyword}{const} registerValue);}
+\DoxyCodeLine{00298 }
+\DoxyCodeLine{00299 \textcolor{keywordtype}{void} gptmShiWriteGptmtamrTacdir\_(\textcolor{keyword}{enum} HalGptmCores \textcolor{keyword}{const} core, \textcolor{keyword}{enum} GptmGptmtamrTacdirValues\_ \textcolor{keyword}{const} tacdir);}
+\DoxyCodeLine{00300 \textcolor{keywordtype}{void} gptmShiWriteUIGptmtamrTacdir\_(uint32\_t * \textcolor{keyword}{const} registerValue, \textcolor{keyword}{enum} GptmGptmtamrTacdirValues\_ \textcolor{keyword}{const} tacdir);}
+\DoxyCodeLine{00301 }
+\DoxyCodeLine{00302 uint32\_t gptmShiReadGptmtamrTamie\_(\textcolor{keyword}{enum} HalGptmCores \textcolor{keyword}{const} core);}
+\DoxyCodeLine{00303 uint32\_t gptmShiReadUIGptmtamrTamie\_(uint32\_t \textcolor{keyword}{const} registerValue);}
+\DoxyCodeLine{00304 }
+\DoxyCodeLine{00305 \textcolor{keywordtype}{void} gptmShiWriteGptmtamrTamie\_(\textcolor{keyword}{enum} HalGptmCores \textcolor{keyword}{const} core, \textcolor{keyword}{enum} GptmGptmtamrTamieValues\_ \textcolor{keyword}{const} tamie);}
+\DoxyCodeLine{00306 \textcolor{keywordtype}{void} gptmShiWriteUIGptmtamrTamie\_(uint32\_t * \textcolor{keyword}{const} registerValue, \textcolor{keyword}{enum} GptmGptmtamrTamieValues\_ \textcolor{keyword}{const} tamie);}
+\DoxyCodeLine{00307 }
+\DoxyCodeLine{00308 uint32\_t gptmShiReadGptmtamrTawot\_(\textcolor{keyword}{enum} HalGptmCores \textcolor{keyword}{const} core);}
+\DoxyCodeLine{00309 uint32\_t gptmShiReadUIGptmtamrTawot\_(uint32\_t \textcolor{keyword}{const} registerValue);}
+\DoxyCodeLine{00310 }
+\DoxyCodeLine{00311 \textcolor{keywordtype}{void} gptmShiWriteGptmtamrTawot\_(\textcolor{keyword}{enum} HalGptmCores \textcolor{keyword}{const} core, \textcolor{keyword}{enum} GptmGptmtamrTawotValues\_ \textcolor{keyword}{const} tawot);}
+\DoxyCodeLine{00312 \textcolor{keywordtype}{void} gptmShiWriteUIGptmtamrTawot\_(uint32\_t * \textcolor{keyword}{const} registerValue, \textcolor{keyword}{enum} GptmGptmtamrTawotValues\_ \textcolor{keyword}{const} tawot);}
+\DoxyCodeLine{00313 }
+\DoxyCodeLine{00314 uint32\_t gptmShiReadGptmtamrTasnaps\_(\textcolor{keyword}{enum} HalGptmCores \textcolor{keyword}{const} core);}
+\DoxyCodeLine{00315 uint32\_t gptmShiReadUIGptmtamrTasnaps\_(uint32\_t \textcolor{keyword}{const} registerValue);}
+\DoxyCodeLine{00316 }
+\DoxyCodeLine{00317 \textcolor{keywordtype}{void} gptmShiWriteGptmtamrTasnaps\_(\textcolor{keyword}{enum} HalGptmCores \textcolor{keyword}{const} core, \textcolor{keyword}{enum} GptmGptmtamrTasnapsValues\_ \textcolor{keyword}{const} tasnaps);}
+\DoxyCodeLine{00318 \textcolor{keywordtype}{void} gptmShiWriteUIGptmtamrTasnaps\_(uint32\_t * \textcolor{keyword}{const} registerValue, \textcolor{keyword}{enum} GptmGptmtamrTasnapsValues\_ \textcolor{keyword}{const} tasnaps);}
+\DoxyCodeLine{00319 }
+\DoxyCodeLine{00320 uint32\_t gptmShiReadGptmtamrTaild\_(\textcolor{keyword}{enum} HalGptmCores \textcolor{keyword}{const} core);}
+\DoxyCodeLine{00321 uint32\_t gptmShiReadUIGptmtamrTaild\_(uint32\_t \textcolor{keyword}{const} registerValue);}
+\DoxyCodeLine{00322 }
+\DoxyCodeLine{00323 \textcolor{keywordtype}{void} gptmShiWriteGptmtamrTaild\_(\textcolor{keyword}{enum} HalGptmCores \textcolor{keyword}{const} core, \textcolor{keyword}{enum} GptmGptmtamrTaildValues\_ \textcolor{keyword}{const} taild);}
+\DoxyCodeLine{00324 \textcolor{keywordtype}{void} gptmShiWriteUIGptmtamrTaild\_(uint32\_t * \textcolor{keyword}{const} registerValue, \textcolor{keyword}{enum} GptmGptmtamrTaildValues\_ \textcolor{keyword}{const} taild);}
+\DoxyCodeLine{00325 }
+\DoxyCodeLine{00326 uint32\_t gptmShiReadGptmtamrTapwmie\_(\textcolor{keyword}{enum} HalGptmCores \textcolor{keyword}{const} core);}
+\DoxyCodeLine{00327 uint32\_t gptmShiReadUIGptmtamrTapwmie\_(uint32\_t \textcolor{keyword}{const} registerValue);}
+\DoxyCodeLine{00328 }
+\DoxyCodeLine{00329 \textcolor{keywordtype}{void} gptmShiWriteGptmtamrTapwmie\_(\textcolor{keyword}{enum} HalGptmCores \textcolor{keyword}{const} core, \textcolor{keyword}{enum} GptmGptmtamrTapwmieValues\_ \textcolor{keyword}{const} tapwmie);}
+\DoxyCodeLine{00330 \textcolor{keywordtype}{void} gptmShiWriteUIGptmtamrTapwmie\_(uint32\_t * \textcolor{keyword}{const} registerValue, \textcolor{keyword}{enum} GptmGptmtamrTapwmieValues\_ \textcolor{keyword}{const} tapwmie);}
+\DoxyCodeLine{00331 }
+\DoxyCodeLine{00332 uint32\_t gptmShiReadGptmtamrTamrsu\_(\textcolor{keyword}{enum} HalGptmCores \textcolor{keyword}{const} core);}
+\DoxyCodeLine{00333 uint32\_t gptmShiReadUIGptmtamrTamrsu\_(uint32\_t \textcolor{keyword}{const} registerValue);}
+\DoxyCodeLine{00334 }
+\DoxyCodeLine{00335 \textcolor{keywordtype}{void} gptmShiWriteGptmtamrTamrsu\_(\textcolor{keyword}{enum} HalGptmCores \textcolor{keyword}{const} core, \textcolor{keyword}{enum} GptmGptmtamrTamrsuValues\_ \textcolor{keyword}{const} tamrsu);}
+\DoxyCodeLine{00336 \textcolor{keywordtype}{void} gptmShiWriteUIGptmtamrTamrsu\_(uint32\_t * \textcolor{keyword}{const} registerValue, \textcolor{keyword}{enum} GptmGptmtamrTamrsuValues\_ \textcolor{keyword}{const} tamrsu);}
+\DoxyCodeLine{00337 }
+\DoxyCodeLine{00338 uint32\_t gptmShiReadGptmtamrTaplo\_(\textcolor{keyword}{enum} HalGptmCores \textcolor{keyword}{const} core);}
+\DoxyCodeLine{00339 uint32\_t gptmShiReadUIGptmtamrTaplo\_(uint32\_t \textcolor{keyword}{const} registerValue);}
+\DoxyCodeLine{00340 }
+\DoxyCodeLine{00341 \textcolor{keywordtype}{void} gptmShiWriteGptmtamrTaplo\_(\textcolor{keyword}{enum} HalGptmCores \textcolor{keyword}{const} core, \textcolor{keyword}{enum} GptmGptmtamrTaploValues\_ \textcolor{keyword}{const} taplo);}
+\DoxyCodeLine{00342 \textcolor{keywordtype}{void} gptmShiWriteUIGptmtamrTaplo\_(uint32\_t * \textcolor{keyword}{const} registerValue, \textcolor{keyword}{enum} GptmGptmtamrTaploValues\_ \textcolor{keyword}{const} taplo);}
+\DoxyCodeLine{00343 }
+\DoxyCodeLine{00344 uint32\_t gptmShiReadGptmtamrTacintd\_(\textcolor{keyword}{enum} HalGptmCores \textcolor{keyword}{const} core);}
+\DoxyCodeLine{00345 uint32\_t gptmShiReadUIGptmtamrTacintd\_(uint32\_t \textcolor{keyword}{const} registerValue);}
+\DoxyCodeLine{00346 }
+\DoxyCodeLine{00347 \textcolor{keywordtype}{void} gptmShiWriteGptmtamrTacintd\_(\textcolor{keyword}{enum} HalGptmCores \textcolor{keyword}{const} core, \textcolor{keyword}{enum} GptmGptmtamrTacintdValues\_ \textcolor{keyword}{const} tacintd);}
+\DoxyCodeLine{00348 \textcolor{keywordtype}{void} gptmShiWriteUIGptmtamrTacintd\_(uint32\_t * \textcolor{keyword}{const} registerValue, \textcolor{keyword}{enum} GptmGptmtamrTacintdValues\_ \textcolor{keyword}{const} tacintd);}
+\DoxyCodeLine{00349 }
+\DoxyCodeLine{00350 uint32\_t gptmShiReadGptmtamrTcact\_(\textcolor{keyword}{enum} HalGptmCores \textcolor{keyword}{const} core);}
+\DoxyCodeLine{00351 uint32\_t gptmShiReadUIGptmtamrTcact\_(uint32\_t \textcolor{keyword}{const} registerValue);}
+\DoxyCodeLine{00352 }
+\DoxyCodeLine{00353 \textcolor{keywordtype}{void} gptmShiWriteGptmtamrTcact\_(\textcolor{keyword}{enum} HalGptmCores \textcolor{keyword}{const} core, \textcolor{keyword}{enum} GptmGptmtamrTcactValues\_ \textcolor{keyword}{const} tcact);}
+\DoxyCodeLine{00354 \textcolor{keywordtype}{void} gptmShiWriteUIGptmtamrTcact\_(uint32\_t * \textcolor{keyword}{const} registerValue, \textcolor{keyword}{enum} GptmGptmtamrTcactValues\_ \textcolor{keyword}{const} tcact);}
+\DoxyCodeLine{00355 }
+\DoxyCodeLine{00356 uint32\_t gptmShiReadGptmtbmrTbmr\_(\textcolor{keyword}{enum} HalGptmCores \textcolor{keyword}{const} core);}
+\DoxyCodeLine{00357 uint32\_t gptmShiReadUIGptmtbmrTbmr\_(uint32\_t \textcolor{keyword}{const} registerValue);}
+\DoxyCodeLine{00358 }
+\DoxyCodeLine{00359 \textcolor{keywordtype}{void} gptmShiWriteGptmtbmrTbmr\_(\textcolor{keyword}{enum} HalGptmCores \textcolor{keyword}{const} core, \textcolor{keyword}{enum} GptmGptmtbmrTbmrValues\_ \textcolor{keyword}{const} tbmr);}
+\DoxyCodeLine{00360 \textcolor{keywordtype}{void} gptmShiWriteUIGptmtbmrTbmr\_(uint32\_t * \textcolor{keyword}{const} registerValue, \textcolor{keyword}{enum} GptmGptmtbmrTbmrValues\_ \textcolor{keyword}{const} tbmr);}
+\DoxyCodeLine{00361 }
+\DoxyCodeLine{00362 uint32\_t gptmShiReadGptmtbmrTbcmr\_(\textcolor{keyword}{enum} HalGptmCores \textcolor{keyword}{const} core);}
+\DoxyCodeLine{00363 uint32\_t gptmShiReadUIGptmtbmrTbcmr\_(uint32\_t \textcolor{keyword}{const} registerValue);}
+\DoxyCodeLine{00364 }
+\DoxyCodeLine{00365 \textcolor{keywordtype}{void} gptmShiWriteGptmtbmrTbcmr\_(\textcolor{keyword}{enum} HalGptmCores \textcolor{keyword}{const} core, \textcolor{keyword}{enum} GptmGptmtbmrTbcmrValues\_ \textcolor{keyword}{const} tbcmr);}
+\DoxyCodeLine{00366 \textcolor{keywordtype}{void} gptmShiWriteUIGptmtbmrTbcmr\_(uint32\_t * \textcolor{keyword}{const} registerValue, \textcolor{keyword}{enum} GptmGptmtbmrTbcmrValues\_ \textcolor{keyword}{const} tbcmr);}
+\DoxyCodeLine{00367 }
+\DoxyCodeLine{00368 uint32\_t gptmShiReadGptmtbmrTbams\_(\textcolor{keyword}{enum} HalGptmCores \textcolor{keyword}{const} core);}
+\DoxyCodeLine{00369 uint32\_t gptmShiReadUIGptmtbmrTbams\_(uint32\_t \textcolor{keyword}{const} registerValue);}
+\DoxyCodeLine{00370 }
+\DoxyCodeLine{00371 \textcolor{keywordtype}{void} gptmShiWriteGptmtbmrTbams\_(\textcolor{keyword}{enum} HalGptmCores \textcolor{keyword}{const} core, \textcolor{keyword}{enum} GptmGptmtbmrTbamsValues\_ \textcolor{keyword}{const} tbams);}
+\DoxyCodeLine{00372 \textcolor{keywordtype}{void} gptmShiWriteUIGptmtbmrTbams\_(uint32\_t * \textcolor{keyword}{const} registerValue, \textcolor{keyword}{enum} GptmGptmtbmrTbamsValues\_ \textcolor{keyword}{const} tbams);}
+\DoxyCodeLine{00373 }
+\DoxyCodeLine{00374 uint32\_t gptmShiReadGptmtbmrTbcdir\_(\textcolor{keyword}{enum} HalGptmCores \textcolor{keyword}{const} core);}
+\DoxyCodeLine{00375 uint32\_t gptmShiReadUIGptmtbmrTbcdir\_(uint32\_t \textcolor{keyword}{const} registerValue);}
+\DoxyCodeLine{00376 }
+\DoxyCodeLine{00377 \textcolor{keywordtype}{void} gptmShiWriteGptmtbmrTbcdir\_(\textcolor{keyword}{enum} HalGptmCores \textcolor{keyword}{const} core, \textcolor{keyword}{enum} GptmGptmtbmrTbcdirValues\_ \textcolor{keyword}{const} tbcdir);}
+\DoxyCodeLine{00378 \textcolor{keywordtype}{void} gptmShiWriteUIGptmtbmrTbcdir\_(uint32\_t * \textcolor{keyword}{const} registerValue, \textcolor{keyword}{enum} GptmGptmtbmrTbcdirValues\_ \textcolor{keyword}{const} tbcdir);}
+\DoxyCodeLine{00379 }
+\DoxyCodeLine{00380 uint32\_t gptmShiReadGptmtbmrTbmie\_(\textcolor{keyword}{enum} HalGptmCores \textcolor{keyword}{const} core);}
+\DoxyCodeLine{00381 uint32\_t gptmShiReadUIGptmtbmrTbmie\_(uint32\_t \textcolor{keyword}{const} registerValue);}
+\DoxyCodeLine{00382 }
+\DoxyCodeLine{00383 \textcolor{keywordtype}{void} gptmShiWriteGptmtbmrTbmie\_(\textcolor{keyword}{enum} HalGptmCores \textcolor{keyword}{const} core, \textcolor{keyword}{enum} GptmGptmtbmrTbmieValues\_ \textcolor{keyword}{const} tbmie);}
+\DoxyCodeLine{00384 \textcolor{keywordtype}{void} gptmShiWriteUIGptmtbmrTbmie\_(uint32\_t * \textcolor{keyword}{const} registerValue, \textcolor{keyword}{enum} GptmGptmtbmrTbmieValues\_ \textcolor{keyword}{const} tbmie);}
+\DoxyCodeLine{00385 }
+\DoxyCodeLine{00386 uint32\_t gptmShiReadGptmtbmrTbwot\_(\textcolor{keyword}{enum} HalGptmCores \textcolor{keyword}{const} core);}
+\DoxyCodeLine{00387 uint32\_t gptmShiReadUIGptmtbmrTbwot\_(uint32\_t \textcolor{keyword}{const} registerValue);}
+\DoxyCodeLine{00388 }
+\DoxyCodeLine{00389 \textcolor{keywordtype}{void} gptmShiWriteGptmtbmrTbwot\_(\textcolor{keyword}{enum} HalGptmCores \textcolor{keyword}{const} core, \textcolor{keyword}{enum} GptmGptmtbmrTbwotValues\_ \textcolor{keyword}{const} tbwot);}
+\DoxyCodeLine{00390 \textcolor{keywordtype}{void} gptmShiWriteUIGptmtbmrTbwot\_(uint32\_t * \textcolor{keyword}{const} registerValue, \textcolor{keyword}{enum} GptmGptmtbmrTbwotValues\_ \textcolor{keyword}{const} tbwot);}
+\DoxyCodeLine{00391 }
+\DoxyCodeLine{00392 uint32\_t gptmShiReadGptmtbmrTbsnaps\_(\textcolor{keyword}{enum} HalGptmCores \textcolor{keyword}{const} core);}
+\DoxyCodeLine{00393 uint32\_t gptmShiReadUIGptmtbmrTbsnaps\_(uint32\_t \textcolor{keyword}{const} registerValue);}
+\DoxyCodeLine{00394 }
+\DoxyCodeLine{00395 \textcolor{keywordtype}{void} gptmShiWriteGptmtbmrTbsnaps\_(\textcolor{keyword}{enum} HalGptmCores \textcolor{keyword}{const} core, \textcolor{keyword}{enum} GptmGptmtbmrTbsnapsValues\_ \textcolor{keyword}{const} tbsnaps);}
+\DoxyCodeLine{00396 \textcolor{keywordtype}{void} gptmShiWriteUIGptmtbmrTbsnaps\_(uint32\_t * \textcolor{keyword}{const} registerValue, \textcolor{keyword}{enum} GptmGptmtbmrTbsnapsValues\_ \textcolor{keyword}{const} tbsnaps);}
+\DoxyCodeLine{00397 }
+\DoxyCodeLine{00398 uint32\_t gptmShiReadGptmtbmrTbild\_(\textcolor{keyword}{enum} HalGptmCores \textcolor{keyword}{const} core);}
+\DoxyCodeLine{00399 uint32\_t gptmShiReadUIGptmtbmrTbild\_(uint32\_t \textcolor{keyword}{const} registerValue);}
+\DoxyCodeLine{00400 }
+\DoxyCodeLine{00401 \textcolor{keywordtype}{void} gptmShiWriteGptmtbmrTbild\_(\textcolor{keyword}{enum} HalGptmCores \textcolor{keyword}{const} core, \textcolor{keyword}{enum} GptmGptmtbmrTbildValues\_ \textcolor{keyword}{const} tbild);}
+\DoxyCodeLine{00402 \textcolor{keywordtype}{void} gptmShiWriteUIGptmtbmrTbild\_(uint32\_t * \textcolor{keyword}{const} registerValue, \textcolor{keyword}{enum} GptmGptmtbmrTbildValues\_ \textcolor{keyword}{const} tbild);}
+\DoxyCodeLine{00403 }
+\DoxyCodeLine{00404 uint32\_t gptmShiReadGptmtbmrTbpwmie\_(\textcolor{keyword}{enum} HalGptmCores \textcolor{keyword}{const} core);}
+\DoxyCodeLine{00405 uint32\_t gptmShiReadUIGptmtbmrTbpwmie\_(uint32\_t \textcolor{keyword}{const} registerValue);}
+\DoxyCodeLine{00406 }
+\DoxyCodeLine{00407 \textcolor{keywordtype}{void} gptmShiWriteGptmtbmrTbpwmie\_(\textcolor{keyword}{enum} HalGptmCores \textcolor{keyword}{const} core, \textcolor{keyword}{enum} GptmGptmtbmrTbpwmieValues\_ \textcolor{keyword}{const} tbpwmie);}
+\DoxyCodeLine{00408 \textcolor{keywordtype}{void} gptmShiWriteUIGptmtbmrTbpwmie\_(uint32\_t * \textcolor{keyword}{const} registerValue, \textcolor{keyword}{enum} GptmGptmtbmrTbpwmieValues\_ \textcolor{keyword}{const} tbpwmie);}
+\DoxyCodeLine{00409 }
+\DoxyCodeLine{00410 uint32\_t gptmShiReadGptmtbmrTbmrsu\_(\textcolor{keyword}{enum} HalGptmCores \textcolor{keyword}{const} core);}
+\DoxyCodeLine{00411 uint32\_t gptmShiReadUIGptmtbmrTbmrsu\_(uint32\_t \textcolor{keyword}{const} registerValue);}
+\DoxyCodeLine{00412 }
+\DoxyCodeLine{00413 \textcolor{keywordtype}{void} gptmShiWriteGptmtbmrTbmrsu\_(\textcolor{keyword}{enum} HalGptmCores \textcolor{keyword}{const} core, \textcolor{keyword}{enum} GptmGptmtbmrTbmrsuValues\_ \textcolor{keyword}{const} tbmrsu);}
+\DoxyCodeLine{00414 \textcolor{keywordtype}{void} gptmShiWriteUIGptmtbmrTbmrsu\_(uint32\_t * \textcolor{keyword}{const} registerValue, \textcolor{keyword}{enum} GptmGptmtbmrTbmrsuValues\_ \textcolor{keyword}{const} tbmrsu);}
+\DoxyCodeLine{00415 }
+\DoxyCodeLine{00416 uint32\_t gptmShiReadGptmtbmrTbplo\_(\textcolor{keyword}{enum} HalGptmCores \textcolor{keyword}{const} core);}
+\DoxyCodeLine{00417 uint32\_t gptmShiReadUIGptmtbmrTbplo\_(uint32\_t \textcolor{keyword}{const} registerValue);}
+\DoxyCodeLine{00418 }
+\DoxyCodeLine{00419 \textcolor{keywordtype}{void} gptmShiWriteGptmtbmrTbplo\_(\textcolor{keyword}{enum} HalGptmCores \textcolor{keyword}{const} core, \textcolor{keyword}{enum} GptmGptmtbmrTbploValues\_ \textcolor{keyword}{const} tbplo);}
+\DoxyCodeLine{00420 \textcolor{keywordtype}{void} gptmShiWriteUIGptmtbmrTbplo\_(uint32\_t * \textcolor{keyword}{const} registerValue, \textcolor{keyword}{enum} GptmGptmtbmrTbploValues\_ \textcolor{keyword}{const} tbplo);}
+\DoxyCodeLine{00421 }
+\DoxyCodeLine{00422 uint32\_t gptmShiReadGptmtbmrTbcintd\_(\textcolor{keyword}{enum} HalGptmCores \textcolor{keyword}{const} core);}
+\DoxyCodeLine{00423 uint32\_t gptmShiReadUIGptmtbmrTbcintd\_(uint32\_t \textcolor{keyword}{const} registerValue);}
+\DoxyCodeLine{00424 }
+\DoxyCodeLine{00425 \textcolor{keywordtype}{void} gptmShiWriteGptmtbmrTbcintd\_(\textcolor{keyword}{enum} HalGptmCores \textcolor{keyword}{const} core, \textcolor{keyword}{enum} GptmGptmtbmrTbcintdValues\_ \textcolor{keyword}{const} tbcintd);}
+\DoxyCodeLine{00426 \textcolor{keywordtype}{void} gptmShiWriteUIGptmtbmrTbcintd\_(uint32\_t * \textcolor{keyword}{const} registerValue, \textcolor{keyword}{enum} GptmGptmtbmrTbcintdValues\_ \textcolor{keyword}{const} tbcintd);}
+\DoxyCodeLine{00427 }
+\DoxyCodeLine{00428 uint32\_t gptmShiReadGptmtbmrTcact\_(\textcolor{keyword}{enum} HalGptmCores \textcolor{keyword}{const} core);}
+\DoxyCodeLine{00429 uint32\_t gptmShiReadUIGptmtbmrTcact\_(uint32\_t \textcolor{keyword}{const} registerValue);}
+\DoxyCodeLine{00430 }
+\DoxyCodeLine{00431 \textcolor{keywordtype}{void} gptmShiWriteGptmtbmrTcact\_(\textcolor{keyword}{enum} HalGptmCores \textcolor{keyword}{const} core, \textcolor{keyword}{enum} GptmGptmtbmrTcactValues\_ \textcolor{keyword}{const} tcact);}
+\DoxyCodeLine{00432 \textcolor{keywordtype}{void} gptmShiWriteUIGptmtbmrTcact\_(uint32\_t * \textcolor{keyword}{const} registerValue, \textcolor{keyword}{enum} GptmGptmtbmrTcactValues\_ \textcolor{keyword}{const} tcact);}
+\DoxyCodeLine{00433 }
+\DoxyCodeLine{00434 uint32\_t gptmShiReadGptmctlTaen\_(\textcolor{keyword}{enum} HalGptmCores \textcolor{keyword}{const} core);}
+\DoxyCodeLine{00435 uint32\_t gptmShiReadUIGptmctlTaen\_(uint32\_t \textcolor{keyword}{const} registerValue);}
+\DoxyCodeLine{00436 }
+\DoxyCodeLine{00437 \textcolor{keywordtype}{void} gptmShiWriteGptmctlTaen\_(\textcolor{keyword}{enum} HalGptmCores \textcolor{keyword}{const} core, \textcolor{keyword}{enum} GptmGptmctlTaenValues\_ \textcolor{keyword}{const} taen);}
+\DoxyCodeLine{00438 \textcolor{keywordtype}{void} gptmShiWriteUIGptmctlTaen\_(uint32\_t * \textcolor{keyword}{const} registerValue, \textcolor{keyword}{enum} GptmGptmctlTaenValues\_ \textcolor{keyword}{const} taen);}
+\DoxyCodeLine{00439 }
+\DoxyCodeLine{00440 uint32\_t gptmShiReadGptmctlTastall\_(\textcolor{keyword}{enum} HalGptmCores \textcolor{keyword}{const} core);}
+\DoxyCodeLine{00441 uint32\_t gptmShiReadUIGptmctlTastall\_(uint32\_t \textcolor{keyword}{const} registerValue);}
+\DoxyCodeLine{00442 }
+\DoxyCodeLine{00443 \textcolor{keywordtype}{void} gptmShiWriteGptmctlTastall\_(\textcolor{keyword}{enum} HalGptmCores \textcolor{keyword}{const} core, \textcolor{keyword}{enum} GptmGptmctlTastallValues\_ \textcolor{keyword}{const} tastall);}
+\DoxyCodeLine{00444 \textcolor{keywordtype}{void} gptmShiWriteUIGptmctlTastall\_(uint32\_t * \textcolor{keyword}{const} registerValue, \textcolor{keyword}{enum} GptmGptmctlTastallValues\_ \textcolor{keyword}{const} tastall);}
+\DoxyCodeLine{00445 }
+\DoxyCodeLine{00446 uint32\_t gptmShiReadGptmctlTaevent\_(\textcolor{keyword}{enum} HalGptmCores \textcolor{keyword}{const} core);}
+\DoxyCodeLine{00447 uint32\_t gptmShiReadUIGptmctlTaevent\_(uint32\_t \textcolor{keyword}{const} registerValue);}
+\DoxyCodeLine{00448 }
+\DoxyCodeLine{00449 \textcolor{keywordtype}{void} gptmShiWriteGptmctlTaevent\_(\textcolor{keyword}{enum} HalGptmCores \textcolor{keyword}{const} core, \textcolor{keyword}{enum} GptmGptmctlTaeventValues\_ \textcolor{keyword}{const} taevent);}
+\DoxyCodeLine{00450 \textcolor{keywordtype}{void} gptmShiWriteUIGptmctlTaevent\_(uint32\_t * \textcolor{keyword}{const} registerValue, \textcolor{keyword}{enum} GptmGptmctlTaeventValues\_ \textcolor{keyword}{const} taevent);}
+\DoxyCodeLine{00451 }
+\DoxyCodeLine{00452 uint32\_t gptmShiReadGptmctlRtcen\_(\textcolor{keyword}{enum} HalGptmCores \textcolor{keyword}{const} core);}
+\DoxyCodeLine{00453 uint32\_t gptmShiReadUIGptmctlRtcen\_(uint32\_t \textcolor{keyword}{const} registerValue);}
+\DoxyCodeLine{00454 }
+\DoxyCodeLine{00455 \textcolor{keywordtype}{void} gptmShiWriteGptmctlRtcen\_(\textcolor{keyword}{enum} HalGptmCores \textcolor{keyword}{const} core, \textcolor{keyword}{enum} GptmGptmctlRtcenValues\_ \textcolor{keyword}{const} rtcen);}
+\DoxyCodeLine{00456 \textcolor{keywordtype}{void} gptmShiWriteUIGptmctlRtcen\_(uint32\_t * \textcolor{keyword}{const} registerValue, \textcolor{keyword}{enum} GptmGptmctlRtcenValues\_ \textcolor{keyword}{const} rtcen);}
+\DoxyCodeLine{00457 }
+\DoxyCodeLine{00458 uint32\_t gptmShiReadGptmctlTaote\_(\textcolor{keyword}{enum} HalGptmCores \textcolor{keyword}{const} core);}
+\DoxyCodeLine{00459 uint32\_t gptmShiReadUIGptmctlTaote\_(uint32\_t \textcolor{keyword}{const} registerValue);}
+\DoxyCodeLine{00460 }
+\DoxyCodeLine{00461 \textcolor{keywordtype}{void} gptmShiWriteGptmctlTaote\_(\textcolor{keyword}{enum} HalGptmCores \textcolor{keyword}{const} core, \textcolor{keyword}{enum} GptmGptmctlTaoteValues\_ \textcolor{keyword}{const} taote);}
+\DoxyCodeLine{00462 \textcolor{keywordtype}{void} gptmShiWriteUIGptmctlTaote\_(uint32\_t * \textcolor{keyword}{const} registerValue, \textcolor{keyword}{enum} GptmGptmctlTaoteValues\_ \textcolor{keyword}{const} taote);}
+\DoxyCodeLine{00463 }
+\DoxyCodeLine{00464 uint32\_t gptmShiReadGptmctlTapwml\_(\textcolor{keyword}{enum} HalGptmCores \textcolor{keyword}{const} core);}
+\DoxyCodeLine{00465 uint32\_t gptmShiReadUIGptmctlTapwml\_(uint32\_t \textcolor{keyword}{const} registerValue);}
+\DoxyCodeLine{00466 }
+\DoxyCodeLine{00467 \textcolor{keywordtype}{void} gptmShiWriteGptmctlTapwml\_(\textcolor{keyword}{enum} HalGptmCores \textcolor{keyword}{const} core, \textcolor{keyword}{enum} GptmGptmctlTapwmlValues\_ \textcolor{keyword}{const} tapwml);}
+\DoxyCodeLine{00468 \textcolor{keywordtype}{void} gptmShiWriteUIGptmctlTapwml\_(uint32\_t * \textcolor{keyword}{const} registerValue, \textcolor{keyword}{enum} GptmGptmctlTapwmlValues\_ \textcolor{keyword}{const} tapwml);}
+\DoxyCodeLine{00469 }
+\DoxyCodeLine{00470 uint32\_t gptmShiReadGptmctlTben\_(\textcolor{keyword}{enum} HalGptmCores \textcolor{keyword}{const} core);}
+\DoxyCodeLine{00471 uint32\_t gptmShiReadUIGptmctlTben\_(uint32\_t \textcolor{keyword}{const} registerValue);}
+\DoxyCodeLine{00472 }
+\DoxyCodeLine{00473 \textcolor{keywordtype}{void} gptmShiWriteGptmctlTben\_(\textcolor{keyword}{enum} HalGptmCores \textcolor{keyword}{const} core, \textcolor{keyword}{enum} GptmGptmctlTbenValues\_ \textcolor{keyword}{const} tben);}
+\DoxyCodeLine{00474 \textcolor{keywordtype}{void} gptmShiWriteUIGptmctlTben\_(uint32\_t * \textcolor{keyword}{const} registerValue, \textcolor{keyword}{enum} GptmGptmctlTbenValues\_ \textcolor{keyword}{const} tben);}
+\DoxyCodeLine{00475 }
+\DoxyCodeLine{00476 uint32\_t gptmShiReadGptmctlTbstall\_(\textcolor{keyword}{enum} HalGptmCores \textcolor{keyword}{const} core);}
+\DoxyCodeLine{00477 uint32\_t gptmShiReadUIGptmctlTbstall\_(uint32\_t \textcolor{keyword}{const} registerValue);}
+\DoxyCodeLine{00478 }
+\DoxyCodeLine{00479 \textcolor{keywordtype}{void} gptmShiWriteGptmctlTbstall\_(\textcolor{keyword}{enum} HalGptmCores \textcolor{keyword}{const} core, \textcolor{keyword}{enum} GptmGptmctlTbstallValues\_ \textcolor{keyword}{const} tbstall);}
+\DoxyCodeLine{00480 \textcolor{keywordtype}{void} gptmShiWriteUIGptmctlTbstall\_(uint32\_t * \textcolor{keyword}{const} registerValue, \textcolor{keyword}{enum} GptmGptmctlTbstallValues\_ \textcolor{keyword}{const} tbstall);}
+\DoxyCodeLine{00481 }
+\DoxyCodeLine{00482 uint32\_t gptmShiReadGptmctlTbevent\_(\textcolor{keyword}{enum} HalGptmCores \textcolor{keyword}{const} core);}
+\DoxyCodeLine{00483 uint32\_t gptmShiReadUIGptmctlTbevent\_(uint32\_t \textcolor{keyword}{const} registerValue);}
+\DoxyCodeLine{00484 }
+\DoxyCodeLine{00485 \textcolor{keywordtype}{void} gptmShiWriteGptmctlTbevent\_(\textcolor{keyword}{enum} HalGptmCores \textcolor{keyword}{const} core, \textcolor{keyword}{enum} GptmGptmctlTbeventValues\_ \textcolor{keyword}{const} tbevent);}
+\DoxyCodeLine{00486 \textcolor{keywordtype}{void} gptmShiWriteUIGptmctlTbevent\_(uint32\_t * \textcolor{keyword}{const} registerValue, \textcolor{keyword}{enum} GptmGptmctlTbeventValues\_ \textcolor{keyword}{const} tbevent);}
+\DoxyCodeLine{00487 }
+\DoxyCodeLine{00488 uint32\_t gptmShiReadGptmctlTbote\_(\textcolor{keyword}{enum} HalGptmCores \textcolor{keyword}{const} core);}
+\DoxyCodeLine{00489 uint32\_t gptmShiReadUIGptmctlTbote\_(uint32\_t \textcolor{keyword}{const} registerValue);}
+\DoxyCodeLine{00490 }
+\DoxyCodeLine{00491 \textcolor{keywordtype}{void} gptmShiWriteGptmctlTbote\_(\textcolor{keyword}{enum} HalGptmCores \textcolor{keyword}{const} core, \textcolor{keyword}{enum} GptmGptmctlTboteValues\_ \textcolor{keyword}{const} tbote);}
+\DoxyCodeLine{00492 \textcolor{keywordtype}{void} gptmShiWriteUIGptmctlTbote\_(uint32\_t * \textcolor{keyword}{const} registerValue, \textcolor{keyword}{enum} GptmGptmctlTboteValues\_ \textcolor{keyword}{const} tbote);}
+\DoxyCodeLine{00493 }
+\DoxyCodeLine{00494 uint32\_t gptmShiReadGptmctlTbpwml\_(\textcolor{keyword}{enum} HalGptmCores \textcolor{keyword}{const} core);}
+\DoxyCodeLine{00495 uint32\_t gptmShiReadUIGptmctlTbpwml\_(uint32\_t \textcolor{keyword}{const} registerValue);}
+\DoxyCodeLine{00496 }
+\DoxyCodeLine{00497 \textcolor{keywordtype}{void} gptmShiWriteGptmctlTbpwml\_(\textcolor{keyword}{enum} HalGptmCores \textcolor{keyword}{const} core, \textcolor{keyword}{enum} GptmGptmctlTbpwmlValues\_ \textcolor{keyword}{const} tbpwml);}
+\DoxyCodeLine{00498 \textcolor{keywordtype}{void} gptmShiWriteUIGptmctlTbpwml\_(uint32\_t * \textcolor{keyword}{const} registerValue, \textcolor{keyword}{enum} GptmGptmctlTbpwmlValues\_ \textcolor{keyword}{const} tbpwml);}
+\DoxyCodeLine{00499 }
+\DoxyCodeLine{00500 uint32\_t gptmShiReadGptmtaprTapsr\_(\textcolor{keyword}{enum} HalGptmCores \textcolor{keyword}{const} core);}
+\DoxyCodeLine{00501 uint32\_t gptmShiReadUIGptmtaprTapsr\_(uint32\_t \textcolor{keyword}{const} registerValue);}
+\DoxyCodeLine{00502 }
+\DoxyCodeLine{00503 \textcolor{keywordtype}{void} gptmShiWriteGptmtaprTapsr\_(\textcolor{keyword}{enum} HalGptmCores \textcolor{keyword}{const} core, \textcolor{keyword}{enum} GptmGptmtaprTapsrValues\_ \textcolor{keyword}{const} tapsr);}
+\DoxyCodeLine{00504 \textcolor{keywordtype}{void} gptmShiWriteUIGptmtaprTapsr\_(uint32\_t * \textcolor{keyword}{const} registerValue, \textcolor{keyword}{enum} GptmGptmtaprTapsrValues\_ \textcolor{keyword}{const} tapsr);}
+\DoxyCodeLine{00505 }
+\DoxyCodeLine{00506 uint32\_t gptmShiReadGptmtbprTbpsr\_(\textcolor{keyword}{enum} HalGptmCores \textcolor{keyword}{const} core);}
+\DoxyCodeLine{00507 uint32\_t gptmShiReadUIGptmtbprTbpsr\_(uint32\_t \textcolor{keyword}{const} registerValue);}
+\DoxyCodeLine{00508 }
+\DoxyCodeLine{00509 \textcolor{keywordtype}{void} gptmShiWriteGptmtbprTbpsr\_(\textcolor{keyword}{enum} HalGptmCores \textcolor{keyword}{const} core, \textcolor{keyword}{enum} GptmGptmtbprTbpsrValues\_ \textcolor{keyword}{const} tbpsr);}
+\DoxyCodeLine{00510 \textcolor{keywordtype}{void} gptmShiWriteUIGptmtbprTbpsr\_(uint32\_t * \textcolor{keyword}{const} registerValue, \textcolor{keyword}{enum} GptmGptmtbprTbpsrValues\_ \textcolor{keyword}{const} tbpsr);}
+\DoxyCodeLine{00511 }
+\DoxyCodeLine{00512 uint32\_t gptmShiReadGptmtapmrTapsmr\_(\textcolor{keyword}{enum} HalGptmCores \textcolor{keyword}{const} core);}
+\DoxyCodeLine{00513 uint32\_t gptmShiReadUIGptmtapmrTapsmr\_(uint32\_t \textcolor{keyword}{const} registerValue);}
+\DoxyCodeLine{00514 }
+\DoxyCodeLine{00515 \textcolor{keywordtype}{void} gptmShiWriteGptmtapmrTapsmr\_(\textcolor{keyword}{enum} HalGptmCores \textcolor{keyword}{const} core, \textcolor{keyword}{enum} GptmGptmtapmrTapsmrValues\_ \textcolor{keyword}{const} tapsmr);}
+\DoxyCodeLine{00516 \textcolor{keywordtype}{void} gptmShiWriteUIGptmtapmrTapsmr\_(uint32\_t * \textcolor{keyword}{const} registerValue, \textcolor{keyword}{enum} GptmGptmtapmrTapsmrValues\_ \textcolor{keyword}{const} tapsmr);}
+\DoxyCodeLine{00517 }
+\DoxyCodeLine{00518 uint32\_t gptmShiReadGptmtbpmrTbpsmr\_(\textcolor{keyword}{enum} HalGptmCores \textcolor{keyword}{const} core);}
+\DoxyCodeLine{00519 uint32\_t gptmShiReadUIGptmtbpmrTbpsmr\_(uint32\_t \textcolor{keyword}{const} registerValue);}
+\DoxyCodeLine{00520 }
+\DoxyCodeLine{00521 \textcolor{keywordtype}{void} gptmShiWriteGptmtbpmrTbpsmr\_(\textcolor{keyword}{enum} HalGptmCores \textcolor{keyword}{const} core, \textcolor{keyword}{enum} GptmGptmtbpmrTbpsmrValues\_ \textcolor{keyword}{const} tbpsmr);}
+\DoxyCodeLine{00522 \textcolor{keywordtype}{void} gptmShiWriteUIGptmtbpmrTbpsmr\_(uint32\_t * \textcolor{keyword}{const} registerValue, \textcolor{keyword}{enum} GptmGptmtbpmrTbpsmrValues\_ \textcolor{keyword}{const} tbpsmr);}
+\DoxyCodeLine{00523 }
+\DoxyCodeLine{00524 }
+\DoxyCodeLine{00525 \textcolor{preprocessor}{\#endif}}
+
+\end{DoxyCode}

@@ -1,0 +1,326 @@
+\doxysection{gptm\+Sysctl\+Shi.\+c}
+\label{gptm_sysctl_shi_8c_source}\index{hal/gptm/src/gptmSysctlShi.c@{hal/gptm/src/gptmSysctlShi.c}}
+
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00001 \textcolor{comment}{//*****************************************************************************}}
+\DoxyCodeLine{00002 \textcolor{comment}{// Name        : gptmSysctlShi.c}}
+\DoxyCodeLine{00003 \textcolor{comment}{// Author      : Ole Rönna }}
+\DoxyCodeLine{00004 \textcolor{comment}{// Maintainer  : Prof. Dr. Paweł Buczek }}
+\DoxyCodeLine{00005 \textcolor{comment}{// Version     : 0.4 }}
+\DoxyCodeLine{00006 \textcolor{comment}{// Copyright   : All rights reserved }}
+\DoxyCodeLine{00007 \textcolor{comment}{// Description : }}
+\DoxyCodeLine{00008 \textcolor{comment}{// This code was generated from a template. Manual changes to this file will }}
+\DoxyCodeLine{00009 \textcolor{comment}{// be overwritten if the code is regenerated. }}
+\DoxyCodeLine{00010 \textcolor{comment}{//}}
+\DoxyCodeLine{00011 \textcolor{comment}{//*****************************************************************************}}
+\DoxyCodeLine{00012 }
+\DoxyCodeLine{00013 \textcolor{preprocessor}{\#include "{}gptmSysctlShiCores.h"{}}}
+\DoxyCodeLine{00014 \textcolor{preprocessor}{\#include "{}gptmSysctlShi.h"{}}}
+\DoxyCodeLine{00015 \textcolor{preprocessor}{\#include "{}stdint.h"{}}}
+\DoxyCodeLine{00016 }
+\DoxyCodeLine{00017 \textcolor{comment}{//*****************************************************************************}}
+\DoxyCodeLine{00018 \textcolor{comment}{//}}
+\DoxyCodeLine{00019 \textcolor{comment}{// sysctl base addresses}}
+\DoxyCodeLine{00020 \textcolor{comment}{//}}
+\DoxyCodeLine{00021 \textcolor{comment}{//*****************************************************************************}}
+\DoxyCodeLine{00022 }
+\DoxyCodeLine{00023 \textcolor{keyword}{static} \textcolor{keyword}{const} uint32\_t sysctlCoreBaseAddresses\_[sysctlCoreCount\_] = \{}
+\DoxyCodeLine{00024     0x400FE000}
+\DoxyCodeLine{00025 \};}
+\DoxyCodeLine{00026 }
+\DoxyCodeLine{00027 \textcolor{comment}{//*****************************************************************************}}
+\DoxyCodeLine{00028 \textcolor{comment}{//}}
+\DoxyCodeLine{00029 \textcolor{comment}{// sysctl functions for reading/writing of the whole register}}
+\DoxyCodeLine{00030 \textcolor{comment}{//}}
+\DoxyCodeLine{00031 \textcolor{comment}{//*****************************************************************************}}
+\DoxyCodeLine{00032 }
+\DoxyCodeLine{00033 uint32\_t sysctlShiReadRcgctimer\_(\textcolor{keyword}{enum} SysctlCores\_ \textcolor{keyword}{const} core) \{}
+\DoxyCodeLine{00034     \textcolor{keywordflow}{return} *((\textcolor{keyword}{volatile} uint32\_t *)(sysctlRcgctimer\_ + sysctlCoreBaseAddresses\_[core]));}
+\DoxyCodeLine{00035 \}}
+\DoxyCodeLine{00036 }
+\DoxyCodeLine{00037 \textcolor{keywordtype}{void} sysctlShiWriteRcgctimer\_(\textcolor{keyword}{enum} SysctlCores\_ \textcolor{keyword}{const} core, uint32\_t \textcolor{keyword}{const} registerValue) \{}
+\DoxyCodeLine{00038     *((\textcolor{keyword}{volatile} uint32\_t *)(sysctlRcgctimer\_ + sysctlCoreBaseAddresses\_[core])) = registerValue;}
+\DoxyCodeLine{00039 \}}
+\DoxyCodeLine{00040 }
+\DoxyCodeLine{00041 }
+\DoxyCodeLine{00042 uint32\_t sysctlShiReadPrtimer\_(\textcolor{keyword}{enum} SysctlCores\_ \textcolor{keyword}{const} core) \{}
+\DoxyCodeLine{00043     \textcolor{keywordflow}{return} *((\textcolor{keyword}{volatile} uint32\_t *)(sysctlPrtimer\_ + sysctlCoreBaseAddresses\_[core]));}
+\DoxyCodeLine{00044 \}}
+\DoxyCodeLine{00045 }
+\DoxyCodeLine{00046 \textcolor{keywordtype}{void} sysctlShiWritePrtimer\_(\textcolor{keyword}{enum} SysctlCores\_ \textcolor{keyword}{const} core, uint32\_t \textcolor{keyword}{const} registerValue) \{}
+\DoxyCodeLine{00047     *((\textcolor{keyword}{volatile} uint32\_t *)(sysctlPrtimer\_ + sysctlCoreBaseAddresses\_[core])) = registerValue;}
+\DoxyCodeLine{00048 \}}
+\DoxyCodeLine{00049 }
+\DoxyCodeLine{00050 }
+\DoxyCodeLine{00051 \textcolor{comment}{//*****************************************************************************}}
+\DoxyCodeLine{00052 \textcolor{comment}{//}}
+\DoxyCodeLine{00053 \textcolor{comment}{// sysctl read/write individual bit fields}}
+\DoxyCodeLine{00054 \textcolor{comment}{//}}
+\DoxyCodeLine{00055 \textcolor{comment}{//*****************************************************************************}}
+\DoxyCodeLine{00056 }
+\DoxyCodeLine{00057 uint32\_t sysctlShiReadRcgctimerTimer0\_(\textcolor{keyword}{enum} SysctlCores\_ \textcolor{keyword}{const} core) \{}
+\DoxyCodeLine{00058     \textcolor{keywordflow}{return} ((*((\textcolor{keyword}{volatile} uint32\_t *)(sysctlRcgctimer\_ + sysctlCoreBaseAddresses\_[core])) >> 0) \& 0x1);}
+\DoxyCodeLine{00059 \}}
+\DoxyCodeLine{00060 }
+\DoxyCodeLine{00061 uint32\_t sysctlShiReadUIRcgctimerTimer0\_(uint32\_t \textcolor{keyword}{const} registerValue) \{}
+\DoxyCodeLine{00062     \textcolor{keywordflow}{return} ((registerValue >> 0) \& 0x1);}
+\DoxyCodeLine{00063 \}}
+\DoxyCodeLine{00064 }
+\DoxyCodeLine{00065 }
+\DoxyCodeLine{00066 \textcolor{keywordtype}{void} sysctlShiWriteRcgctimerTimer0\_(\textcolor{keyword}{enum} SysctlCores\_ \textcolor{keyword}{const} core, \textcolor{keyword}{enum} SysctlRcgctimerTimer0Values\_ \textcolor{keyword}{const} timer0) \{}
+\DoxyCodeLine{00067     uint32\_t registerValue = *((\textcolor{keyword}{volatile} uint32\_t *)(sysctlRcgctimer\_ + sysctlCoreBaseAddresses\_[core]));}
+\DoxyCodeLine{00068 }
+\DoxyCodeLine{00069     registerValue \&= \string~(0x1 << 0);}
+\DoxyCodeLine{00070     registerValue |= (timer0 << 0);}
+\DoxyCodeLine{00071 }
+\DoxyCodeLine{00072     *((\textcolor{keyword}{volatile} uint32\_t *)(sysctlRcgctimer\_ + sysctlCoreBaseAddresses\_[core])) = registerValue;}
+\DoxyCodeLine{00073 \}}
+\DoxyCodeLine{00074 }
+\DoxyCodeLine{00075 \textcolor{keywordtype}{void} sysctlShiWriteUIRcgctimerTimer0\_(uint32\_t * \textcolor{keyword}{const} registerValue, \textcolor{keyword}{enum} SysctlRcgctimerTimer0Values\_ \textcolor{keyword}{const} timer0) \{}
+\DoxyCodeLine{00076     *registerValue \&= \string~(0x1 << 0);}
+\DoxyCodeLine{00077     *registerValue |= (timer0 << 0);}
+\DoxyCodeLine{00078 \}}
+\DoxyCodeLine{00079 }
+\DoxyCodeLine{00080 }
+\DoxyCodeLine{00081 uint32\_t sysctlShiReadRcgctimerTimer1\_(\textcolor{keyword}{enum} SysctlCores\_ \textcolor{keyword}{const} core) \{}
+\DoxyCodeLine{00082     \textcolor{keywordflow}{return} ((*((\textcolor{keyword}{volatile} uint32\_t *)(sysctlRcgctimer\_ + sysctlCoreBaseAddresses\_[core])) >> 0) \& 0x1);}
+\DoxyCodeLine{00083 \}}
+\DoxyCodeLine{00084 }
+\DoxyCodeLine{00085 uint32\_t sysctlShiReadUIRcgctimerTimer1\_(uint32\_t \textcolor{keyword}{const} registerValue) \{}
+\DoxyCodeLine{00086     \textcolor{keywordflow}{return} ((registerValue >> 0) \& 0x1);}
+\DoxyCodeLine{00087 \}}
+\DoxyCodeLine{00088 }
+\DoxyCodeLine{00089 }
+\DoxyCodeLine{00090 \textcolor{keywordtype}{void} sysctlShiWriteRcgctimerTimer1\_(\textcolor{keyword}{enum} SysctlCores\_ \textcolor{keyword}{const} core, \textcolor{keyword}{enum} SysctlRcgctimerTimer1Values\_ \textcolor{keyword}{const} timer1) \{}
+\DoxyCodeLine{00091     uint32\_t registerValue = *((\textcolor{keyword}{volatile} uint32\_t *)(sysctlRcgctimer\_ + sysctlCoreBaseAddresses\_[core]));}
+\DoxyCodeLine{00092 }
+\DoxyCodeLine{00093     registerValue \&= \string~(0x1 << 0);}
+\DoxyCodeLine{00094     registerValue |= (timer1 << 0);}
+\DoxyCodeLine{00095 }
+\DoxyCodeLine{00096     *((\textcolor{keyword}{volatile} uint32\_t *)(sysctlRcgctimer\_ + sysctlCoreBaseAddresses\_[core])) = registerValue;}
+\DoxyCodeLine{00097 \}}
+\DoxyCodeLine{00098 }
+\DoxyCodeLine{00099 \textcolor{keywordtype}{void} sysctlShiWriteUIRcgctimerTimer1\_(uint32\_t * \textcolor{keyword}{const} registerValue, \textcolor{keyword}{enum} SysctlRcgctimerTimer1Values\_ \textcolor{keyword}{const} timer1) \{}
+\DoxyCodeLine{00100     *registerValue \&= \string~(0x1 << 0);}
+\DoxyCodeLine{00101     *registerValue |= (timer1 << 0);}
+\DoxyCodeLine{00102 \}}
+\DoxyCodeLine{00103 }
+\DoxyCodeLine{00104 }
+\DoxyCodeLine{00105 uint32\_t sysctlShiReadRcgctimerTimer2\_(\textcolor{keyword}{enum} SysctlCores\_ \textcolor{keyword}{const} core) \{}
+\DoxyCodeLine{00106     \textcolor{keywordflow}{return} ((*((\textcolor{keyword}{volatile} uint32\_t *)(sysctlRcgctimer\_ + sysctlCoreBaseAddresses\_[core])) >> 0) \& 0x1);}
+\DoxyCodeLine{00107 \}}
+\DoxyCodeLine{00108 }
+\DoxyCodeLine{00109 uint32\_t sysctlShiReadUIRcgctimerTimer2\_(uint32\_t \textcolor{keyword}{const} registerValue) \{}
+\DoxyCodeLine{00110     \textcolor{keywordflow}{return} ((registerValue >> 0) \& 0x1);}
+\DoxyCodeLine{00111 \}}
+\DoxyCodeLine{00112 }
+\DoxyCodeLine{00113 }
+\DoxyCodeLine{00114 \textcolor{keywordtype}{void} sysctlShiWriteRcgctimerTimer2\_(\textcolor{keyword}{enum} SysctlCores\_ \textcolor{keyword}{const} core, \textcolor{keyword}{enum} SysctlRcgctimerTimer2Values\_ \textcolor{keyword}{const} timer2) \{}
+\DoxyCodeLine{00115     uint32\_t registerValue = *((\textcolor{keyword}{volatile} uint32\_t *)(sysctlRcgctimer\_ + sysctlCoreBaseAddresses\_[core]));}
+\DoxyCodeLine{00116 }
+\DoxyCodeLine{00117     registerValue \&= \string~(0x1 << 0);}
+\DoxyCodeLine{00118     registerValue |= (timer2 << 0);}
+\DoxyCodeLine{00119 }
+\DoxyCodeLine{00120     *((\textcolor{keyword}{volatile} uint32\_t *)(sysctlRcgctimer\_ + sysctlCoreBaseAddresses\_[core])) = registerValue;}
+\DoxyCodeLine{00121 \}}
+\DoxyCodeLine{00122 }
+\DoxyCodeLine{00123 \textcolor{keywordtype}{void} sysctlShiWriteUIRcgctimerTimer2\_(uint32\_t * \textcolor{keyword}{const} registerValue, \textcolor{keyword}{enum} SysctlRcgctimerTimer2Values\_ \textcolor{keyword}{const} timer2) \{}
+\DoxyCodeLine{00124     *registerValue \&= \string~(0x1 << 0);}
+\DoxyCodeLine{00125     *registerValue |= (timer2 << 0);}
+\DoxyCodeLine{00126 \}}
+\DoxyCodeLine{00127 }
+\DoxyCodeLine{00128 }
+\DoxyCodeLine{00129 uint32\_t sysctlShiReadRcgctimerTimer3\_(\textcolor{keyword}{enum} SysctlCores\_ \textcolor{keyword}{const} core) \{}
+\DoxyCodeLine{00130     \textcolor{keywordflow}{return} ((*((\textcolor{keyword}{volatile} uint32\_t *)(sysctlRcgctimer\_ + sysctlCoreBaseAddresses\_[core])) >> 0) \& 0x1);}
+\DoxyCodeLine{00131 \}}
+\DoxyCodeLine{00132 }
+\DoxyCodeLine{00133 uint32\_t sysctlShiReadUIRcgctimerTimer3\_(uint32\_t \textcolor{keyword}{const} registerValue) \{}
+\DoxyCodeLine{00134     \textcolor{keywordflow}{return} ((registerValue >> 0) \& 0x1);}
+\DoxyCodeLine{00135 \}}
+\DoxyCodeLine{00136 }
+\DoxyCodeLine{00137 }
+\DoxyCodeLine{00138 \textcolor{keywordtype}{void} sysctlShiWriteRcgctimerTimer3\_(\textcolor{keyword}{enum} SysctlCores\_ \textcolor{keyword}{const} core, \textcolor{keyword}{enum} SysctlRcgctimerTimer3Values\_ \textcolor{keyword}{const} timer3) \{}
+\DoxyCodeLine{00139     uint32\_t registerValue = *((\textcolor{keyword}{volatile} uint32\_t *)(sysctlRcgctimer\_ + sysctlCoreBaseAddresses\_[core]));}
+\DoxyCodeLine{00140 }
+\DoxyCodeLine{00141     registerValue \&= \string~(0x1 << 0);}
+\DoxyCodeLine{00142     registerValue |= (timer3 << 0);}
+\DoxyCodeLine{00143 }
+\DoxyCodeLine{00144     *((\textcolor{keyword}{volatile} uint32\_t *)(sysctlRcgctimer\_ + sysctlCoreBaseAddresses\_[core])) = registerValue;}
+\DoxyCodeLine{00145 \}}
+\DoxyCodeLine{00146 }
+\DoxyCodeLine{00147 \textcolor{keywordtype}{void} sysctlShiWriteUIRcgctimerTimer3\_(uint32\_t * \textcolor{keyword}{const} registerValue, \textcolor{keyword}{enum} SysctlRcgctimerTimer3Values\_ \textcolor{keyword}{const} timer3) \{}
+\DoxyCodeLine{00148     *registerValue \&= \string~(0x1 << 0);}
+\DoxyCodeLine{00149     *registerValue |= (timer3 << 0);}
+\DoxyCodeLine{00150 \}}
+\DoxyCodeLine{00151 }
+\DoxyCodeLine{00152 }
+\DoxyCodeLine{00153 uint32\_t sysctlShiReadRcgctimerTimer4\_(\textcolor{keyword}{enum} SysctlCores\_ \textcolor{keyword}{const} core) \{}
+\DoxyCodeLine{00154     \textcolor{keywordflow}{return} ((*((\textcolor{keyword}{volatile} uint32\_t *)(sysctlRcgctimer\_ + sysctlCoreBaseAddresses\_[core])) >> 0) \& 0x1);}
+\DoxyCodeLine{00155 \}}
+\DoxyCodeLine{00156 }
+\DoxyCodeLine{00157 uint32\_t sysctlShiReadUIRcgctimerTimer4\_(uint32\_t \textcolor{keyword}{const} registerValue) \{}
+\DoxyCodeLine{00158     \textcolor{keywordflow}{return} ((registerValue >> 0) \& 0x1);}
+\DoxyCodeLine{00159 \}}
+\DoxyCodeLine{00160 }
+\DoxyCodeLine{00161 }
+\DoxyCodeLine{00162 \textcolor{keywordtype}{void} sysctlShiWriteRcgctimerTimer4\_(\textcolor{keyword}{enum} SysctlCores\_ \textcolor{keyword}{const} core, \textcolor{keyword}{enum} SysctlRcgctimerTimer4Values\_ \textcolor{keyword}{const} timer4) \{}
+\DoxyCodeLine{00163     uint32\_t registerValue = *((\textcolor{keyword}{volatile} uint32\_t *)(sysctlRcgctimer\_ + sysctlCoreBaseAddresses\_[core]));}
+\DoxyCodeLine{00164 }
+\DoxyCodeLine{00165     registerValue \&= \string~(0x1 << 0);}
+\DoxyCodeLine{00166     registerValue |= (timer4 << 0);}
+\DoxyCodeLine{00167 }
+\DoxyCodeLine{00168     *((\textcolor{keyword}{volatile} uint32\_t *)(sysctlRcgctimer\_ + sysctlCoreBaseAddresses\_[core])) = registerValue;}
+\DoxyCodeLine{00169 \}}
+\DoxyCodeLine{00170 }
+\DoxyCodeLine{00171 \textcolor{keywordtype}{void} sysctlShiWriteUIRcgctimerTimer4\_(uint32\_t * \textcolor{keyword}{const} registerValue, \textcolor{keyword}{enum} SysctlRcgctimerTimer4Values\_ \textcolor{keyword}{const} timer4) \{}
+\DoxyCodeLine{00172     *registerValue \&= \string~(0x1 << 0);}
+\DoxyCodeLine{00173     *registerValue |= (timer4 << 0);}
+\DoxyCodeLine{00174 \}}
+\DoxyCodeLine{00175 }
+\DoxyCodeLine{00176 }
+\DoxyCodeLine{00177 uint32\_t sysctlShiReadRcgctimerTimer5\_(\textcolor{keyword}{enum} SysctlCores\_ \textcolor{keyword}{const} core) \{}
+\DoxyCodeLine{00178     \textcolor{keywordflow}{return} ((*((\textcolor{keyword}{volatile} uint32\_t *)(sysctlRcgctimer\_ + sysctlCoreBaseAddresses\_[core])) >> 0) \& 0x1);}
+\DoxyCodeLine{00179 \}}
+\DoxyCodeLine{00180 }
+\DoxyCodeLine{00181 uint32\_t sysctlShiReadUIRcgctimerTimer5\_(uint32\_t \textcolor{keyword}{const} registerValue) \{}
+\DoxyCodeLine{00182     \textcolor{keywordflow}{return} ((registerValue >> 0) \& 0x1);}
+\DoxyCodeLine{00183 \}}
+\DoxyCodeLine{00184 }
+\DoxyCodeLine{00185 }
+\DoxyCodeLine{00186 \textcolor{keywordtype}{void} sysctlShiWriteRcgctimerTimer5\_(\textcolor{keyword}{enum} SysctlCores\_ \textcolor{keyword}{const} core, \textcolor{keyword}{enum} SysctlRcgctimerTimer5Values\_ \textcolor{keyword}{const} timer5) \{}
+\DoxyCodeLine{00187     uint32\_t registerValue = *((\textcolor{keyword}{volatile} uint32\_t *)(sysctlRcgctimer\_ + sysctlCoreBaseAddresses\_[core]));}
+\DoxyCodeLine{00188 }
+\DoxyCodeLine{00189     registerValue \&= \string~(0x1 << 0);}
+\DoxyCodeLine{00190     registerValue |= (timer5 << 0);}
+\DoxyCodeLine{00191 }
+\DoxyCodeLine{00192     *((\textcolor{keyword}{volatile} uint32\_t *)(sysctlRcgctimer\_ + sysctlCoreBaseAddresses\_[core])) = registerValue;}
+\DoxyCodeLine{00193 \}}
+\DoxyCodeLine{00194 }
+\DoxyCodeLine{00195 \textcolor{keywordtype}{void} sysctlShiWriteUIRcgctimerTimer5\_(uint32\_t * \textcolor{keyword}{const} registerValue, \textcolor{keyword}{enum} SysctlRcgctimerTimer5Values\_ \textcolor{keyword}{const} timer5) \{}
+\DoxyCodeLine{00196     *registerValue \&= \string~(0x1 << 0);}
+\DoxyCodeLine{00197     *registerValue |= (timer5 << 0);}
+\DoxyCodeLine{00198 \}}
+\DoxyCodeLine{00199 }
+\DoxyCodeLine{00200 }
+\DoxyCodeLine{00201 uint32\_t sysctlShiReadRcgctimerTimer6\_(\textcolor{keyword}{enum} SysctlCores\_ \textcolor{keyword}{const} core) \{}
+\DoxyCodeLine{00202     \textcolor{keywordflow}{return} ((*((\textcolor{keyword}{volatile} uint32\_t *)(sysctlRcgctimer\_ + sysctlCoreBaseAddresses\_[core])) >> 0) \& 0x1);}
+\DoxyCodeLine{00203 \}}
+\DoxyCodeLine{00204 }
+\DoxyCodeLine{00205 uint32\_t sysctlShiReadUIRcgctimerTimer6\_(uint32\_t \textcolor{keyword}{const} registerValue) \{}
+\DoxyCodeLine{00206     \textcolor{keywordflow}{return} ((registerValue >> 0) \& 0x1);}
+\DoxyCodeLine{00207 \}}
+\DoxyCodeLine{00208 }
+\DoxyCodeLine{00209 }
+\DoxyCodeLine{00210 \textcolor{keywordtype}{void} sysctlShiWriteRcgctimerTimer6\_(\textcolor{keyword}{enum} SysctlCores\_ \textcolor{keyword}{const} core, \textcolor{keyword}{enum} SysctlRcgctimerTimer6Values\_ \textcolor{keyword}{const} timer6) \{}
+\DoxyCodeLine{00211     uint32\_t registerValue = *((\textcolor{keyword}{volatile} uint32\_t *)(sysctlRcgctimer\_ + sysctlCoreBaseAddresses\_[core]));}
+\DoxyCodeLine{00212 }
+\DoxyCodeLine{00213     registerValue \&= \string~(0x1 << 0);}
+\DoxyCodeLine{00214     registerValue |= (timer6 << 0);}
+\DoxyCodeLine{00215 }
+\DoxyCodeLine{00216     *((\textcolor{keyword}{volatile} uint32\_t *)(sysctlRcgctimer\_ + sysctlCoreBaseAddresses\_[core])) = registerValue;}
+\DoxyCodeLine{00217 \}}
+\DoxyCodeLine{00218 }
+\DoxyCodeLine{00219 \textcolor{keywordtype}{void} sysctlShiWriteUIRcgctimerTimer6\_(uint32\_t * \textcolor{keyword}{const} registerValue, \textcolor{keyword}{enum} SysctlRcgctimerTimer6Values\_ \textcolor{keyword}{const} timer6) \{}
+\DoxyCodeLine{00220     *registerValue \&= \string~(0x1 << 0);}
+\DoxyCodeLine{00221     *registerValue |= (timer6 << 0);}
+\DoxyCodeLine{00222 \}}
+\DoxyCodeLine{00223 }
+\DoxyCodeLine{00224 }
+\DoxyCodeLine{00225 uint32\_t sysctlShiReadRcgctimerTimer7\_(\textcolor{keyword}{enum} SysctlCores\_ \textcolor{keyword}{const} core) \{}
+\DoxyCodeLine{00226     \textcolor{keywordflow}{return} ((*((\textcolor{keyword}{volatile} uint32\_t *)(sysctlRcgctimer\_ + sysctlCoreBaseAddresses\_[core])) >> 0) \& 0x1);}
+\DoxyCodeLine{00227 \}}
+\DoxyCodeLine{00228 }
+\DoxyCodeLine{00229 uint32\_t sysctlShiReadUIRcgctimerTimer7\_(uint32\_t \textcolor{keyword}{const} registerValue) \{}
+\DoxyCodeLine{00230     \textcolor{keywordflow}{return} ((registerValue >> 0) \& 0x1);}
+\DoxyCodeLine{00231 \}}
+\DoxyCodeLine{00232 }
+\DoxyCodeLine{00233 }
+\DoxyCodeLine{00234 \textcolor{keywordtype}{void} sysctlShiWriteRcgctimerTimer7\_(\textcolor{keyword}{enum} SysctlCores\_ \textcolor{keyword}{const} core, \textcolor{keyword}{enum} SysctlRcgctimerTimer7Values\_ \textcolor{keyword}{const} timer7) \{}
+\DoxyCodeLine{00235     uint32\_t registerValue = *((\textcolor{keyword}{volatile} uint32\_t *)(sysctlRcgctimer\_ + sysctlCoreBaseAddresses\_[core]));}
+\DoxyCodeLine{00236 }
+\DoxyCodeLine{00237     registerValue \&= \string~(0x1 << 0);}
+\DoxyCodeLine{00238     registerValue |= (timer7 << 0);}
+\DoxyCodeLine{00239 }
+\DoxyCodeLine{00240     *((\textcolor{keyword}{volatile} uint32\_t *)(sysctlRcgctimer\_ + sysctlCoreBaseAddresses\_[core])) = registerValue;}
+\DoxyCodeLine{00241 \}}
+\DoxyCodeLine{00242 }
+\DoxyCodeLine{00243 \textcolor{keywordtype}{void} sysctlShiWriteUIRcgctimerTimer7\_(uint32\_t * \textcolor{keyword}{const} registerValue, \textcolor{keyword}{enum} SysctlRcgctimerTimer7Values\_ \textcolor{keyword}{const} timer7) \{}
+\DoxyCodeLine{00244     *registerValue \&= \string~(0x1 << 0);}
+\DoxyCodeLine{00245     *registerValue |= (timer7 << 0);}
+\DoxyCodeLine{00246 \}}
+\DoxyCodeLine{00247 }
+\DoxyCodeLine{00248 }
+\DoxyCodeLine{00249 uint32\_t sysctlShiReadPrtimerTimer0\_(\textcolor{keyword}{enum} SysctlCores\_ \textcolor{keyword}{const} core) \{}
+\DoxyCodeLine{00250     \textcolor{keywordflow}{return} ((*((\textcolor{keyword}{volatile} uint32\_t *)(sysctlPrtimer\_ + sysctlCoreBaseAddresses\_[core])) >> 0) \& 0x1);}
+\DoxyCodeLine{00251 \}}
+\DoxyCodeLine{00252 }
+\DoxyCodeLine{00253 uint32\_t sysctlShiReadUIPrtimerTimer0\_(uint32\_t \textcolor{keyword}{const} registerValue) \{}
+\DoxyCodeLine{00254     \textcolor{keywordflow}{return} ((registerValue >> 0) \& 0x1);}
+\DoxyCodeLine{00255 \}}
+\DoxyCodeLine{00256 }
+\DoxyCodeLine{00257 }
+\DoxyCodeLine{00258 uint32\_t sysctlShiReadPrtimerTimer1\_(\textcolor{keyword}{enum} SysctlCores\_ \textcolor{keyword}{const} core) \{}
+\DoxyCodeLine{00259     \textcolor{keywordflow}{return} ((*((\textcolor{keyword}{volatile} uint32\_t *)(sysctlPrtimer\_ + sysctlCoreBaseAddresses\_[core])) >> 0) \& 0x1);}
+\DoxyCodeLine{00260 \}}
+\DoxyCodeLine{00261 }
+\DoxyCodeLine{00262 uint32\_t sysctlShiReadUIPrtimerTimer1\_(uint32\_t \textcolor{keyword}{const} registerValue) \{}
+\DoxyCodeLine{00263     \textcolor{keywordflow}{return} ((registerValue >> 0) \& 0x1);}
+\DoxyCodeLine{00264 \}}
+\DoxyCodeLine{00265 }
+\DoxyCodeLine{00266 }
+\DoxyCodeLine{00267 uint32\_t sysctlShiReadPrtimerTimer2\_(\textcolor{keyword}{enum} SysctlCores\_ \textcolor{keyword}{const} core) \{}
+\DoxyCodeLine{00268     \textcolor{keywordflow}{return} ((*((\textcolor{keyword}{volatile} uint32\_t *)(sysctlPrtimer\_ + sysctlCoreBaseAddresses\_[core])) >> 0) \& 0x1);}
+\DoxyCodeLine{00269 \}}
+\DoxyCodeLine{00270 }
+\DoxyCodeLine{00271 uint32\_t sysctlShiReadUIPrtimerTimer2\_(uint32\_t \textcolor{keyword}{const} registerValue) \{}
+\DoxyCodeLine{00272     \textcolor{keywordflow}{return} ((registerValue >> 0) \& 0x1);}
+\DoxyCodeLine{00273 \}}
+\DoxyCodeLine{00274 }
+\DoxyCodeLine{00275 }
+\DoxyCodeLine{00276 uint32\_t sysctlShiReadPrtimerTimer3\_(\textcolor{keyword}{enum} SysctlCores\_ \textcolor{keyword}{const} core) \{}
+\DoxyCodeLine{00277     \textcolor{keywordflow}{return} ((*((\textcolor{keyword}{volatile} uint32\_t *)(sysctlPrtimer\_ + sysctlCoreBaseAddresses\_[core])) >> 0) \& 0x1);}
+\DoxyCodeLine{00278 \}}
+\DoxyCodeLine{00279 }
+\DoxyCodeLine{00280 uint32\_t sysctlShiReadUIPrtimerTimer3\_(uint32\_t \textcolor{keyword}{const} registerValue) \{}
+\DoxyCodeLine{00281     \textcolor{keywordflow}{return} ((registerValue >> 0) \& 0x1);}
+\DoxyCodeLine{00282 \}}
+\DoxyCodeLine{00283 }
+\DoxyCodeLine{00284 }
+\DoxyCodeLine{00285 uint32\_t sysctlShiReadPrtimerTimer4\_(\textcolor{keyword}{enum} SysctlCores\_ \textcolor{keyword}{const} core) \{}
+\DoxyCodeLine{00286     \textcolor{keywordflow}{return} ((*((\textcolor{keyword}{volatile} uint32\_t *)(sysctlPrtimer\_ + sysctlCoreBaseAddresses\_[core])) >> 0) \& 0x1);}
+\DoxyCodeLine{00287 \}}
+\DoxyCodeLine{00288 }
+\DoxyCodeLine{00289 uint32\_t sysctlShiReadUIPrtimerTimer4\_(uint32\_t \textcolor{keyword}{const} registerValue) \{}
+\DoxyCodeLine{00290     \textcolor{keywordflow}{return} ((registerValue >> 0) \& 0x1);}
+\DoxyCodeLine{00291 \}}
+\DoxyCodeLine{00292 }
+\DoxyCodeLine{00293 }
+\DoxyCodeLine{00294 uint32\_t sysctlShiReadPrtimerTimer5\_(\textcolor{keyword}{enum} SysctlCores\_ \textcolor{keyword}{const} core) \{}
+\DoxyCodeLine{00295     \textcolor{keywordflow}{return} ((*((\textcolor{keyword}{volatile} uint32\_t *)(sysctlPrtimer\_ + sysctlCoreBaseAddresses\_[core])) >> 0) \& 0x1);}
+\DoxyCodeLine{00296 \}}
+\DoxyCodeLine{00297 }
+\DoxyCodeLine{00298 uint32\_t sysctlShiReadUIPrtimerTimer5\_(uint32\_t \textcolor{keyword}{const} registerValue) \{}
+\DoxyCodeLine{00299     \textcolor{keywordflow}{return} ((registerValue >> 0) \& 0x1);}
+\DoxyCodeLine{00300 \}}
+\DoxyCodeLine{00301 }
+\DoxyCodeLine{00302 }
+\DoxyCodeLine{00303 uint32\_t sysctlShiReadPrtimerTimer6\_(\textcolor{keyword}{enum} SysctlCores\_ \textcolor{keyword}{const} core) \{}
+\DoxyCodeLine{00304     \textcolor{keywordflow}{return} ((*((\textcolor{keyword}{volatile} uint32\_t *)(sysctlPrtimer\_ + sysctlCoreBaseAddresses\_[core])) >> 0) \& 0x1);}
+\DoxyCodeLine{00305 \}}
+\DoxyCodeLine{00306 }
+\DoxyCodeLine{00307 uint32\_t sysctlShiReadUIPrtimerTimer6\_(uint32\_t \textcolor{keyword}{const} registerValue) \{}
+\DoxyCodeLine{00308     \textcolor{keywordflow}{return} ((registerValue >> 0) \& 0x1);}
+\DoxyCodeLine{00309 \}}
+\DoxyCodeLine{00310 }
+\DoxyCodeLine{00311 }
+\DoxyCodeLine{00312 uint32\_t sysctlShiReadPrtimerTimer7\_(\textcolor{keyword}{enum} SysctlCores\_ \textcolor{keyword}{const} core) \{}
+\DoxyCodeLine{00313     \textcolor{keywordflow}{return} ((*((\textcolor{keyword}{volatile} uint32\_t *)(sysctlPrtimer\_ + sysctlCoreBaseAddresses\_[core])) >> 0) \& 0x1);}
+\DoxyCodeLine{00314 \}}
+\DoxyCodeLine{00315 }
+\DoxyCodeLine{00316 uint32\_t sysctlShiReadUIPrtimerTimer7\_(uint32\_t \textcolor{keyword}{const} registerValue) \{}
+\DoxyCodeLine{00317     \textcolor{keywordflow}{return} ((registerValue >> 0) \& 0x1);}
+\DoxyCodeLine{00318 \}}
+\DoxyCodeLine{00319 }
+\DoxyCodeLine{00320 }
+
+\end{DoxyCode}

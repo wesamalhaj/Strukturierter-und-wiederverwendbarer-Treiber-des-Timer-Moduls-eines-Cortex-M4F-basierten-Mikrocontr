@@ -1,0 +1,152 @@
+\doxysection{heap\+\_\+1.\+c}
+\label{heap__1_8c_source}\index{rtos/FreeRTOS/source/portable/MemMang/heap\_1.c@{rtos/FreeRTOS/source/portable/MemMang/heap\_1.c}}
+
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00001 \textcolor{comment}{/*}}
+\DoxyCodeLine{00002 \textcolor{comment}{ * FreeRTOS Kernel V10.2.1}}
+\DoxyCodeLine{00003 \textcolor{comment}{ * Copyright (C) 2019 Amazon.com, Inc. or its affiliates.  All Rights Reserved.}}
+\DoxyCodeLine{00004 \textcolor{comment}{ *}}
+\DoxyCodeLine{00005 \textcolor{comment}{ * Permission is hereby granted, free of charge, to any person obtaining a copy of}}
+\DoxyCodeLine{00006 \textcolor{comment}{ * this software and associated documentation files (the "{}Software"{}), to deal in}}
+\DoxyCodeLine{00007 \textcolor{comment}{ * the Software without restriction, including without limitation the rights to}}
+\DoxyCodeLine{00008 \textcolor{comment}{ * use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of}}
+\DoxyCodeLine{00009 \textcolor{comment}{ * the Software, and to permit persons to whom the Software is furnished to do so,}}
+\DoxyCodeLine{00010 \textcolor{comment}{ * subject to the following conditions:}}
+\DoxyCodeLine{00011 \textcolor{comment}{ *}}
+\DoxyCodeLine{00012 \textcolor{comment}{ * The above copyright notice and this permission notice shall be included in all}}
+\DoxyCodeLine{00013 \textcolor{comment}{ * copies or substantial portions of the Software.}}
+\DoxyCodeLine{00014 \textcolor{comment}{ *}}
+\DoxyCodeLine{00015 \textcolor{comment}{ * THE SOFTWARE IS PROVIDED "{}AS IS"{}, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR}}
+\DoxyCodeLine{00016 \textcolor{comment}{ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS}}
+\DoxyCodeLine{00017 \textcolor{comment}{ * FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR}}
+\DoxyCodeLine{00018 \textcolor{comment}{ * COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER}}
+\DoxyCodeLine{00019 \textcolor{comment}{ * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN}}
+\DoxyCodeLine{00020 \textcolor{comment}{ * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.}}
+\DoxyCodeLine{00021 \textcolor{comment}{ *}}
+\DoxyCodeLine{00022 \textcolor{comment}{ * http://www.FreeRTOS.org}}
+\DoxyCodeLine{00023 \textcolor{comment}{ * http://aws.amazon.com/freertos}}
+\DoxyCodeLine{00024 \textcolor{comment}{ *}}
+\DoxyCodeLine{00025 \textcolor{comment}{ * 1 tab == 4 spaces!}}
+\DoxyCodeLine{00026 \textcolor{comment}{ */}}
+\DoxyCodeLine{00027 }
+\DoxyCodeLine{00028 }
+\DoxyCodeLine{00029 \textcolor{comment}{/*}}
+\DoxyCodeLine{00030 \textcolor{comment}{ * The simplest possible implementation of pvPortMalloc().  Note that this}}
+\DoxyCodeLine{00031 \textcolor{comment}{ * implementation does NOT allow allocated memory to be freed again.}}
+\DoxyCodeLine{00032 \textcolor{comment}{ *}}
+\DoxyCodeLine{00033 \textcolor{comment}{ * See heap\_2.c, heap\_3.c and heap\_4.c for alternative implementations, and the}}
+\DoxyCodeLine{00034 \textcolor{comment}{ * memory management pages of http://www.FreeRTOS.org for more information.}}
+\DoxyCodeLine{00035 \textcolor{comment}{ */}}
+\DoxyCodeLine{00036 \textcolor{preprocessor}{\#include <stdlib.h>}}
+\DoxyCodeLine{00037 }
+\DoxyCodeLine{00038 \textcolor{comment}{/* Defining MPU\_WRAPPERS\_INCLUDED\_FROM\_API\_FILE prevents task.h from redefining}}
+\DoxyCodeLine{00039 \textcolor{comment}{all the API functions to use the MPU wrappers.  That should only be done when}}
+\DoxyCodeLine{00040 \textcolor{comment}{task.h is included from an application file. */}}
+\DoxyCodeLine{00041 \textcolor{preprocessor}{\#define MPU\_WRAPPERS\_INCLUDED\_FROM\_API\_FILE}}
+\DoxyCodeLine{00042 }
+\DoxyCodeLine{00043 \textcolor{preprocessor}{\#include "{}FreeRTOS.h"{}}}
+\DoxyCodeLine{00044 \textcolor{preprocessor}{\#include "{}task.h"{}}}
+\DoxyCodeLine{00045 }
+\DoxyCodeLine{00046 \textcolor{preprocessor}{\#undef MPU\_WRAPPERS\_INCLUDED\_FROM\_API\_FILE}}
+\DoxyCodeLine{00047 }
+\DoxyCodeLine{00048 \textcolor{preprocessor}{\#if( configSUPPORT\_DYNAMIC\_ALLOCATION == 0 )}}
+\DoxyCodeLine{00049 \textcolor{preprocessor}{    \#error This file must not be used if configSUPPORT\_DYNAMIC\_ALLOCATION is 0}}
+\DoxyCodeLine{00050 \textcolor{preprocessor}{\#endif}}
+\DoxyCodeLine{00051 }
+\DoxyCodeLine{00052 \textcolor{comment}{/* A few bytes might be lost to byte aligning the heap start address. */}}
+\DoxyCodeLine{00053 \textcolor{preprocessor}{\#define configADJUSTED\_HEAP\_SIZE    ( configTOTAL\_HEAP\_SIZE -\/ portBYTE\_ALIGNMENT )}}
+\DoxyCodeLine{00054 }
+\DoxyCodeLine{00055 \textcolor{comment}{/* Allocate the memory for the heap. */}}
+\DoxyCodeLine{00056 \textcolor{preprocessor}{\#if( configAPPLICATION\_ALLOCATED\_HEAP == 1 )}}
+\DoxyCodeLine{00057     \textcolor{comment}{/* The application writer has already defined the array used for the RTOS}}
+\DoxyCodeLine{00058 \textcolor{comment}{    heap -\/ probably so it can be placed in a special segment or address. */}}
+\DoxyCodeLine{00059     \textcolor{keyword}{extern} uint8\_t ucHeap[ configTOTAL\_HEAP\_SIZE ];}
+\DoxyCodeLine{00060 \textcolor{preprocessor}{\#else}}
+\DoxyCodeLine{00061     \textcolor{keyword}{static} uint8\_t ucHeap[ configTOTAL\_HEAP\_SIZE ];}
+\DoxyCodeLine{00062 \textcolor{preprocessor}{\#endif }\textcolor{comment}{/* configAPPLICATION\_ALLOCATED\_HEAP */}\textcolor{preprocessor}{}}
+\DoxyCodeLine{00063 }
+\DoxyCodeLine{00064 \textcolor{comment}{/* Index into the ucHeap array. */}}
+\DoxyCodeLine{00065 \textcolor{keyword}{static} \textcolor{keywordtype}{size\_t} xNextFreeByte = ( size\_t ) 0;}
+\DoxyCodeLine{00066 }
+\DoxyCodeLine{00067 \textcolor{comment}{/*-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/*/}}
+\DoxyCodeLine{00068 }
+\DoxyCodeLine{00069 \textcolor{keywordtype}{void} *pvPortMalloc( \textcolor{keywordtype}{size\_t} xWantedSize )}
+\DoxyCodeLine{00070 \{}
+\DoxyCodeLine{00071 \textcolor{keywordtype}{void} *pvReturn = NULL;}
+\DoxyCodeLine{00072 \textcolor{keyword}{static} uint8\_t *pucAlignedHeap = NULL;}
+\DoxyCodeLine{00073 }
+\DoxyCodeLine{00074     \textcolor{comment}{/* Ensure that blocks are always aligned to the required number of bytes. */}}
+\DoxyCodeLine{00075 \textcolor{preprocessor}{    \#if( portBYTE\_ALIGNMENT != 1 )}}
+\DoxyCodeLine{00076     \{}
+\DoxyCodeLine{00077         \textcolor{keywordflow}{if}( xWantedSize \& portBYTE\_ALIGNMENT\_MASK )}
+\DoxyCodeLine{00078         \{}
+\DoxyCodeLine{00079             \textcolor{comment}{/* Byte alignment required. */}}
+\DoxyCodeLine{00080             xWantedSize += ( portBYTE\_ALIGNMENT -\/ ( xWantedSize \& portBYTE\_ALIGNMENT\_MASK ) );}
+\DoxyCodeLine{00081         \}}
+\DoxyCodeLine{00082     \}}
+\DoxyCodeLine{00083 \textcolor{preprocessor}{    \#endif}}
+\DoxyCodeLine{00084 }
+\DoxyCodeLine{00085     vTaskSuspendAll();}
+\DoxyCodeLine{00086     \{}
+\DoxyCodeLine{00087         \textcolor{keywordflow}{if}( pucAlignedHeap == NULL )}
+\DoxyCodeLine{00088         \{}
+\DoxyCodeLine{00089             \textcolor{comment}{/* Ensure the heap starts on a correctly aligned boundary. */}}
+\DoxyCodeLine{00090             pucAlignedHeap = ( uint8\_t * ) ( ( ( portPOINTER\_SIZE\_TYPE ) \&ucHeap[ portBYTE\_ALIGNMENT ] ) \& ( \string~( ( portPOINTER\_SIZE\_TYPE ) portBYTE\_ALIGNMENT\_MASK ) ) );}
+\DoxyCodeLine{00091         \}}
+\DoxyCodeLine{00092 }
+\DoxyCodeLine{00093         \textcolor{comment}{/* Check there is enough room left for the allocation. */}}
+\DoxyCodeLine{00094         \textcolor{keywordflow}{if}( ( ( xNextFreeByte + xWantedSize ) < configADJUSTED\_HEAP\_SIZE ) \&\&}
+\DoxyCodeLine{00095             ( ( xNextFreeByte + xWantedSize ) > xNextFreeByte ) )\textcolor{comment}{/* Check for overflow. */}}
+\DoxyCodeLine{00096         \{}
+\DoxyCodeLine{00097             \textcolor{comment}{/* Return the next free byte then increment the index past this}}
+\DoxyCodeLine{00098 \textcolor{comment}{            block. */}}
+\DoxyCodeLine{00099             pvReturn = pucAlignedHeap + xNextFreeByte;}
+\DoxyCodeLine{00100             xNextFreeByte += xWantedSize;}
+\DoxyCodeLine{00101         \}}
+\DoxyCodeLine{00102 }
+\DoxyCodeLine{00103         traceMALLOC( pvReturn, xWantedSize );}
+\DoxyCodeLine{00104     \}}
+\DoxyCodeLine{00105     ( void ) xTaskResumeAll();}
+\DoxyCodeLine{00106 }
+\DoxyCodeLine{00107 \textcolor{preprocessor}{    \#if( configUSE\_MALLOC\_FAILED\_HOOK == 1 )}}
+\DoxyCodeLine{00108     \{}
+\DoxyCodeLine{00109         \textcolor{keywordflow}{if}( pvReturn == NULL )}
+\DoxyCodeLine{00110         \{}
+\DoxyCodeLine{00111             \textcolor{keyword}{extern} \textcolor{keywordtype}{void} vApplicationMallocFailedHook( \textcolor{keywordtype}{void} );}
+\DoxyCodeLine{00112             vApplicationMallocFailedHook();}
+\DoxyCodeLine{00113         \}}
+\DoxyCodeLine{00114     \}}
+\DoxyCodeLine{00115 \textcolor{preprocessor}{    \#endif}}
+\DoxyCodeLine{00116 }
+\DoxyCodeLine{00117     \textcolor{keywordflow}{return} pvReturn;}
+\DoxyCodeLine{00118 \}}
+\DoxyCodeLine{00119 \textcolor{comment}{/*-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/*/}}
+\DoxyCodeLine{00120 }
+\DoxyCodeLine{00121 \textcolor{keywordtype}{void} vPortFree( \textcolor{keywordtype}{void} *pv )}
+\DoxyCodeLine{00122 \{}
+\DoxyCodeLine{00123     \textcolor{comment}{/* Memory cannot be freed using this scheme.  See heap\_2.c, heap\_3.c and}}
+\DoxyCodeLine{00124 \textcolor{comment}{    heap\_4.c for alternative implementations, and the memory management pages of}}
+\DoxyCodeLine{00125 \textcolor{comment}{    http://www.FreeRTOS.org for more information. */}}
+\DoxyCodeLine{00126     ( void ) pv;}
+\DoxyCodeLine{00127 }
+\DoxyCodeLine{00128     \textcolor{comment}{/* Force an assert as it is invalid to call this function. */}}
+\DoxyCodeLine{00129     configASSERT( pv == NULL );}
+\DoxyCodeLine{00130 \}}
+\DoxyCodeLine{00131 \textcolor{comment}{/*-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/*/}}
+\DoxyCodeLine{00132 }
+\DoxyCodeLine{00133 \textcolor{keywordtype}{void} vPortInitialiseBlocks( \textcolor{keywordtype}{void} )}
+\DoxyCodeLine{00134 \{}
+\DoxyCodeLine{00135     \textcolor{comment}{/* Only required when static memory is not cleared. */}}
+\DoxyCodeLine{00136     xNextFreeByte = ( size\_t ) 0;}
+\DoxyCodeLine{00137 \}}
+\DoxyCodeLine{00138 \textcolor{comment}{/*-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/*/}}
+\DoxyCodeLine{00139 }
+\DoxyCodeLine{00140 \textcolor{keywordtype}{size\_t} xPortGetFreeHeapSize( \textcolor{keywordtype}{void} )}
+\DoxyCodeLine{00141 \{}
+\DoxyCodeLine{00142     \textcolor{keywordflow}{return} ( configADJUSTED\_HEAP\_SIZE -\/ xNextFreeByte );}
+\DoxyCodeLine{00143 \}}
+\DoxyCodeLine{00144 }
+\DoxyCodeLine{00145 }
+\DoxyCodeLine{00146 }
+
+\end{DoxyCode}

@@ -1,0 +1,113 @@
+\doxysection{hal\+Nvic.\+h}
+\label{hal_nvic_8h_source}\index{hal/nvic/include/public/hal/nvic/halNvic.h@{hal/nvic/include/public/hal/nvic/halNvic.h}}
+
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00001 \textcolor{comment}{/*****************************************************************************}}
+\DoxyCodeLine{00002 \textcolor{comment}{ *  nvic.h}}
+\DoxyCodeLine{00003 \textcolor{comment}{ *  Created on: 03.02.2020}}
+\DoxyCodeLine{00004 \textcolor{comment}{ *  HAW Hamburg, ERHAW Laboratory}}
+\DoxyCodeLine{00005 \textcolor{comment}{ *}}
+\DoxyCodeLine{00006 \textcolor{comment}{ *****************************************************************************/}}
+\DoxyCodeLine{00007 }
+\DoxyCodeLine{00008 }
+\DoxyCodeLine{00009 \textcolor{preprocessor}{\#ifndef HAL\_NVIC\_INCLUDE\_HAL\_NVIC\_NVIC\_H\_}}
+\DoxyCodeLine{00010 \textcolor{preprocessor}{\#define HAL\_NVIC\_INCLUDE\_HAL\_NVIC\_NVIC\_H\_}}
+\DoxyCodeLine{00011 }
+\DoxyCodeLine{00016 \textcolor{keyword}{typedef} void (* HalNvicInterruptServiceRoutine)(void);}
+\DoxyCodeLine{00017 }
+\DoxyCodeLine{00021 \textcolor{keyword}{enum} HalNvicException \{}
+\DoxyCodeLine{00022 }
+\DoxyCodeLine{00023     \textcolor{comment}{// GPIO interrupts}}
+\DoxyCodeLine{00024     halNvicGpioPortAException = 16,     \textcolor{comment}{// PORTA interrupt INT\_PORTA}}
+\DoxyCodeLine{00025     halNvicGpioPortBException = 17,     \textcolor{comment}{// PORTB interrupt INT\_PORTB}}
+\DoxyCodeLine{00026     halNvicGpioPortCException = 18,     \textcolor{comment}{// PORTC interrupt INT\_PORTC}}
+\DoxyCodeLine{00027     halNvicGpioPortDException = 19,     \textcolor{comment}{// PORTD interrupt INT\_PORTD}}
+\DoxyCodeLine{00028     halNvicGpioPortEException = 20,     \textcolor{comment}{// PORTE interrupt INT\_PORTE}}
+\DoxyCodeLine{00029     halNvicGpioPortFException = 46,     \textcolor{comment}{// PORTF interrupt INT\_PORTF}}
+\DoxyCodeLine{00030     halNvicGpioPortGException = 47,     \textcolor{comment}{// PORTG interrupt INT\_PORTG}}
+\DoxyCodeLine{00031     halNvicGpioPortHException = 48,     \textcolor{comment}{// PORTH interrupt INT\_PORTH}}
+\DoxyCodeLine{00032     halNvicGpioPortJException = 67,     \textcolor{comment}{// PORTJ interrupt INT\_PORTJ}}
+\DoxyCodeLine{00033     halNvicGpioPortKException = 68,     \textcolor{comment}{// PORTK interrupt INT\_PORTK}}
+\DoxyCodeLine{00034     halNvicGpioPortLException = 69,     \textcolor{comment}{// PORTL interrupt INT\_PORTL}}
+\DoxyCodeLine{00035     halNvicGpioPortMException = 88,     \textcolor{comment}{// PORTM interrupt INT\_PORTM}}
+\DoxyCodeLine{00036     halNvicGpioPortNException = 89,     \textcolor{comment}{// PORTN interrupt INT\_PORTN}}
+\DoxyCodeLine{00037     halNvicGpioPortP0Exception = 92,    \textcolor{comment}{// PORTP0 interrupt INT\_PORTP0}}
+\DoxyCodeLine{00038     halNvicGpioPortP1Exception = 93,    \textcolor{comment}{// PORTP1 interrupt INT\_PORTP1}}
+\DoxyCodeLine{00039     halNvicGpioPortP2Exception = 94,    \textcolor{comment}{// PORTP2 interrupt INT\_PORTP2}}
+\DoxyCodeLine{00040     halNvicGpioPortP3Exception = 95,    \textcolor{comment}{// PORTP3 interrupt INT\_PORTP3}}
+\DoxyCodeLine{00041     halNvicGpioPortP4Exception = 96,    \textcolor{comment}{// PORTP4 interrupt INT\_PORTP4}}
+\DoxyCodeLine{00042     halNvicGpioPortP5Exception = 97,    \textcolor{comment}{// PORTP5 interrupt INT\_PORTP5}}
+\DoxyCodeLine{00043     halNvicGpioPortP6Exception = 98,    \textcolor{comment}{// PORTP6 interrupt INT\_PORTP6}}
+\DoxyCodeLine{00044     halNvicGpioPortP7Exception = 99,    \textcolor{comment}{// PORTP7 interrupt INT\_PORTP7}}
+\DoxyCodeLine{00045     halNvicGpioPortQ0Exception = 100,   \textcolor{comment}{// PORTQ0 interrupt INT\_PORTQ0}}
+\DoxyCodeLine{00046     halNvicGpioPortQ1Exception = 101,   \textcolor{comment}{// PORTQ1 interrupt INT\_PORTQ1}}
+\DoxyCodeLine{00047     halNvicGpioPortQ2Exception = 102,   \textcolor{comment}{// PORTQ2 interrupt INT\_PORTQ2}}
+\DoxyCodeLine{00048     halNvicGpioPortQ3Exception = 103,   \textcolor{comment}{// PORTQ3 interrupt INT\_PORTQ3}}
+\DoxyCodeLine{00049     halNvicGpioPortQ4Exception = 104,   \textcolor{comment}{// PORTQ4 interrupt INT\_PORTQ4}}
+\DoxyCodeLine{00050     halNvicGpioPortQ5Exception = 105,   \textcolor{comment}{// PORTQ5 interrupt INT\_PORTQ5}}
+\DoxyCodeLine{00051     halNvicGpioPortQ6Exception = 106,   \textcolor{comment}{// PORTQ6 interrupt INT\_PORTQ6}}
+\DoxyCodeLine{00052     halNvicGpioPortQ7Exception = 107,   \textcolor{comment}{// PORTQ7 interrupt INT\_PORTQ7}}
+\DoxyCodeLine{00053 }
+\DoxyCodeLine{00054     \textcolor{comment}{// UART interrupts}}
+\DoxyCodeLine{00055     halNvicUart0Exception = 21,         \textcolor{comment}{// UART0 interrupt INT\_UART0}}
+\DoxyCodeLine{00056     halNvicUart1Exception = 22,         \textcolor{comment}{// UART1 interrupt INT\_UART1}}
+\DoxyCodeLine{00057     halNvicUart2Exception = 49,         \textcolor{comment}{// UART2 interrupt INT\_UART2}}
+\DoxyCodeLine{00058     halNvicUart3Exception = 72,         \textcolor{comment}{// UART3 interrupt INT\_UART3}}
+\DoxyCodeLine{00059     halNvicUart4Exception = 73,         \textcolor{comment}{// UART4 interrupt INT\_UART4}}
+\DoxyCodeLine{00060     halNvicUart5Exception = 74,         \textcolor{comment}{// UART5 interrupt INT\_UART5}}
+\DoxyCodeLine{00061     halNvicUart6Exception = 75,         \textcolor{comment}{// UART6 interrupt INT\_UART6}}
+\DoxyCodeLine{00062     halNvicUart7Exception = 76,         \textcolor{comment}{// UART7 interrupt INT\_UART7}}
+\DoxyCodeLine{00063 }
+\DoxyCodeLine{00064     \textcolor{comment}{// I2C interrupts}}
+\DoxyCodeLine{00065     halNvicI2C0Exception = 24,          \textcolor{comment}{// I2C0 interrupt INT\_I2C0}}
+\DoxyCodeLine{00066     halNvicI2C1Exception = 53,          \textcolor{comment}{// I2C1 interrupt INT\_I2C1}}
+\DoxyCodeLine{00067     halNvicI2C2Exception = 77,          \textcolor{comment}{// I2C2 interrupt INT\_I2C2}}
+\DoxyCodeLine{00068     halNvicI2C3Exception = 78,          \textcolor{comment}{// I2C3 interrupt INT\_I2C3}}
+\DoxyCodeLine{00069     halNvicI2C4Exception = 86,          \textcolor{comment}{// I2C4 interrupt INT\_I2C4}}
+\DoxyCodeLine{00070     halNvicI2C5Exception = 87,          \textcolor{comment}{// I2C5 interrupt INT\_I2C5}}
+\DoxyCodeLine{00071     halNvicI2C6Exception = 118,         \textcolor{comment}{// I2C6 interrupt INT\_I2C6}}
+\DoxyCodeLine{00072     halNvicI2C7Exception = 119,         \textcolor{comment}{// I2C7 interrupt INT\_I2C7}}
+\DoxyCodeLine{00073 }
+\DoxyCodeLine{00074     \textcolor{comment}{// uDMA interrupts}}
+\DoxyCodeLine{00075     halNvicDma0SwException  = 60,       \textcolor{comment}{// uDMA interrupt for SW-\/Transfer}}
+\DoxyCodeLine{00076     halNvicDma0ErrException = 61,       \textcolor{comment}{// uDMA interrupt for Errors}}
+\DoxyCodeLine{00077 }
+\DoxyCodeLine{00078     \textcolor{comment}{// GPTM interrupts}}
+\DoxyCodeLine{00079     halNvicTimer0AException = 35,       \textcolor{comment}{// Timer 0A}}
+\DoxyCodeLine{00080     halNvicTimer0BException = 36,       \textcolor{comment}{// Timer 0B}}
+\DoxyCodeLine{00081 \textcolor{comment}{//    halNvicTimer1AException = 35,       // Timer 1A}}
+\DoxyCodeLine{00082 \textcolor{comment}{//    halNvicTimer1BException = 35,       // Timer 1B}}
+\DoxyCodeLine{00083 \textcolor{comment}{//    halNvicTimer2AException = 35,       // Timer 2A}}
+\DoxyCodeLine{00084 \textcolor{comment}{//    halNvicTimer2BException = 35,       // Timer 3B}}
+\DoxyCodeLine{00085 \textcolor{comment}{//    halNvicTimer3AException = 35,       // Timer 3A}}
+\DoxyCodeLine{00086 \textcolor{comment}{//    halNvicTimer3BException = 35,       // Timer 3B}}
+\DoxyCodeLine{00087 \textcolor{comment}{//    halNvicTimer4AException = 35,       // Timer 4A}}
+\DoxyCodeLine{00088 \textcolor{comment}{//    halNvicTimer4BException = 35,       // Timer 4B}}
+\DoxyCodeLine{00089 \textcolor{comment}{//    halNvicTimer5AException = 35,       // Timer 5A}}
+\DoxyCodeLine{00090 \textcolor{comment}{//    halNvicTimer5BException = 35,       // Timer 5B}}
+\DoxyCodeLine{00091 \textcolor{comment}{//    halNvicTimer6AException = 35,       // Timer 6A}}
+\DoxyCodeLine{00092 \textcolor{comment}{//    halNvicTimer6BException = 35,       // Timer 6B}}
+\DoxyCodeLine{00093 \textcolor{comment}{//    halNvicTimer7AException = 35,       // Timer 7A}}
+\DoxyCodeLine{00094 \textcolor{comment}{//    halNvicTimer7BException = 35,       // Timer 7B}}
+\DoxyCodeLine{00095 }
+\DoxyCodeLine{00096 \};}
+\DoxyCodeLine{00097 }
+\DoxyCodeLine{00101 \textcolor{keywordtype}{void} halNvicDriverInit(\textcolor{keywordtype}{void});}
+\DoxyCodeLine{00102 }
+\DoxyCodeLine{00106 \textcolor{keywordtype}{void} halNvicInstallISR(HalNvicInterruptServiceRoutine irqHandler, \textcolor{keyword}{enum} HalNvicException \textcolor{keyword}{const} exception);}
+\DoxyCodeLine{00107 }
+\DoxyCodeLine{00111 \textcolor{keywordtype}{void} halNvicEnableInterrupt(\textcolor{keyword}{enum} HalNvicException \textcolor{keyword}{const} exception);}
+\DoxyCodeLine{00112 }
+\DoxyCodeLine{00116 \textcolor{keywordtype}{void} halNvicDisableInterrupt(\textcolor{keyword}{enum} HalNvicException \textcolor{keyword}{const} exception);}
+\DoxyCodeLine{00117 }
+\DoxyCodeLine{00118 }
+\DoxyCodeLine{00119 \textcolor{comment}{//*****************************************************************************}}
+\DoxyCodeLine{00120 \textcolor{comment}{//}}
+\DoxyCodeLine{00123 \textcolor{comment}{}\textcolor{comment}{//}}
+\DoxyCodeLine{00124 \textcolor{comment}{//*****************************************************************************}}
+\DoxyCodeLine{00125 \textcolor{keywordtype}{void} halNvicTriggerInterrupt(\textcolor{keyword}{enum} HalNvicException \textcolor{keyword}{const} exception);}
+\DoxyCodeLine{00126 }
+\DoxyCodeLine{00127 }
+\DoxyCodeLine{00128 \textcolor{preprocessor}{\#endif }\textcolor{comment}{/* HAL\_NVIC\_INCLUDE\_HAL\_NVIC\_NVIC\_H\_ */}\textcolor{preprocessor}{}}
+
+\end{DoxyCode}

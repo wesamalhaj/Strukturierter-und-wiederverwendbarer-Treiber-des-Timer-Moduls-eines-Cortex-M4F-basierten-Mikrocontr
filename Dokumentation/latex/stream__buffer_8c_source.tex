@@ -1,0 +1,1269 @@
+\doxysection{stream\+\_\+buffer.\+c}
+\label{stream__buffer_8c_source}\index{rtos/FreeRTOS/source/stream\_buffer.c@{rtos/FreeRTOS/source/stream\_buffer.c}}
+
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00001 \textcolor{comment}{/*}}
+\DoxyCodeLine{00002 \textcolor{comment}{ * FreeRTOS Kernel V10.2.1}}
+\DoxyCodeLine{00003 \textcolor{comment}{ * Copyright (C) 2019 Amazon.com, Inc. or its affiliates.  All Rights Reserved.}}
+\DoxyCodeLine{00004 \textcolor{comment}{ *}}
+\DoxyCodeLine{00005 \textcolor{comment}{ * Permission is hereby granted, free of charge, to any person obtaining a copy of}}
+\DoxyCodeLine{00006 \textcolor{comment}{ * this software and associated documentation files (the "{}Software"{}), to deal in}}
+\DoxyCodeLine{00007 \textcolor{comment}{ * the Software without restriction, including without limitation the rights to}}
+\DoxyCodeLine{00008 \textcolor{comment}{ * use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of}}
+\DoxyCodeLine{00009 \textcolor{comment}{ * the Software, and to permit persons to whom the Software is furnished to do so,}}
+\DoxyCodeLine{00010 \textcolor{comment}{ * subject to the following conditions:}}
+\DoxyCodeLine{00011 \textcolor{comment}{ *}}
+\DoxyCodeLine{00012 \textcolor{comment}{ * The above copyright notice and this permission notice shall be included in all}}
+\DoxyCodeLine{00013 \textcolor{comment}{ * copies or substantial portions of the Software.}}
+\DoxyCodeLine{00014 \textcolor{comment}{ *}}
+\DoxyCodeLine{00015 \textcolor{comment}{ * THE SOFTWARE IS PROVIDED "{}AS IS"{}, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR}}
+\DoxyCodeLine{00016 \textcolor{comment}{ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS}}
+\DoxyCodeLine{00017 \textcolor{comment}{ * FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR}}
+\DoxyCodeLine{00018 \textcolor{comment}{ * COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER}}
+\DoxyCodeLine{00019 \textcolor{comment}{ * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN}}
+\DoxyCodeLine{00020 \textcolor{comment}{ * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.}}
+\DoxyCodeLine{00021 \textcolor{comment}{ *}}
+\DoxyCodeLine{00022 \textcolor{comment}{ * http://www.FreeRTOS.org}}
+\DoxyCodeLine{00023 \textcolor{comment}{ * http://aws.amazon.com/freertos}}
+\DoxyCodeLine{00024 \textcolor{comment}{ *}}
+\DoxyCodeLine{00025 \textcolor{comment}{ * 1 tab == 4 spaces!}}
+\DoxyCodeLine{00026 \textcolor{comment}{ */}}
+\DoxyCodeLine{00027 }
+\DoxyCodeLine{00028 \textcolor{comment}{/* Standard includes. */}}
+\DoxyCodeLine{00029 \textcolor{preprocessor}{\#include <stdint.h>}}
+\DoxyCodeLine{00030 \textcolor{preprocessor}{\#include <string.h>}}
+\DoxyCodeLine{00031 }
+\DoxyCodeLine{00032 \textcolor{comment}{/* Defining MPU\_WRAPPERS\_INCLUDED\_FROM\_API\_FILE prevents task.h from redefining}}
+\DoxyCodeLine{00033 \textcolor{comment}{all the API functions to use the MPU wrappers.  That should only be done when}}
+\DoxyCodeLine{00034 \textcolor{comment}{task.h is included from an application file. */}}
+\DoxyCodeLine{00035 \textcolor{preprocessor}{\#define MPU\_WRAPPERS\_INCLUDED\_FROM\_API\_FILE}}
+\DoxyCodeLine{00036 }
+\DoxyCodeLine{00037 \textcolor{comment}{/* FreeRTOS includes. */}}
+\DoxyCodeLine{00038 \textcolor{preprocessor}{\#include "{}FreeRTOS.h"{}}}
+\DoxyCodeLine{00039 \textcolor{preprocessor}{\#include "{}task.h"{}}}
+\DoxyCodeLine{00040 \textcolor{preprocessor}{\#include "{}stream\_buffer.h"{}}}
+\DoxyCodeLine{00041 }
+\DoxyCodeLine{00042 \textcolor{preprocessor}{\#if( configUSE\_TASK\_NOTIFICATIONS != 1 )}}
+\DoxyCodeLine{00043 \textcolor{preprocessor}{    \#error configUSE\_TASK\_NOTIFICATIONS must be set to 1 to build stream\_buffer.c}}
+\DoxyCodeLine{00044 \textcolor{preprocessor}{\#endif}}
+\DoxyCodeLine{00045 }
+\DoxyCodeLine{00046 \textcolor{comment}{/* Lint e961, e9021 and e750 are suppressed as a MISRA exception justified}}
+\DoxyCodeLine{00047 \textcolor{comment}{because the MPU ports require MPU\_WRAPPERS\_INCLUDED\_FROM\_API\_FILE to be defined}}
+\DoxyCodeLine{00048 \textcolor{comment}{for the header files above, but not in this file, in order to generate the}}
+\DoxyCodeLine{00049 \textcolor{comment}{correct privileged Vs unprivileged linkage and placement. */}}
+\DoxyCodeLine{00050 \textcolor{preprocessor}{\#undef MPU\_WRAPPERS\_INCLUDED\_FROM\_API\_FILE }\textcolor{comment}{/*lint !e961 !e750 !e9021. */}\textcolor{preprocessor}{}}
+\DoxyCodeLine{00051 }
+\DoxyCodeLine{00052 \textcolor{comment}{/* If the user has not provided application specific Rx notification macros,}}
+\DoxyCodeLine{00053 \textcolor{comment}{or \#defined the notification macros away, them provide default implementations}}
+\DoxyCodeLine{00054 \textcolor{comment}{that uses task notifications. */}}
+\DoxyCodeLine{00055 \textcolor{comment}{/*lint -\/save -\/e9026 Function like macros allowed and needed here so they can be overidden. */}}
+\DoxyCodeLine{00056 \textcolor{preprocessor}{\#ifndef sbRECEIVE\_COMPLETED}}
+\DoxyCodeLine{00057 \textcolor{preprocessor}{    \#define sbRECEIVE\_COMPLETED( pxStreamBuffer )                                       \(\backslash\)}}
+\DoxyCodeLine{00058 \textcolor{preprocessor}{        vTaskSuspendAll();                                                              \(\backslash\)}}
+\DoxyCodeLine{00059 \textcolor{preprocessor}{        \{                                                                               \(\backslash\)}}
+\DoxyCodeLine{00060 \textcolor{preprocessor}{            if( ( pxStreamBuffer )-\/>xTaskWaitingToSend != NULL )                        \(\backslash\)}}
+\DoxyCodeLine{00061 \textcolor{preprocessor}{            \{                                                                           \(\backslash\)}}
+\DoxyCodeLine{00062 \textcolor{preprocessor}{                ( void ) xTaskNotify( ( pxStreamBuffer )-\/>xTaskWaitingToSend,           \(\backslash\)}}
+\DoxyCodeLine{00063 \textcolor{preprocessor}{                                      ( uint32\_t ) 0,                                   \(\backslash\)}}
+\DoxyCodeLine{00064 \textcolor{preprocessor}{                                      eNoAction );                                      \(\backslash\)}}
+\DoxyCodeLine{00065 \textcolor{preprocessor}{                ( pxStreamBuffer )-\/>xTaskWaitingToSend = NULL;                          \(\backslash\)}}
+\DoxyCodeLine{00066 \textcolor{preprocessor}{            \}                                                                           \(\backslash\)}}
+\DoxyCodeLine{00067 \textcolor{preprocessor}{        \}                                                                               \(\backslash\)}}
+\DoxyCodeLine{00068 \textcolor{preprocessor}{        ( void ) xTaskResumeAll();}}
+\DoxyCodeLine{00069 \textcolor{preprocessor}{\#endif }\textcolor{comment}{/* sbRECEIVE\_COMPLETED */}\textcolor{preprocessor}{}}
+\DoxyCodeLine{00070 }
+\DoxyCodeLine{00071 \textcolor{preprocessor}{\#ifndef sbRECEIVE\_COMPLETED\_FROM\_ISR}}
+\DoxyCodeLine{00072 \textcolor{preprocessor}{    \#define sbRECEIVE\_COMPLETED\_FROM\_ISR( pxStreamBuffer,                               \(\backslash\)}}
+\DoxyCodeLine{00073 \textcolor{preprocessor}{                                          pxHigherPriorityTaskWoken )                   \(\backslash\)}}
+\DoxyCodeLine{00074 \textcolor{preprocessor}{    \{                                                                                   \(\backslash\)}}
+\DoxyCodeLine{00075 \textcolor{preprocessor}{    UBaseType\_t uxSavedInterruptStatus;                                                 \(\backslash\)}}
+\DoxyCodeLine{00076 \textcolor{preprocessor}{                                                                                        \(\backslash\)}}
+\DoxyCodeLine{00077 \textcolor{preprocessor}{        uxSavedInterruptStatus = ( UBaseType\_t ) portSET\_INTERRUPT\_MASK\_FROM\_ISR();     \(\backslash\)}}
+\DoxyCodeLine{00078 \textcolor{preprocessor}{        \{                                                                               \(\backslash\)}}
+\DoxyCodeLine{00079 \textcolor{preprocessor}{            if( ( pxStreamBuffer )-\/>xTaskWaitingToSend != NULL )                        \(\backslash\)}}
+\DoxyCodeLine{00080 \textcolor{preprocessor}{            \{                                                                           \(\backslash\)}}
+\DoxyCodeLine{00081 \textcolor{preprocessor}{                ( void ) xTaskNotifyFromISR( ( pxStreamBuffer )-\/>xTaskWaitingToSend,    \(\backslash\)}}
+\DoxyCodeLine{00082 \textcolor{preprocessor}{                                             ( uint32\_t ) 0,                            \(\backslash\)}}
+\DoxyCodeLine{00083 \textcolor{preprocessor}{                                             eNoAction,                                 \(\backslash\)}}
+\DoxyCodeLine{00084 \textcolor{preprocessor}{                                             pxHigherPriorityTaskWoken );               \(\backslash\)}}
+\DoxyCodeLine{00085 \textcolor{preprocessor}{                ( pxStreamBuffer )-\/>xTaskWaitingToSend = NULL;                          \(\backslash\)}}
+\DoxyCodeLine{00086 \textcolor{preprocessor}{            \}                                                                           \(\backslash\)}}
+\DoxyCodeLine{00087 \textcolor{preprocessor}{        \}                                                                               \(\backslash\)}}
+\DoxyCodeLine{00088 \textcolor{preprocessor}{        portCLEAR\_INTERRUPT\_MASK\_FROM\_ISR( uxSavedInterruptStatus );                    \(\backslash\)}}
+\DoxyCodeLine{00089 \textcolor{preprocessor}{    \}}}
+\DoxyCodeLine{00090 \textcolor{preprocessor}{\#endif }\textcolor{comment}{/* sbRECEIVE\_COMPLETED\_FROM\_ISR */}\textcolor{preprocessor}{}}
+\DoxyCodeLine{00091 }
+\DoxyCodeLine{00092 \textcolor{comment}{/* If the user has not provided an application specific Tx notification macro,}}
+\DoxyCodeLine{00093 \textcolor{comment}{or \#defined the notification macro away, them provide a default implementation}}
+\DoxyCodeLine{00094 \textcolor{comment}{that uses task notifications. */}}
+\DoxyCodeLine{00095 \textcolor{preprocessor}{\#ifndef sbSEND\_COMPLETED}}
+\DoxyCodeLine{00096 \textcolor{preprocessor}{    \#define sbSEND\_COMPLETED( pxStreamBuffer )                                          \(\backslash\)}}
+\DoxyCodeLine{00097 \textcolor{preprocessor}{        vTaskSuspendAll();                                                              \(\backslash\)}}
+\DoxyCodeLine{00098 \textcolor{preprocessor}{        \{                                                                               \(\backslash\)}}
+\DoxyCodeLine{00099 \textcolor{preprocessor}{            if( ( pxStreamBuffer )-\/>xTaskWaitingToReceive != NULL )                     \(\backslash\)}}
+\DoxyCodeLine{00100 \textcolor{preprocessor}{            \{                                                                           \(\backslash\)}}
+\DoxyCodeLine{00101 \textcolor{preprocessor}{                ( void ) xTaskNotify( ( pxStreamBuffer )-\/>xTaskWaitingToReceive,        \(\backslash\)}}
+\DoxyCodeLine{00102 \textcolor{preprocessor}{                                      ( uint32\_t ) 0,                                   \(\backslash\)}}
+\DoxyCodeLine{00103 \textcolor{preprocessor}{                                      eNoAction );                                      \(\backslash\)}}
+\DoxyCodeLine{00104 \textcolor{preprocessor}{                ( pxStreamBuffer )-\/>xTaskWaitingToReceive = NULL;                       \(\backslash\)}}
+\DoxyCodeLine{00105 \textcolor{preprocessor}{            \}                                                                           \(\backslash\)}}
+\DoxyCodeLine{00106 \textcolor{preprocessor}{        \}                                                                               \(\backslash\)}}
+\DoxyCodeLine{00107 \textcolor{preprocessor}{        ( void ) xTaskResumeAll();}}
+\DoxyCodeLine{00108 \textcolor{preprocessor}{\#endif }\textcolor{comment}{/* sbSEND\_COMPLETED */}\textcolor{preprocessor}{}}
+\DoxyCodeLine{00109 }
+\DoxyCodeLine{00110 \textcolor{preprocessor}{\#ifndef sbSEND\_COMPLETE\_FROM\_ISR}}
+\DoxyCodeLine{00111 \textcolor{preprocessor}{    \#define sbSEND\_COMPLETE\_FROM\_ISR( pxStreamBuffer, pxHigherPriorityTaskWoken )       \(\backslash\)}}
+\DoxyCodeLine{00112 \textcolor{preprocessor}{    \{                                                                                   \(\backslash\)}}
+\DoxyCodeLine{00113 \textcolor{preprocessor}{    UBaseType\_t uxSavedInterruptStatus;                                                 \(\backslash\)}}
+\DoxyCodeLine{00114 \textcolor{preprocessor}{                                                                                        \(\backslash\)}}
+\DoxyCodeLine{00115 \textcolor{preprocessor}{        uxSavedInterruptStatus = ( UBaseType\_t ) portSET\_INTERRUPT\_MASK\_FROM\_ISR();     \(\backslash\)}}
+\DoxyCodeLine{00116 \textcolor{preprocessor}{        \{                                                                               \(\backslash\)}}
+\DoxyCodeLine{00117 \textcolor{preprocessor}{            if( ( pxStreamBuffer )-\/>xTaskWaitingToReceive != NULL )                     \(\backslash\)}}
+\DoxyCodeLine{00118 \textcolor{preprocessor}{            \{                                                                           \(\backslash\)}}
+\DoxyCodeLine{00119 \textcolor{preprocessor}{                ( void ) xTaskNotifyFromISR( ( pxStreamBuffer )-\/>xTaskWaitingToReceive, \(\backslash\)}}
+\DoxyCodeLine{00120 \textcolor{preprocessor}{                                             ( uint32\_t ) 0,                            \(\backslash\)}}
+\DoxyCodeLine{00121 \textcolor{preprocessor}{                                             eNoAction,                                 \(\backslash\)}}
+\DoxyCodeLine{00122 \textcolor{preprocessor}{                                             pxHigherPriorityTaskWoken );               \(\backslash\)}}
+\DoxyCodeLine{00123 \textcolor{preprocessor}{                ( pxStreamBuffer )-\/>xTaskWaitingToReceive = NULL;                       \(\backslash\)}}
+\DoxyCodeLine{00124 \textcolor{preprocessor}{            \}                                                                           \(\backslash\)}}
+\DoxyCodeLine{00125 \textcolor{preprocessor}{        \}                                                                               \(\backslash\)}}
+\DoxyCodeLine{00126 \textcolor{preprocessor}{        portCLEAR\_INTERRUPT\_MASK\_FROM\_ISR( uxSavedInterruptStatus );                    \(\backslash\)}}
+\DoxyCodeLine{00127 \textcolor{preprocessor}{    \}}}
+\DoxyCodeLine{00128 \textcolor{preprocessor}{\#endif }\textcolor{comment}{/* sbSEND\_COMPLETE\_FROM\_ISR */}\textcolor{preprocessor}{}}
+\DoxyCodeLine{00129 \textcolor{comment}{/*lint -\/restore (9026) */}}
+\DoxyCodeLine{00130 }
+\DoxyCodeLine{00131 \textcolor{comment}{/* The number of bytes used to hold the length of a message in the buffer. */}}
+\DoxyCodeLine{00132 \textcolor{preprocessor}{\#define sbBYTES\_TO\_STORE\_MESSAGE\_LENGTH ( sizeof( configMESSAGE\_BUFFER\_LENGTH\_TYPE ) )}}
+\DoxyCodeLine{00133 }
+\DoxyCodeLine{00134 \textcolor{comment}{/* Bits stored in the ucFlags field of the stream buffer. */}}
+\DoxyCodeLine{00135 \textcolor{preprocessor}{\#define sbFLAGS\_IS\_MESSAGE\_BUFFER       ( ( uint8\_t ) 1 ) }\textcolor{comment}{/* Set if the stream buffer was created as a message buffer, in which case it holds discrete messages rather than a stream. */}\textcolor{preprocessor}{}}
+\DoxyCodeLine{00136 \textcolor{preprocessor}{\#define sbFLAGS\_IS\_STATICALLY\_ALLOCATED ( ( uint8\_t ) 2 ) }\textcolor{comment}{/* Set if the stream buffer was created using statically allocated memory. */}\textcolor{preprocessor}{}}
+\DoxyCodeLine{00137 }
+\DoxyCodeLine{00138 \textcolor{comment}{/*-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/*/}}
+\DoxyCodeLine{00139 }
+\DoxyCodeLine{00140 \textcolor{comment}{/* Structure that hold state information on the buffer. */}}
+\DoxyCodeLine{00141 \textcolor{keyword}{typedef} \textcolor{keyword}{struct }StreamBufferDef\_t \textcolor{comment}{/*lint !e9058 Style convention uses tag. */}}
+\DoxyCodeLine{00142 \{}
+\DoxyCodeLine{00143     \textcolor{keyword}{volatile} \textcolor{keywordtype}{size\_t} xTail;              \textcolor{comment}{/* Index to the next item to read within the buffer. */}}
+\DoxyCodeLine{00144     \textcolor{keyword}{volatile} \textcolor{keywordtype}{size\_t} xHead;              \textcolor{comment}{/* Index to the next item to write within the buffer. */}}
+\DoxyCodeLine{00145     \textcolor{keywordtype}{size\_t} xLength;                     \textcolor{comment}{/* The length of the buffer pointed to by pucBuffer. */}}
+\DoxyCodeLine{00146     \textcolor{keywordtype}{size\_t} xTriggerLevelBytes;          \textcolor{comment}{/* The number of bytes that must be in the stream buffer before a task that is waiting for data is unblocked. */}}
+\DoxyCodeLine{00147     \textcolor{keyword}{volatile} TaskHandle\_t xTaskWaitingToReceive; \textcolor{comment}{/* Holds the handle of a task waiting for data, or NULL if no tasks are waiting. */}}
+\DoxyCodeLine{00148     \textcolor{keyword}{volatile} TaskHandle\_t xTaskWaitingToSend;   \textcolor{comment}{/* Holds the handle of a task waiting to send data to a message buffer that is full. */}}
+\DoxyCodeLine{00149     uint8\_t *pucBuffer;                 \textcolor{comment}{/* Points to the buffer itself -\/ that is -\/ the RAM that stores the data passed through the buffer. */}}
+\DoxyCodeLine{00150     uint8\_t ucFlags;}
+\DoxyCodeLine{00151 }
+\DoxyCodeLine{00152 \textcolor{preprocessor}{    \#if ( configUSE\_TRACE\_FACILITY == 1 )}}
+\DoxyCodeLine{00153         UBaseType\_t uxStreamBufferNumber;       \textcolor{comment}{/* Used for tracing purposes. */}}
+\DoxyCodeLine{00154 \textcolor{preprocessor}{    \#endif}}
+\DoxyCodeLine{00155 \} StreamBuffer\_t;}
+\DoxyCodeLine{00156 }
+\DoxyCodeLine{00157 \textcolor{comment}{/*}}
+\DoxyCodeLine{00158 \textcolor{comment}{ * The number of bytes available to be read from the buffer.}}
+\DoxyCodeLine{00159 \textcolor{comment}{ */}}
+\DoxyCodeLine{00160 \textcolor{keyword}{static} \textcolor{keywordtype}{size\_t} prvBytesInBuffer( \textcolor{keyword}{const} StreamBuffer\_t * \textcolor{keyword}{const} pxStreamBuffer ) PRIVILEGED\_FUNCTION;}
+\DoxyCodeLine{00161 }
+\DoxyCodeLine{00162 \textcolor{comment}{/*}}
+\DoxyCodeLine{00163 \textcolor{comment}{ * Add xCount bytes from pucData into the pxStreamBuffer message buffer.}}
+\DoxyCodeLine{00164 \textcolor{comment}{ * Returns the number of bytes written, which will either equal xCount in the}}
+\DoxyCodeLine{00165 \textcolor{comment}{ * success case, or 0 if there was not enough space in the buffer (in which case}}
+\DoxyCodeLine{00166 \textcolor{comment}{ * no data is written into the buffer).}}
+\DoxyCodeLine{00167 \textcolor{comment}{ */}}
+\DoxyCodeLine{00168 \textcolor{keyword}{static} \textcolor{keywordtype}{size\_t} prvWriteBytesToBuffer( StreamBuffer\_t * \textcolor{keyword}{const} pxStreamBuffer, \textcolor{keyword}{const} uint8\_t *pucData, \textcolor{keywordtype}{size\_t} xCount ) PRIVILEGED\_FUNCTION;}
+\DoxyCodeLine{00169 }
+\DoxyCodeLine{00170 \textcolor{comment}{/*}}
+\DoxyCodeLine{00171 \textcolor{comment}{ * If the stream buffer is being used as a message buffer, then reads an entire}}
+\DoxyCodeLine{00172 \textcolor{comment}{ * message out of the buffer.  If the stream buffer is being used as a stream}}
+\DoxyCodeLine{00173 \textcolor{comment}{ * buffer then read as many bytes as possible from the buffer.}}
+\DoxyCodeLine{00174 \textcolor{comment}{ * prvReadBytesFromBuffer() is called to actually extract the bytes from the}}
+\DoxyCodeLine{00175 \textcolor{comment}{ * buffer's data storage area.}}
+\DoxyCodeLine{00176 \textcolor{comment}{ */}}
+\DoxyCodeLine{00177 \textcolor{keyword}{static} \textcolor{keywordtype}{size\_t} prvReadMessageFromBuffer( StreamBuffer\_t *pxStreamBuffer,}
+\DoxyCodeLine{00178                                         \textcolor{keywordtype}{void} *pvRxData,}
+\DoxyCodeLine{00179                                         \textcolor{keywordtype}{size\_t} xBufferLengthBytes,}
+\DoxyCodeLine{00180                                         \textcolor{keywordtype}{size\_t} xBytesAvailable,}
+\DoxyCodeLine{00181                                         \textcolor{keywordtype}{size\_t} xBytesToStoreMessageLength ) PRIVILEGED\_FUNCTION;}
+\DoxyCodeLine{00182 }
+\DoxyCodeLine{00183 \textcolor{comment}{/*}}
+\DoxyCodeLine{00184 \textcolor{comment}{ * If the stream buffer is being used as a message buffer, then writes an entire}}
+\DoxyCodeLine{00185 \textcolor{comment}{ * message to the buffer.  If the stream buffer is being used as a stream}}
+\DoxyCodeLine{00186 \textcolor{comment}{ * buffer then write as many bytes as possible to the buffer.}}
+\DoxyCodeLine{00187 \textcolor{comment}{ * prvWriteBytestoBuffer() is called to actually send the bytes to the buffer's}}
+\DoxyCodeLine{00188 \textcolor{comment}{ * data storage area.}}
+\DoxyCodeLine{00189 \textcolor{comment}{ */}}
+\DoxyCodeLine{00190 \textcolor{keyword}{static} \textcolor{keywordtype}{size\_t} prvWriteMessageToBuffer(  StreamBuffer\_t * \textcolor{keyword}{const} pxStreamBuffer,}
+\DoxyCodeLine{00191                                         \textcolor{keyword}{const} \textcolor{keywordtype}{void} * pvTxData,}
+\DoxyCodeLine{00192                                         \textcolor{keywordtype}{size\_t} xDataLengthBytes,}
+\DoxyCodeLine{00193                                         \textcolor{keywordtype}{size\_t} xSpace,}
+\DoxyCodeLine{00194                                         \textcolor{keywordtype}{size\_t} xRequiredSpace ) PRIVILEGED\_FUNCTION;}
+\DoxyCodeLine{00195 }
+\DoxyCodeLine{00196 \textcolor{comment}{/*}}
+\DoxyCodeLine{00197 \textcolor{comment}{ * Read xMaxCount bytes from the pxStreamBuffer message buffer and write them}}
+\DoxyCodeLine{00198 \textcolor{comment}{ * to pucData.}}
+\DoxyCodeLine{00199 \textcolor{comment}{ */}}
+\DoxyCodeLine{00200 \textcolor{keyword}{static} \textcolor{keywordtype}{size\_t} prvReadBytesFromBuffer( StreamBuffer\_t *pxStreamBuffer,}
+\DoxyCodeLine{00201                                       uint8\_t *pucData,}
+\DoxyCodeLine{00202                                       \textcolor{keywordtype}{size\_t} xMaxCount,}
+\DoxyCodeLine{00203                                       \textcolor{keywordtype}{size\_t} xBytesAvailable ) PRIVILEGED\_FUNCTION;}
+\DoxyCodeLine{00204 }
+\DoxyCodeLine{00205 \textcolor{comment}{/*}}
+\DoxyCodeLine{00206 \textcolor{comment}{ * Called by both pxStreamBufferCreate() and pxStreamBufferCreateStatic() to}}
+\DoxyCodeLine{00207 \textcolor{comment}{ * initialise the members of the newly created stream buffer structure.}}
+\DoxyCodeLine{00208 \textcolor{comment}{ */}}
+\DoxyCodeLine{00209 \textcolor{keyword}{static} \textcolor{keywordtype}{void} prvInitialiseNewStreamBuffer( StreamBuffer\_t * \textcolor{keyword}{const} pxStreamBuffer,}
+\DoxyCodeLine{00210                                           uint8\_t * \textcolor{keyword}{const} pucBuffer,}
+\DoxyCodeLine{00211                                           \textcolor{keywordtype}{size\_t} xBufferSizeBytes,}
+\DoxyCodeLine{00212                                           \textcolor{keywordtype}{size\_t} xTriggerLevelBytes,}
+\DoxyCodeLine{00213                                           uint8\_t ucFlags ) PRIVILEGED\_FUNCTION;}
+\DoxyCodeLine{00214 }
+\DoxyCodeLine{00215 \textcolor{comment}{/*-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/*/}}
+\DoxyCodeLine{00216 }
+\DoxyCodeLine{00217 \textcolor{preprocessor}{\#if( configSUPPORT\_DYNAMIC\_ALLOCATION == 1 )}}
+\DoxyCodeLine{00218 }
+\DoxyCodeLine{00219     StreamBufferHandle\_t xStreamBufferGenericCreate( \textcolor{keywordtype}{size\_t} xBufferSizeBytes, \textcolor{keywordtype}{size\_t} xTriggerLevelBytes, BaseType\_t xIsMessageBuffer )}
+\DoxyCodeLine{00220     \{}
+\DoxyCodeLine{00221     uint8\_t *pucAllocatedMemory;}
+\DoxyCodeLine{00222     uint8\_t ucFlags;}
+\DoxyCodeLine{00223 }
+\DoxyCodeLine{00224         \textcolor{comment}{/* In case the stream buffer is going to be used as a message buffer}}
+\DoxyCodeLine{00225 \textcolor{comment}{        (that is, it will hold discrete messages with a little meta data that}}
+\DoxyCodeLine{00226 \textcolor{comment}{        says how big the next message is) check the buffer will be large enough}}
+\DoxyCodeLine{00227 \textcolor{comment}{        to hold at least one message. */}}
+\DoxyCodeLine{00228         \textcolor{keywordflow}{if}( xIsMessageBuffer == pdTRUE )}
+\DoxyCodeLine{00229         \{}
+\DoxyCodeLine{00230             \textcolor{comment}{/* Is a message buffer but not statically allocated. */}}
+\DoxyCodeLine{00231             ucFlags = sbFLAGS\_IS\_MESSAGE\_BUFFER;}
+\DoxyCodeLine{00232             configASSERT( xBufferSizeBytes > sbBYTES\_TO\_STORE\_MESSAGE\_LENGTH );}
+\DoxyCodeLine{00233         \}}
+\DoxyCodeLine{00234         \textcolor{keywordflow}{else}}
+\DoxyCodeLine{00235         \{}
+\DoxyCodeLine{00236             \textcolor{comment}{/* Not a message buffer and not statically allocated. */}}
+\DoxyCodeLine{00237             ucFlags = 0;}
+\DoxyCodeLine{00238             configASSERT( xBufferSizeBytes > 0 );}
+\DoxyCodeLine{00239         \}}
+\DoxyCodeLine{00240         configASSERT( xTriggerLevelBytes <= xBufferSizeBytes );}
+\DoxyCodeLine{00241 }
+\DoxyCodeLine{00242         \textcolor{comment}{/* A trigger level of 0 would cause a waiting task to unblock even when}}
+\DoxyCodeLine{00243 \textcolor{comment}{        the buffer was empty. */}}
+\DoxyCodeLine{00244         \textcolor{keywordflow}{if}( xTriggerLevelBytes == ( \textcolor{keywordtype}{size\_t} ) 0 )}
+\DoxyCodeLine{00245         \{}
+\DoxyCodeLine{00246             xTriggerLevelBytes = ( size\_t ) 1;}
+\DoxyCodeLine{00247         \}}
+\DoxyCodeLine{00248 }
+\DoxyCodeLine{00249         \textcolor{comment}{/* A stream buffer requires a StreamBuffer\_t structure and a buffer.}}
+\DoxyCodeLine{00250 \textcolor{comment}{        Both are allocated in a single call to pvPortMalloc().  The}}
+\DoxyCodeLine{00251 \textcolor{comment}{        StreamBuffer\_t structure is placed at the start of the allocated memory}}
+\DoxyCodeLine{00252 \textcolor{comment}{        and the buffer follows immediately after.  The requested size is}}
+\DoxyCodeLine{00253 \textcolor{comment}{        incremented so the free space is returned as the user would expect -\/}}
+\DoxyCodeLine{00254 \textcolor{comment}{        this is a quirk of the implementation that means otherwise the free}}
+\DoxyCodeLine{00255 \textcolor{comment}{        space would be reported as one byte smaller than would be logically}}
+\DoxyCodeLine{00256 \textcolor{comment}{        expected. */}}
+\DoxyCodeLine{00257         xBufferSizeBytes++;}
+\DoxyCodeLine{00258         pucAllocatedMemory = ( uint8\_t * ) pvPortMalloc( xBufferSizeBytes + \textcolor{keyword}{sizeof}( StreamBuffer\_t ) ); \textcolor{comment}{/*lint !e9079 malloc() only returns void*. */}}
+\DoxyCodeLine{00259 }
+\DoxyCodeLine{00260         \textcolor{keywordflow}{if}( pucAllocatedMemory != NULL )}
+\DoxyCodeLine{00261         \{}
+\DoxyCodeLine{00262             prvInitialiseNewStreamBuffer( ( StreamBuffer\_t * ) pucAllocatedMemory, \textcolor{comment}{/* Structure at the start of the allocated memory. */} \textcolor{comment}{/*lint !e9087 Safe cast as allocated memory is aligned. */} \textcolor{comment}{/*lint !e826 Area is not too small and alignment is guaranteed provided malloc() behaves as expected and returns aligned buffer. */}}
+\DoxyCodeLine{00263                                            pucAllocatedMemory + \textcolor{keyword}{sizeof}( StreamBuffer\_t ),  \textcolor{comment}{/* Storage area follows. */} \textcolor{comment}{/*lint !e9016 Indexing past structure valid for uint8\_t pointer, also storage area has no alignment requirement. */}}
+\DoxyCodeLine{00264                                            xBufferSizeBytes,}
+\DoxyCodeLine{00265                                            xTriggerLevelBytes,}
+\DoxyCodeLine{00266                                            ucFlags );}
+\DoxyCodeLine{00267 }
+\DoxyCodeLine{00268             traceSTREAM\_BUFFER\_CREATE( ( ( StreamBuffer\_t * ) pucAllocatedMemory ), xIsMessageBuffer );}
+\DoxyCodeLine{00269         \}}
+\DoxyCodeLine{00270         \textcolor{keywordflow}{else}}
+\DoxyCodeLine{00271         \{}
+\DoxyCodeLine{00272             traceSTREAM\_BUFFER\_CREATE\_FAILED( xIsMessageBuffer );}
+\DoxyCodeLine{00273         \}}
+\DoxyCodeLine{00274 }
+\DoxyCodeLine{00275         \textcolor{keywordflow}{return} ( StreamBufferHandle\_t ) pucAllocatedMemory; \textcolor{comment}{/*lint !e9087 !e826 Safe cast as allocated memory is aligned. */}}
+\DoxyCodeLine{00276     \}}
+\DoxyCodeLine{00277 }
+\DoxyCodeLine{00278 \textcolor{preprocessor}{\#endif }\textcolor{comment}{/* configSUPPORT\_DYNAMIC\_ALLOCATION */}\textcolor{preprocessor}{}}
+\DoxyCodeLine{00279 \textcolor{comment}{/*-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/*/}}
+\DoxyCodeLine{00280 }
+\DoxyCodeLine{00281 \textcolor{preprocessor}{\#if( configSUPPORT\_STATIC\_ALLOCATION == 1 )}}
+\DoxyCodeLine{00282 }
+\DoxyCodeLine{00283     StreamBufferHandle\_t xStreamBufferGenericCreateStatic( \textcolor{keywordtype}{size\_t} xBufferSizeBytes,}
+\DoxyCodeLine{00284                                                            \textcolor{keywordtype}{size\_t} xTriggerLevelBytes,}
+\DoxyCodeLine{00285                                                            BaseType\_t xIsMessageBuffer,}
+\DoxyCodeLine{00286                                                            uint8\_t * \textcolor{keyword}{const} pucStreamBufferStorageArea,}
+\DoxyCodeLine{00287                                                            StaticStreamBuffer\_t * \textcolor{keyword}{const} pxStaticStreamBuffer )}
+\DoxyCodeLine{00288     \{}
+\DoxyCodeLine{00289     StreamBuffer\_t * \textcolor{keyword}{const} pxStreamBuffer = ( StreamBuffer\_t * ) pxStaticStreamBuffer; \textcolor{comment}{/*lint !e740 !e9087 Safe cast as StaticStreamBuffer\_t is opaque Streambuffer\_t. */}}
+\DoxyCodeLine{00290     StreamBufferHandle\_t xReturn;}
+\DoxyCodeLine{00291     uint8\_t ucFlags;}
+\DoxyCodeLine{00292 }
+\DoxyCodeLine{00293         configASSERT( pucStreamBufferStorageArea );}
+\DoxyCodeLine{00294         configASSERT( pxStaticStreamBuffer );}
+\DoxyCodeLine{00295         configASSERT( xTriggerLevelBytes <= xBufferSizeBytes );}
+\DoxyCodeLine{00296 }
+\DoxyCodeLine{00297         \textcolor{comment}{/* A trigger level of 0 would cause a waiting task to unblock even when}}
+\DoxyCodeLine{00298 \textcolor{comment}{        the buffer was empty. */}}
+\DoxyCodeLine{00299         \textcolor{keywordflow}{if}( xTriggerLevelBytes == ( \textcolor{keywordtype}{size\_t} ) 0 )}
+\DoxyCodeLine{00300         \{}
+\DoxyCodeLine{00301             xTriggerLevelBytes = ( size\_t ) 1;}
+\DoxyCodeLine{00302         \}}
+\DoxyCodeLine{00303 }
+\DoxyCodeLine{00304         \textcolor{keywordflow}{if}( xIsMessageBuffer != pdFALSE )}
+\DoxyCodeLine{00305         \{}
+\DoxyCodeLine{00306             \textcolor{comment}{/* Statically allocated message buffer. */}}
+\DoxyCodeLine{00307             ucFlags = sbFLAGS\_IS\_MESSAGE\_BUFFER | sbFLAGS\_IS\_STATICALLY\_ALLOCATED;}
+\DoxyCodeLine{00308         \}}
+\DoxyCodeLine{00309         \textcolor{keywordflow}{else}}
+\DoxyCodeLine{00310         \{}
+\DoxyCodeLine{00311             \textcolor{comment}{/* Statically allocated stream buffer. */}}
+\DoxyCodeLine{00312             ucFlags = sbFLAGS\_IS\_STATICALLY\_ALLOCATED;}
+\DoxyCodeLine{00313         \}}
+\DoxyCodeLine{00314 }
+\DoxyCodeLine{00315         \textcolor{comment}{/* In case the stream buffer is going to be used as a message buffer}}
+\DoxyCodeLine{00316 \textcolor{comment}{        (that is, it will hold discrete messages with a little meta data that}}
+\DoxyCodeLine{00317 \textcolor{comment}{        says how big the next message is) check the buffer will be large enough}}
+\DoxyCodeLine{00318 \textcolor{comment}{        to hold at least one message. */}}
+\DoxyCodeLine{00319         configASSERT( xBufferSizeBytes > sbBYTES\_TO\_STORE\_MESSAGE\_LENGTH );}
+\DoxyCodeLine{00320 }
+\DoxyCodeLine{00321 \textcolor{preprocessor}{        \#if( configASSERT\_DEFINED == 1 )}}
+\DoxyCodeLine{00322         \{}
+\DoxyCodeLine{00323             \textcolor{comment}{/* Sanity check that the size of the structure used to declare a}}
+\DoxyCodeLine{00324 \textcolor{comment}{            variable of type StaticStreamBuffer\_t equals the size of the real}}
+\DoxyCodeLine{00325 \textcolor{comment}{            message buffer structure. */}}
+\DoxyCodeLine{00326             \textcolor{keyword}{volatile} \textcolor{keywordtype}{size\_t} xSize = \textcolor{keyword}{sizeof}( StaticStreamBuffer\_t );}
+\DoxyCodeLine{00327             configASSERT( xSize == \textcolor{keyword}{sizeof}( StreamBuffer\_t ) );}
+\DoxyCodeLine{00328         \} \textcolor{comment}{/*lint !e529 xSize is referenced is configASSERT() is defined. */}}
+\DoxyCodeLine{00329 \textcolor{preprocessor}{        \#endif }\textcolor{comment}{/* configASSERT\_DEFINED */}\textcolor{preprocessor}{}}
+\DoxyCodeLine{00330 }
+\DoxyCodeLine{00331         \textcolor{keywordflow}{if}( ( pucStreamBufferStorageArea != NULL ) \&\& ( pxStaticStreamBuffer != NULL ) )}
+\DoxyCodeLine{00332         \{}
+\DoxyCodeLine{00333             prvInitialiseNewStreamBuffer( pxStreamBuffer,}
+\DoxyCodeLine{00334                                           pucStreamBufferStorageArea,}
+\DoxyCodeLine{00335                                           xBufferSizeBytes,}
+\DoxyCodeLine{00336                                           xTriggerLevelBytes,}
+\DoxyCodeLine{00337                                           ucFlags );}
+\DoxyCodeLine{00338 }
+\DoxyCodeLine{00339             \textcolor{comment}{/* Remember this was statically allocated in case it is ever deleted}}
+\DoxyCodeLine{00340 \textcolor{comment}{            again. */}}
+\DoxyCodeLine{00341             pxStreamBuffer-\/>ucFlags |= sbFLAGS\_IS\_STATICALLY\_ALLOCATED;}
+\DoxyCodeLine{00342 }
+\DoxyCodeLine{00343             traceSTREAM\_BUFFER\_CREATE( pxStreamBuffer, xIsMessageBuffer );}
+\DoxyCodeLine{00344 }
+\DoxyCodeLine{00345             xReturn = ( StreamBufferHandle\_t ) pxStaticStreamBuffer; \textcolor{comment}{/*lint !e9087 Data hiding requires cast to opaque type. */}}
+\DoxyCodeLine{00346         \}}
+\DoxyCodeLine{00347         \textcolor{keywordflow}{else}}
+\DoxyCodeLine{00348         \{}
+\DoxyCodeLine{00349             xReturn = NULL;}
+\DoxyCodeLine{00350             traceSTREAM\_BUFFER\_CREATE\_STATIC\_FAILED( xReturn, xIsMessageBuffer );}
+\DoxyCodeLine{00351         \}}
+\DoxyCodeLine{00352 }
+\DoxyCodeLine{00353         \textcolor{keywordflow}{return} xReturn;}
+\DoxyCodeLine{00354     \}}
+\DoxyCodeLine{00355 }
+\DoxyCodeLine{00356 \textcolor{preprocessor}{\#endif }\textcolor{comment}{/* ( configSUPPORT\_STATIC\_ALLOCATION == 1 ) */}\textcolor{preprocessor}{}}
+\DoxyCodeLine{00357 \textcolor{comment}{/*-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/*/}}
+\DoxyCodeLine{00358 }
+\DoxyCodeLine{00359 \textcolor{keywordtype}{void} vStreamBufferDelete( StreamBufferHandle\_t xStreamBuffer )}
+\DoxyCodeLine{00360 \{}
+\DoxyCodeLine{00361 StreamBuffer\_t * pxStreamBuffer = xStreamBuffer;}
+\DoxyCodeLine{00362 }
+\DoxyCodeLine{00363     configASSERT( pxStreamBuffer );}
+\DoxyCodeLine{00364 }
+\DoxyCodeLine{00365     traceSTREAM\_BUFFER\_DELETE( xStreamBuffer );}
+\DoxyCodeLine{00366 }
+\DoxyCodeLine{00367     \textcolor{keywordflow}{if}( ( pxStreamBuffer-\/>ucFlags \& sbFLAGS\_IS\_STATICALLY\_ALLOCATED ) == ( uint8\_t ) pdFALSE )}
+\DoxyCodeLine{00368     \{}
+\DoxyCodeLine{00369 \textcolor{preprocessor}{        \#if( configSUPPORT\_DYNAMIC\_ALLOCATION == 1 )}}
+\DoxyCodeLine{00370         \{}
+\DoxyCodeLine{00371             \textcolor{comment}{/* Both the structure and the buffer were allocated using a single call}}
+\DoxyCodeLine{00372 \textcolor{comment}{            to pvPortMalloc(), hence only one call to vPortFree() is required. */}}
+\DoxyCodeLine{00373             vPortFree( ( \textcolor{keywordtype}{void} * ) pxStreamBuffer ); \textcolor{comment}{/*lint !e9087 Standard free() semantics require void *, plus pxStreamBuffer was allocated by pvPortMalloc(). */}}
+\DoxyCodeLine{00374         \}}
+\DoxyCodeLine{00375 \textcolor{preprocessor}{        \#else}}
+\DoxyCodeLine{00376         \{}
+\DoxyCodeLine{00377             \textcolor{comment}{/* Should not be possible to get here, ucFlags must be corrupt.}}
+\DoxyCodeLine{00378 \textcolor{comment}{            Force an assert. */}}
+\DoxyCodeLine{00379             configASSERT( xStreamBuffer == ( StreamBufferHandle\_t ) \string~0 );}
+\DoxyCodeLine{00380         \}}
+\DoxyCodeLine{00381 \textcolor{preprocessor}{        \#endif}}
+\DoxyCodeLine{00382     \}}
+\DoxyCodeLine{00383     \textcolor{keywordflow}{else}}
+\DoxyCodeLine{00384     \{}
+\DoxyCodeLine{00385         \textcolor{comment}{/* The structure and buffer were not allocated dynamically and cannot be}}
+\DoxyCodeLine{00386 \textcolor{comment}{        freed -\/ just scrub the structure so future use will assert. */}}
+\DoxyCodeLine{00387         ( void ) memset( pxStreamBuffer, 0x00, \textcolor{keyword}{sizeof}( StreamBuffer\_t ) );}
+\DoxyCodeLine{00388     \}}
+\DoxyCodeLine{00389 \}}
+\DoxyCodeLine{00390 \textcolor{comment}{/*-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/*/}}
+\DoxyCodeLine{00391 }
+\DoxyCodeLine{00392 BaseType\_t xStreamBufferReset( StreamBufferHandle\_t xStreamBuffer )}
+\DoxyCodeLine{00393 \{}
+\DoxyCodeLine{00394 StreamBuffer\_t * \textcolor{keyword}{const} pxStreamBuffer = xStreamBuffer;}
+\DoxyCodeLine{00395 BaseType\_t xReturn = pdFAIL;}
+\DoxyCodeLine{00396 }
+\DoxyCodeLine{00397 \textcolor{preprocessor}{\#if( configUSE\_TRACE\_FACILITY == 1 )}}
+\DoxyCodeLine{00398     UBaseType\_t uxStreamBufferNumber;}
+\DoxyCodeLine{00399 \textcolor{preprocessor}{\#endif}}
+\DoxyCodeLine{00400 }
+\DoxyCodeLine{00401     configASSERT( pxStreamBuffer );}
+\DoxyCodeLine{00402 }
+\DoxyCodeLine{00403 \textcolor{preprocessor}{    \#if( configUSE\_TRACE\_FACILITY == 1 )}}
+\DoxyCodeLine{00404     \{}
+\DoxyCodeLine{00405         \textcolor{comment}{/* Store the stream buffer number so it can be restored after the}}
+\DoxyCodeLine{00406 \textcolor{comment}{        reset. */}}
+\DoxyCodeLine{00407         uxStreamBufferNumber = pxStreamBuffer-\/>uxStreamBufferNumber;}
+\DoxyCodeLine{00408     \}}
+\DoxyCodeLine{00409 \textcolor{preprocessor}{    \#endif}}
+\DoxyCodeLine{00410 }
+\DoxyCodeLine{00411     \textcolor{comment}{/* Can only reset a message buffer if there are no tasks blocked on it. */}}
+\DoxyCodeLine{00412     taskENTER\_CRITICAL();}
+\DoxyCodeLine{00413     \{}
+\DoxyCodeLine{00414         \textcolor{keywordflow}{if}( pxStreamBuffer-\/>xTaskWaitingToReceive == NULL )}
+\DoxyCodeLine{00415         \{}
+\DoxyCodeLine{00416             \textcolor{keywordflow}{if}( pxStreamBuffer-\/>xTaskWaitingToSend == NULL )}
+\DoxyCodeLine{00417             \{}
+\DoxyCodeLine{00418                 prvInitialiseNewStreamBuffer( pxStreamBuffer,}
+\DoxyCodeLine{00419                                               pxStreamBuffer-\/>pucBuffer,}
+\DoxyCodeLine{00420                                               pxStreamBuffer-\/>xLength,}
+\DoxyCodeLine{00421                                               pxStreamBuffer-\/>xTriggerLevelBytes,}
+\DoxyCodeLine{00422                                               pxStreamBuffer-\/>ucFlags );}
+\DoxyCodeLine{00423                 xReturn = pdPASS;}
+\DoxyCodeLine{00424 }
+\DoxyCodeLine{00425 \textcolor{preprocessor}{                \#if( configUSE\_TRACE\_FACILITY == 1 )}}
+\DoxyCodeLine{00426                 \{}
+\DoxyCodeLine{00427                     pxStreamBuffer-\/>uxStreamBufferNumber = uxStreamBufferNumber;}
+\DoxyCodeLine{00428                 \}}
+\DoxyCodeLine{00429 \textcolor{preprocessor}{                \#endif}}
+\DoxyCodeLine{00430 }
+\DoxyCodeLine{00431                 traceSTREAM\_BUFFER\_RESET( xStreamBuffer );}
+\DoxyCodeLine{00432             \}}
+\DoxyCodeLine{00433         \}}
+\DoxyCodeLine{00434     \}}
+\DoxyCodeLine{00435     taskEXIT\_CRITICAL();}
+\DoxyCodeLine{00436 }
+\DoxyCodeLine{00437     \textcolor{keywordflow}{return} xReturn;}
+\DoxyCodeLine{00438 \}}
+\DoxyCodeLine{00439 \textcolor{comment}{/*-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/*/}}
+\DoxyCodeLine{00440 }
+\DoxyCodeLine{00441 BaseType\_t xStreamBufferSetTriggerLevel( StreamBufferHandle\_t xStreamBuffer, \textcolor{keywordtype}{size\_t} xTriggerLevel )}
+\DoxyCodeLine{00442 \{}
+\DoxyCodeLine{00443 StreamBuffer\_t * \textcolor{keyword}{const} pxStreamBuffer = xStreamBuffer;}
+\DoxyCodeLine{00444 BaseType\_t xReturn;}
+\DoxyCodeLine{00445 }
+\DoxyCodeLine{00446     configASSERT( pxStreamBuffer );}
+\DoxyCodeLine{00447 }
+\DoxyCodeLine{00448     \textcolor{comment}{/* It is not valid for the trigger level to be 0. */}}
+\DoxyCodeLine{00449     \textcolor{keywordflow}{if}( xTriggerLevel == ( \textcolor{keywordtype}{size\_t} ) 0 )}
+\DoxyCodeLine{00450     \{}
+\DoxyCodeLine{00451         xTriggerLevel = ( size\_t ) 1;}
+\DoxyCodeLine{00452     \}}
+\DoxyCodeLine{00453 }
+\DoxyCodeLine{00454     \textcolor{comment}{/* The trigger level is the number of bytes that must be in the stream}}
+\DoxyCodeLine{00455 \textcolor{comment}{    buffer before a task that is waiting for data is unblocked. */}}
+\DoxyCodeLine{00456     \textcolor{keywordflow}{if}( xTriggerLevel <= pxStreamBuffer-\/>xLength )}
+\DoxyCodeLine{00457     \{}
+\DoxyCodeLine{00458         pxStreamBuffer-\/>xTriggerLevelBytes = xTriggerLevel;}
+\DoxyCodeLine{00459         xReturn = pdPASS;}
+\DoxyCodeLine{00460     \}}
+\DoxyCodeLine{00461     \textcolor{keywordflow}{else}}
+\DoxyCodeLine{00462     \{}
+\DoxyCodeLine{00463         xReturn = pdFALSE;}
+\DoxyCodeLine{00464     \}}
+\DoxyCodeLine{00465 }
+\DoxyCodeLine{00466     \textcolor{keywordflow}{return} xReturn;}
+\DoxyCodeLine{00467 \}}
+\DoxyCodeLine{00468 \textcolor{comment}{/*-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/*/}}
+\DoxyCodeLine{00469 }
+\DoxyCodeLine{00470 \textcolor{keywordtype}{size\_t} xStreamBufferSpacesAvailable( StreamBufferHandle\_t xStreamBuffer )}
+\DoxyCodeLine{00471 \{}
+\DoxyCodeLine{00472 \textcolor{keyword}{const} StreamBuffer\_t * \textcolor{keyword}{const} pxStreamBuffer = xStreamBuffer;}
+\DoxyCodeLine{00473 \textcolor{keywordtype}{size\_t} xSpace;}
+\DoxyCodeLine{00474 }
+\DoxyCodeLine{00475     configASSERT( pxStreamBuffer );}
+\DoxyCodeLine{00476 }
+\DoxyCodeLine{00477     xSpace = pxStreamBuffer-\/>xLength + pxStreamBuffer-\/>xTail;}
+\DoxyCodeLine{00478     xSpace -\/= pxStreamBuffer-\/>xHead;}
+\DoxyCodeLine{00479     xSpace -\/= ( size\_t ) 1;}
+\DoxyCodeLine{00480 }
+\DoxyCodeLine{00481     \textcolor{keywordflow}{if}( xSpace >= pxStreamBuffer-\/>xLength )}
+\DoxyCodeLine{00482     \{}
+\DoxyCodeLine{00483         xSpace -\/= pxStreamBuffer-\/>xLength;}
+\DoxyCodeLine{00484     \}}
+\DoxyCodeLine{00485     \textcolor{keywordflow}{else}}
+\DoxyCodeLine{00486     \{}
+\DoxyCodeLine{00487         mtCOVERAGE\_TEST\_MARKER();}
+\DoxyCodeLine{00488     \}}
+\DoxyCodeLine{00489 }
+\DoxyCodeLine{00490     \textcolor{keywordflow}{return} xSpace;}
+\DoxyCodeLine{00491 \}}
+\DoxyCodeLine{00492 \textcolor{comment}{/*-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/*/}}
+\DoxyCodeLine{00493 }
+\DoxyCodeLine{00494 \textcolor{keywordtype}{size\_t} xStreamBufferBytesAvailable( StreamBufferHandle\_t xStreamBuffer )}
+\DoxyCodeLine{00495 \{}
+\DoxyCodeLine{00496 \textcolor{keyword}{const} StreamBuffer\_t * \textcolor{keyword}{const} pxStreamBuffer = xStreamBuffer;}
+\DoxyCodeLine{00497 \textcolor{keywordtype}{size\_t} xReturn;}
+\DoxyCodeLine{00498 }
+\DoxyCodeLine{00499     configASSERT( pxStreamBuffer );}
+\DoxyCodeLine{00500 }
+\DoxyCodeLine{00501     xReturn = prvBytesInBuffer( pxStreamBuffer );}
+\DoxyCodeLine{00502     \textcolor{keywordflow}{return} xReturn;}
+\DoxyCodeLine{00503 \}}
+\DoxyCodeLine{00504 \textcolor{comment}{/*-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/*/}}
+\DoxyCodeLine{00505 }
+\DoxyCodeLine{00506 \textcolor{keywordtype}{size\_t} xStreamBufferSend( StreamBufferHandle\_t xStreamBuffer,}
+\DoxyCodeLine{00507                           \textcolor{keyword}{const} \textcolor{keywordtype}{void} *pvTxData,}
+\DoxyCodeLine{00508                           \textcolor{keywordtype}{size\_t} xDataLengthBytes,}
+\DoxyCodeLine{00509                           TickType\_t xTicksToWait )}
+\DoxyCodeLine{00510 \{}
+\DoxyCodeLine{00511 StreamBuffer\_t * \textcolor{keyword}{const} pxStreamBuffer = xStreamBuffer;}
+\DoxyCodeLine{00512 \textcolor{keywordtype}{size\_t} xReturn, xSpace = 0;}
+\DoxyCodeLine{00513 \textcolor{keywordtype}{size\_t} xRequiredSpace = xDataLengthBytes;}
+\DoxyCodeLine{00514 TimeOut\_t xTimeOut;}
+\DoxyCodeLine{00515 }
+\DoxyCodeLine{00516     configASSERT( pvTxData );}
+\DoxyCodeLine{00517     configASSERT( pxStreamBuffer );}
+\DoxyCodeLine{00518 }
+\DoxyCodeLine{00519     \textcolor{comment}{/* This send function is used to write to both message buffers and stream}}
+\DoxyCodeLine{00520 \textcolor{comment}{    buffers.  If this is a message buffer then the space needed must be}}
+\DoxyCodeLine{00521 \textcolor{comment}{    increased by the amount of bytes needed to store the length of the}}
+\DoxyCodeLine{00522 \textcolor{comment}{    message. */}}
+\DoxyCodeLine{00523     \textcolor{keywordflow}{if}( ( pxStreamBuffer-\/>ucFlags \& sbFLAGS\_IS\_MESSAGE\_BUFFER ) != ( uint8\_t ) 0 )}
+\DoxyCodeLine{00524     \{}
+\DoxyCodeLine{00525         xRequiredSpace += sbBYTES\_TO\_STORE\_MESSAGE\_LENGTH;}
+\DoxyCodeLine{00526 }
+\DoxyCodeLine{00527         \textcolor{comment}{/* Overflow? */}}
+\DoxyCodeLine{00528         configASSERT( xRequiredSpace > xDataLengthBytes );}
+\DoxyCodeLine{00529     \}}
+\DoxyCodeLine{00530     \textcolor{keywordflow}{else}}
+\DoxyCodeLine{00531     \{}
+\DoxyCodeLine{00532         mtCOVERAGE\_TEST\_MARKER();}
+\DoxyCodeLine{00533     \}}
+\DoxyCodeLine{00534 }
+\DoxyCodeLine{00535     \textcolor{keywordflow}{if}( xTicksToWait != ( TickType\_t ) 0 )}
+\DoxyCodeLine{00536     \{}
+\DoxyCodeLine{00537         vTaskSetTimeOutState( \&xTimeOut );}
+\DoxyCodeLine{00538 }
+\DoxyCodeLine{00539         \textcolor{keywordflow}{do}}
+\DoxyCodeLine{00540         \{}
+\DoxyCodeLine{00541             \textcolor{comment}{/* Wait until the required number of bytes are free in the message}}
+\DoxyCodeLine{00542 \textcolor{comment}{            buffer. */}}
+\DoxyCodeLine{00543             taskENTER\_CRITICAL();}
+\DoxyCodeLine{00544             \{}
+\DoxyCodeLine{00545                 xSpace = xStreamBufferSpacesAvailable( pxStreamBuffer );}
+\DoxyCodeLine{00546 }
+\DoxyCodeLine{00547                 \textcolor{keywordflow}{if}( xSpace < xRequiredSpace )}
+\DoxyCodeLine{00548                 \{}
+\DoxyCodeLine{00549                     \textcolor{comment}{/* Clear notification state as going to wait for space. */}}
+\DoxyCodeLine{00550                     ( void ) xTaskNotifyStateClear( NULL );}
+\DoxyCodeLine{00551 }
+\DoxyCodeLine{00552                     \textcolor{comment}{/* Should only be one writer. */}}
+\DoxyCodeLine{00553                     configASSERT( pxStreamBuffer-\/>xTaskWaitingToSend == NULL );}
+\DoxyCodeLine{00554                     pxStreamBuffer-\/>xTaskWaitingToSend = xTaskGetCurrentTaskHandle();}
+\DoxyCodeLine{00555                 \}}
+\DoxyCodeLine{00556                 \textcolor{keywordflow}{else}}
+\DoxyCodeLine{00557                 \{}
+\DoxyCodeLine{00558                     taskEXIT\_CRITICAL();}
+\DoxyCodeLine{00559                     \textcolor{keywordflow}{break};}
+\DoxyCodeLine{00560                 \}}
+\DoxyCodeLine{00561             \}}
+\DoxyCodeLine{00562             taskEXIT\_CRITICAL();}
+\DoxyCodeLine{00563 }
+\DoxyCodeLine{00564             traceBLOCKING\_ON\_STREAM\_BUFFER\_SEND( xStreamBuffer );}
+\DoxyCodeLine{00565             ( void ) xTaskNotifyWait( ( uint32\_t ) 0, ( uint32\_t ) 0, NULL, xTicksToWait );}
+\DoxyCodeLine{00566             pxStreamBuffer-\/>xTaskWaitingToSend = NULL;}
+\DoxyCodeLine{00567 }
+\DoxyCodeLine{00568         \} \textcolor{keywordflow}{while}( xTaskCheckForTimeOut( \&xTimeOut, \&xTicksToWait ) == pdFALSE );}
+\DoxyCodeLine{00569     \}}
+\DoxyCodeLine{00570     \textcolor{keywordflow}{else}}
+\DoxyCodeLine{00571     \{}
+\DoxyCodeLine{00572         mtCOVERAGE\_TEST\_MARKER();}
+\DoxyCodeLine{00573     \}}
+\DoxyCodeLine{00574 }
+\DoxyCodeLine{00575     \textcolor{keywordflow}{if}( xSpace == ( \textcolor{keywordtype}{size\_t} ) 0 )}
+\DoxyCodeLine{00576     \{}
+\DoxyCodeLine{00577         xSpace = xStreamBufferSpacesAvailable( pxStreamBuffer );}
+\DoxyCodeLine{00578     \}}
+\DoxyCodeLine{00579     \textcolor{keywordflow}{else}}
+\DoxyCodeLine{00580     \{}
+\DoxyCodeLine{00581         mtCOVERAGE\_TEST\_MARKER();}
+\DoxyCodeLine{00582     \}}
+\DoxyCodeLine{00583 }
+\DoxyCodeLine{00584     xReturn = prvWriteMessageToBuffer( pxStreamBuffer, pvTxData, xDataLengthBytes, xSpace, xRequiredSpace );}
+\DoxyCodeLine{00585 }
+\DoxyCodeLine{00586     \textcolor{keywordflow}{if}( xReturn > ( \textcolor{keywordtype}{size\_t} ) 0 )}
+\DoxyCodeLine{00587     \{}
+\DoxyCodeLine{00588         traceSTREAM\_BUFFER\_SEND( xStreamBuffer, xReturn );}
+\DoxyCodeLine{00589 }
+\DoxyCodeLine{00590         \textcolor{comment}{/* Was a task waiting for the data? */}}
+\DoxyCodeLine{00591         \textcolor{keywordflow}{if}( prvBytesInBuffer( pxStreamBuffer ) >= pxStreamBuffer-\/>xTriggerLevelBytes )}
+\DoxyCodeLine{00592         \{}
+\DoxyCodeLine{00593             sbSEND\_COMPLETED( pxStreamBuffer );}
+\DoxyCodeLine{00594         \}}
+\DoxyCodeLine{00595         \textcolor{keywordflow}{else}}
+\DoxyCodeLine{00596         \{}
+\DoxyCodeLine{00597             mtCOVERAGE\_TEST\_MARKER();}
+\DoxyCodeLine{00598         \}}
+\DoxyCodeLine{00599     \}}
+\DoxyCodeLine{00600     \textcolor{keywordflow}{else}}
+\DoxyCodeLine{00601     \{}
+\DoxyCodeLine{00602         mtCOVERAGE\_TEST\_MARKER();}
+\DoxyCodeLine{00603         traceSTREAM\_BUFFER\_SEND\_FAILED( xStreamBuffer );}
+\DoxyCodeLine{00604     \}}
+\DoxyCodeLine{00605 }
+\DoxyCodeLine{00606     \textcolor{keywordflow}{return} xReturn;}
+\DoxyCodeLine{00607 \}}
+\DoxyCodeLine{00608 \textcolor{comment}{/*-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/*/}}
+\DoxyCodeLine{00609 }
+\DoxyCodeLine{00610 \textcolor{keywordtype}{size\_t} xStreamBufferSendFromISR( StreamBufferHandle\_t xStreamBuffer,}
+\DoxyCodeLine{00611                                  \textcolor{keyword}{const} \textcolor{keywordtype}{void} *pvTxData,}
+\DoxyCodeLine{00612                                  \textcolor{keywordtype}{size\_t} xDataLengthBytes,}
+\DoxyCodeLine{00613                                  BaseType\_t * \textcolor{keyword}{const} pxHigherPriorityTaskWoken )}
+\DoxyCodeLine{00614 \{}
+\DoxyCodeLine{00615 StreamBuffer\_t * \textcolor{keyword}{const} pxStreamBuffer = xStreamBuffer;}
+\DoxyCodeLine{00616 \textcolor{keywordtype}{size\_t} xReturn, xSpace;}
+\DoxyCodeLine{00617 \textcolor{keywordtype}{size\_t} xRequiredSpace = xDataLengthBytes;}
+\DoxyCodeLine{00618 }
+\DoxyCodeLine{00619     configASSERT( pvTxData );}
+\DoxyCodeLine{00620     configASSERT( pxStreamBuffer );}
+\DoxyCodeLine{00621 }
+\DoxyCodeLine{00622     \textcolor{comment}{/* This send function is used to write to both message buffers and stream}}
+\DoxyCodeLine{00623 \textcolor{comment}{    buffers.  If this is a message buffer then the space needed must be}}
+\DoxyCodeLine{00624 \textcolor{comment}{    increased by the amount of bytes needed to store the length of the}}
+\DoxyCodeLine{00625 \textcolor{comment}{    message. */}}
+\DoxyCodeLine{00626     \textcolor{keywordflow}{if}( ( pxStreamBuffer-\/>ucFlags \& sbFLAGS\_IS\_MESSAGE\_BUFFER ) != ( uint8\_t ) 0 )}
+\DoxyCodeLine{00627     \{}
+\DoxyCodeLine{00628         xRequiredSpace += sbBYTES\_TO\_STORE\_MESSAGE\_LENGTH;}
+\DoxyCodeLine{00629     \}}
+\DoxyCodeLine{00630     \textcolor{keywordflow}{else}}
+\DoxyCodeLine{00631     \{}
+\DoxyCodeLine{00632         mtCOVERAGE\_TEST\_MARKER();}
+\DoxyCodeLine{00633     \}}
+\DoxyCodeLine{00634 }
+\DoxyCodeLine{00635     xSpace = xStreamBufferSpacesAvailable( pxStreamBuffer );}
+\DoxyCodeLine{00636     xReturn = prvWriteMessageToBuffer( pxStreamBuffer, pvTxData, xDataLengthBytes, xSpace, xRequiredSpace );}
+\DoxyCodeLine{00637 }
+\DoxyCodeLine{00638     \textcolor{keywordflow}{if}( xReturn > ( \textcolor{keywordtype}{size\_t} ) 0 )}
+\DoxyCodeLine{00639     \{}
+\DoxyCodeLine{00640         \textcolor{comment}{/* Was a task waiting for the data? */}}
+\DoxyCodeLine{00641         \textcolor{keywordflow}{if}( prvBytesInBuffer( pxStreamBuffer ) >= pxStreamBuffer-\/>xTriggerLevelBytes )}
+\DoxyCodeLine{00642         \{}
+\DoxyCodeLine{00643             sbSEND\_COMPLETE\_FROM\_ISR( pxStreamBuffer, pxHigherPriorityTaskWoken );}
+\DoxyCodeLine{00644         \}}
+\DoxyCodeLine{00645         \textcolor{keywordflow}{else}}
+\DoxyCodeLine{00646         \{}
+\DoxyCodeLine{00647             mtCOVERAGE\_TEST\_MARKER();}
+\DoxyCodeLine{00648         \}}
+\DoxyCodeLine{00649     \}}
+\DoxyCodeLine{00650     \textcolor{keywordflow}{else}}
+\DoxyCodeLine{00651     \{}
+\DoxyCodeLine{00652         mtCOVERAGE\_TEST\_MARKER();}
+\DoxyCodeLine{00653     \}}
+\DoxyCodeLine{00654 }
+\DoxyCodeLine{00655     traceSTREAM\_BUFFER\_SEND\_FROM\_ISR( xStreamBuffer, xReturn );}
+\DoxyCodeLine{00656 }
+\DoxyCodeLine{00657     \textcolor{keywordflow}{return} xReturn;}
+\DoxyCodeLine{00658 \}}
+\DoxyCodeLine{00659 \textcolor{comment}{/*-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/*/}}
+\DoxyCodeLine{00660 }
+\DoxyCodeLine{00661 \textcolor{keyword}{static} \textcolor{keywordtype}{size\_t} prvWriteMessageToBuffer( StreamBuffer\_t * \textcolor{keyword}{const} pxStreamBuffer,}
+\DoxyCodeLine{00662                                        \textcolor{keyword}{const} \textcolor{keywordtype}{void} * pvTxData,}
+\DoxyCodeLine{00663                                        \textcolor{keywordtype}{size\_t} xDataLengthBytes,}
+\DoxyCodeLine{00664                                        \textcolor{keywordtype}{size\_t} xSpace,}
+\DoxyCodeLine{00665                                        \textcolor{keywordtype}{size\_t} xRequiredSpace )}
+\DoxyCodeLine{00666 \{}
+\DoxyCodeLine{00667     BaseType\_t xShouldWrite;}
+\DoxyCodeLine{00668     \textcolor{keywordtype}{size\_t} xReturn;}
+\DoxyCodeLine{00669 }
+\DoxyCodeLine{00670     \textcolor{keywordflow}{if}( xSpace == ( \textcolor{keywordtype}{size\_t} ) 0 )}
+\DoxyCodeLine{00671     \{}
+\DoxyCodeLine{00672         \textcolor{comment}{/* Doesn't matter if this is a stream buffer or a message buffer, there}}
+\DoxyCodeLine{00673 \textcolor{comment}{        is no space to write. */}}
+\DoxyCodeLine{00674         xShouldWrite = pdFALSE;}
+\DoxyCodeLine{00675     \}}
+\DoxyCodeLine{00676     \textcolor{keywordflow}{else} \textcolor{keywordflow}{if}( ( pxStreamBuffer-\/>ucFlags \& sbFLAGS\_IS\_MESSAGE\_BUFFER ) == ( uint8\_t ) 0 )}
+\DoxyCodeLine{00677     \{}
+\DoxyCodeLine{00678         \textcolor{comment}{/* This is a stream buffer, as opposed to a message buffer, so writing a}}
+\DoxyCodeLine{00679 \textcolor{comment}{        stream of bytes rather than discrete messages.  Write as many bytes as}}
+\DoxyCodeLine{00680 \textcolor{comment}{        possible. */}}
+\DoxyCodeLine{00681         xShouldWrite = pdTRUE;}
+\DoxyCodeLine{00682         xDataLengthBytes = configMIN( xDataLengthBytes, xSpace );}
+\DoxyCodeLine{00683     \}}
+\DoxyCodeLine{00684     \textcolor{keywordflow}{else} \textcolor{keywordflow}{if}( xSpace >= xRequiredSpace )}
+\DoxyCodeLine{00685     \{}
+\DoxyCodeLine{00686         \textcolor{comment}{/* This is a message buffer, as opposed to a stream buffer, and there}}
+\DoxyCodeLine{00687 \textcolor{comment}{        is enough space to write both the message length and the message itself}}
+\DoxyCodeLine{00688 \textcolor{comment}{        into the buffer.  Start by writing the length of the data, the data}}
+\DoxyCodeLine{00689 \textcolor{comment}{        itself will be written later in this function. */}}
+\DoxyCodeLine{00690         xShouldWrite = pdTRUE;}
+\DoxyCodeLine{00691         ( void ) prvWriteBytesToBuffer( pxStreamBuffer, ( \textcolor{keyword}{const} uint8\_t * ) \&( xDataLengthBytes ), sbBYTES\_TO\_STORE\_MESSAGE\_LENGTH );}
+\DoxyCodeLine{00692     \}}
+\DoxyCodeLine{00693     \textcolor{keywordflow}{else}}
+\DoxyCodeLine{00694     \{}
+\DoxyCodeLine{00695         \textcolor{comment}{/* There is space available, but not enough space. */}}
+\DoxyCodeLine{00696         xShouldWrite = pdFALSE;}
+\DoxyCodeLine{00697     \}}
+\DoxyCodeLine{00698 }
+\DoxyCodeLine{00699     \textcolor{keywordflow}{if}( xShouldWrite != pdFALSE )}
+\DoxyCodeLine{00700     \{}
+\DoxyCodeLine{00701         \textcolor{comment}{/* Writes the data itself. */}}
+\DoxyCodeLine{00702         xReturn = prvWriteBytesToBuffer( pxStreamBuffer, ( \textcolor{keyword}{const} uint8\_t * ) pvTxData, xDataLengthBytes ); \textcolor{comment}{/*lint !e9079 Storage buffer is implemented as uint8\_t for ease of sizing, alighment and access. */}}
+\DoxyCodeLine{00703     \}}
+\DoxyCodeLine{00704     \textcolor{keywordflow}{else}}
+\DoxyCodeLine{00705     \{}
+\DoxyCodeLine{00706         xReturn = 0;}
+\DoxyCodeLine{00707     \}}
+\DoxyCodeLine{00708 }
+\DoxyCodeLine{00709     \textcolor{keywordflow}{return} xReturn;}
+\DoxyCodeLine{00710 \}}
+\DoxyCodeLine{00711 \textcolor{comment}{/*-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/*/}}
+\DoxyCodeLine{00712 }
+\DoxyCodeLine{00713 \textcolor{keywordtype}{size\_t} xStreamBufferReceive( StreamBufferHandle\_t xStreamBuffer,}
+\DoxyCodeLine{00714                              \textcolor{keywordtype}{void} *pvRxData,}
+\DoxyCodeLine{00715                              \textcolor{keywordtype}{size\_t} xBufferLengthBytes,}
+\DoxyCodeLine{00716                              TickType\_t xTicksToWait )}
+\DoxyCodeLine{00717 \{}
+\DoxyCodeLine{00718 StreamBuffer\_t * \textcolor{keyword}{const} pxStreamBuffer = xStreamBuffer;}
+\DoxyCodeLine{00719 \textcolor{keywordtype}{size\_t} xReceivedLength = 0, xBytesAvailable, xBytesToStoreMessageLength;}
+\DoxyCodeLine{00720 }
+\DoxyCodeLine{00721     configASSERT( pvRxData );}
+\DoxyCodeLine{00722     configASSERT( pxStreamBuffer );}
+\DoxyCodeLine{00723 }
+\DoxyCodeLine{00724     \textcolor{comment}{/* This receive function is used by both message buffers, which store}}
+\DoxyCodeLine{00725 \textcolor{comment}{    discrete messages, and stream buffers, which store a continuous stream of}}
+\DoxyCodeLine{00726 \textcolor{comment}{    bytes.  Discrete messages include an additional}}
+\DoxyCodeLine{00727 \textcolor{comment}{    sbBYTES\_TO\_STORE\_MESSAGE\_LENGTH bytes that hold the length of the}}
+\DoxyCodeLine{00728 \textcolor{comment}{    message. */}}
+\DoxyCodeLine{00729     \textcolor{keywordflow}{if}( ( pxStreamBuffer-\/>ucFlags \& sbFLAGS\_IS\_MESSAGE\_BUFFER ) != ( uint8\_t ) 0 )}
+\DoxyCodeLine{00730     \{}
+\DoxyCodeLine{00731         xBytesToStoreMessageLength = sbBYTES\_TO\_STORE\_MESSAGE\_LENGTH;}
+\DoxyCodeLine{00732     \}}
+\DoxyCodeLine{00733     \textcolor{keywordflow}{else}}
+\DoxyCodeLine{00734     \{}
+\DoxyCodeLine{00735         xBytesToStoreMessageLength = 0;}
+\DoxyCodeLine{00736     \}}
+\DoxyCodeLine{00737 }
+\DoxyCodeLine{00738     \textcolor{keywordflow}{if}( xTicksToWait != ( TickType\_t ) 0 )}
+\DoxyCodeLine{00739     \{}
+\DoxyCodeLine{00740         \textcolor{comment}{/* Checking if there is data and clearing the notification state must be}}
+\DoxyCodeLine{00741 \textcolor{comment}{        performed atomically. */}}
+\DoxyCodeLine{00742         taskENTER\_CRITICAL();}
+\DoxyCodeLine{00743         \{}
+\DoxyCodeLine{00744             xBytesAvailable = prvBytesInBuffer( pxStreamBuffer );}
+\DoxyCodeLine{00745 }
+\DoxyCodeLine{00746             \textcolor{comment}{/* If this function was invoked by a message buffer read then}}
+\DoxyCodeLine{00747 \textcolor{comment}{            xBytesToStoreMessageLength holds the number of bytes used to hold}}
+\DoxyCodeLine{00748 \textcolor{comment}{            the length of the next discrete message.  If this function was}}
+\DoxyCodeLine{00749 \textcolor{comment}{            invoked by a stream buffer read then xBytesToStoreMessageLength will}}
+\DoxyCodeLine{00750 \textcolor{comment}{            be 0. */}}
+\DoxyCodeLine{00751             \textcolor{keywordflow}{if}( xBytesAvailable <= xBytesToStoreMessageLength )}
+\DoxyCodeLine{00752             \{}
+\DoxyCodeLine{00753                 \textcolor{comment}{/* Clear notification state as going to wait for data. */}}
+\DoxyCodeLine{00754                 ( void ) xTaskNotifyStateClear( NULL );}
+\DoxyCodeLine{00755 }
+\DoxyCodeLine{00756                 \textcolor{comment}{/* Should only be one reader. */}}
+\DoxyCodeLine{00757                 configASSERT( pxStreamBuffer-\/>xTaskWaitingToReceive == NULL );}
+\DoxyCodeLine{00758                 pxStreamBuffer-\/>xTaskWaitingToReceive = xTaskGetCurrentTaskHandle();}
+\DoxyCodeLine{00759             \}}
+\DoxyCodeLine{00760             \textcolor{keywordflow}{else}}
+\DoxyCodeLine{00761             \{}
+\DoxyCodeLine{00762                 mtCOVERAGE\_TEST\_MARKER();}
+\DoxyCodeLine{00763             \}}
+\DoxyCodeLine{00764         \}}
+\DoxyCodeLine{00765         taskEXIT\_CRITICAL();}
+\DoxyCodeLine{00766 }
+\DoxyCodeLine{00767         \textcolor{keywordflow}{if}( xBytesAvailable <= xBytesToStoreMessageLength )}
+\DoxyCodeLine{00768         \{}
+\DoxyCodeLine{00769             \textcolor{comment}{/* Wait for data to be available. */}}
+\DoxyCodeLine{00770             traceBLOCKING\_ON\_STREAM\_BUFFER\_RECEIVE( xStreamBuffer );}
+\DoxyCodeLine{00771             ( void ) xTaskNotifyWait( ( uint32\_t ) 0, ( uint32\_t ) 0, NULL, xTicksToWait );}
+\DoxyCodeLine{00772             pxStreamBuffer-\/>xTaskWaitingToReceive = NULL;}
+\DoxyCodeLine{00773 }
+\DoxyCodeLine{00774             \textcolor{comment}{/* Recheck the data available after blocking. */}}
+\DoxyCodeLine{00775             xBytesAvailable = prvBytesInBuffer( pxStreamBuffer );}
+\DoxyCodeLine{00776         \}}
+\DoxyCodeLine{00777         \textcolor{keywordflow}{else}}
+\DoxyCodeLine{00778         \{}
+\DoxyCodeLine{00779             mtCOVERAGE\_TEST\_MARKER();}
+\DoxyCodeLine{00780         \}}
+\DoxyCodeLine{00781     \}}
+\DoxyCodeLine{00782     \textcolor{keywordflow}{else}}
+\DoxyCodeLine{00783     \{}
+\DoxyCodeLine{00784         xBytesAvailable = prvBytesInBuffer( pxStreamBuffer );}
+\DoxyCodeLine{00785     \}}
+\DoxyCodeLine{00786 }
+\DoxyCodeLine{00787     \textcolor{comment}{/* Whether receiving a discrete message (where xBytesToStoreMessageLength}}
+\DoxyCodeLine{00788 \textcolor{comment}{    holds the number of bytes used to store the message length) or a stream of}}
+\DoxyCodeLine{00789 \textcolor{comment}{    bytes (where xBytesToStoreMessageLength is zero), the number of bytes}}
+\DoxyCodeLine{00790 \textcolor{comment}{    available must be greater than xBytesToStoreMessageLength to be able to}}
+\DoxyCodeLine{00791 \textcolor{comment}{    read bytes from the buffer. */}}
+\DoxyCodeLine{00792     \textcolor{keywordflow}{if}( xBytesAvailable > xBytesToStoreMessageLength )}
+\DoxyCodeLine{00793     \{}
+\DoxyCodeLine{00794         xReceivedLength = prvReadMessageFromBuffer( pxStreamBuffer, pvRxData, xBufferLengthBytes, xBytesAvailable, xBytesToStoreMessageLength );}
+\DoxyCodeLine{00795 }
+\DoxyCodeLine{00796         \textcolor{comment}{/* Was a task waiting for space in the buffer? */}}
+\DoxyCodeLine{00797         \textcolor{keywordflow}{if}( xReceivedLength != ( \textcolor{keywordtype}{size\_t} ) 0 )}
+\DoxyCodeLine{00798         \{}
+\DoxyCodeLine{00799             traceSTREAM\_BUFFER\_RECEIVE( xStreamBuffer, xReceivedLength );}
+\DoxyCodeLine{00800             sbRECEIVE\_COMPLETED( pxStreamBuffer );}
+\DoxyCodeLine{00801         \}}
+\DoxyCodeLine{00802         \textcolor{keywordflow}{else}}
+\DoxyCodeLine{00803         \{}
+\DoxyCodeLine{00804             mtCOVERAGE\_TEST\_MARKER();}
+\DoxyCodeLine{00805         \}}
+\DoxyCodeLine{00806     \}}
+\DoxyCodeLine{00807     \textcolor{keywordflow}{else}}
+\DoxyCodeLine{00808     \{}
+\DoxyCodeLine{00809         traceSTREAM\_BUFFER\_RECEIVE\_FAILED( xStreamBuffer );}
+\DoxyCodeLine{00810         mtCOVERAGE\_TEST\_MARKER();}
+\DoxyCodeLine{00811     \}}
+\DoxyCodeLine{00812 }
+\DoxyCodeLine{00813     \textcolor{keywordflow}{return} xReceivedLength;}
+\DoxyCodeLine{00814 \}}
+\DoxyCodeLine{00815 \textcolor{comment}{/*-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/*/}}
+\DoxyCodeLine{00816 }
+\DoxyCodeLine{00817 \textcolor{keywordtype}{size\_t} xStreamBufferNextMessageLengthBytes( StreamBufferHandle\_t xStreamBuffer )}
+\DoxyCodeLine{00818 \{}
+\DoxyCodeLine{00819 StreamBuffer\_t * \textcolor{keyword}{const} pxStreamBuffer = xStreamBuffer;}
+\DoxyCodeLine{00820 \textcolor{keywordtype}{size\_t} xReturn, xBytesAvailable, xOriginalTail;}
+\DoxyCodeLine{00821 configMESSAGE\_BUFFER\_LENGTH\_TYPE xTempReturn;}
+\DoxyCodeLine{00822 }
+\DoxyCodeLine{00823     configASSERT( pxStreamBuffer );}
+\DoxyCodeLine{00824 }
+\DoxyCodeLine{00825     \textcolor{comment}{/* Ensure the stream buffer is being used as a message buffer. */}}
+\DoxyCodeLine{00826     \textcolor{keywordflow}{if}( ( pxStreamBuffer-\/>ucFlags \& sbFLAGS\_IS\_MESSAGE\_BUFFER ) != ( uint8\_t ) 0 )}
+\DoxyCodeLine{00827     \{}
+\DoxyCodeLine{00828         xBytesAvailable = prvBytesInBuffer( pxStreamBuffer );}
+\DoxyCodeLine{00829         \textcolor{keywordflow}{if}( xBytesAvailable > sbBYTES\_TO\_STORE\_MESSAGE\_LENGTH )}
+\DoxyCodeLine{00830         \{}
+\DoxyCodeLine{00831             \textcolor{comment}{/* The number of bytes available is greater than the number of bytes}}
+\DoxyCodeLine{00832 \textcolor{comment}{            required to hold the length of the next message, so another message}}
+\DoxyCodeLine{00833 \textcolor{comment}{            is available.  Return its length without removing the length bytes}}
+\DoxyCodeLine{00834 \textcolor{comment}{            from the buffer.  A copy of the tail is stored so the buffer can be}}
+\DoxyCodeLine{00835 \textcolor{comment}{            returned to its prior state as the message is not actually being}}
+\DoxyCodeLine{00836 \textcolor{comment}{            removed from the buffer. */}}
+\DoxyCodeLine{00837             xOriginalTail = pxStreamBuffer-\/>xTail;}
+\DoxyCodeLine{00838             ( void ) prvReadBytesFromBuffer( pxStreamBuffer, ( uint8\_t * ) \&xTempReturn, sbBYTES\_TO\_STORE\_MESSAGE\_LENGTH, xBytesAvailable );}
+\DoxyCodeLine{00839             xReturn = ( size\_t ) xTempReturn;}
+\DoxyCodeLine{00840             pxStreamBuffer-\/>xTail = xOriginalTail;}
+\DoxyCodeLine{00841         \}}
+\DoxyCodeLine{00842         \textcolor{keywordflow}{else}}
+\DoxyCodeLine{00843         \{}
+\DoxyCodeLine{00844             \textcolor{comment}{/* The minimum amount of bytes in a message buffer is}}
+\DoxyCodeLine{00845 \textcolor{comment}{            ( sbBYTES\_TO\_STORE\_MESSAGE\_LENGTH + 1 ), so if xBytesAvailable is}}
+\DoxyCodeLine{00846 \textcolor{comment}{            less than sbBYTES\_TO\_STORE\_MESSAGE\_LENGTH the only other valid}}
+\DoxyCodeLine{00847 \textcolor{comment}{            value is 0. */}}
+\DoxyCodeLine{00848             configASSERT( xBytesAvailable == 0 );}
+\DoxyCodeLine{00849             xReturn = 0;}
+\DoxyCodeLine{00850         \}}
+\DoxyCodeLine{00851     \}}
+\DoxyCodeLine{00852     \textcolor{keywordflow}{else}}
+\DoxyCodeLine{00853     \{}
+\DoxyCodeLine{00854         xReturn = 0;}
+\DoxyCodeLine{00855     \}}
+\DoxyCodeLine{00856 }
+\DoxyCodeLine{00857     \textcolor{keywordflow}{return} xReturn;}
+\DoxyCodeLine{00858 \}}
+\DoxyCodeLine{00859 \textcolor{comment}{/*-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/*/}}
+\DoxyCodeLine{00860 }
+\DoxyCodeLine{00861 \textcolor{keywordtype}{size\_t} xStreamBufferReceiveFromISR( StreamBufferHandle\_t xStreamBuffer,}
+\DoxyCodeLine{00862                                     \textcolor{keywordtype}{void} *pvRxData,}
+\DoxyCodeLine{00863                                     \textcolor{keywordtype}{size\_t} xBufferLengthBytes,}
+\DoxyCodeLine{00864                                     BaseType\_t * \textcolor{keyword}{const} pxHigherPriorityTaskWoken )}
+\DoxyCodeLine{00865 \{}
+\DoxyCodeLine{00866 StreamBuffer\_t * \textcolor{keyword}{const} pxStreamBuffer = xStreamBuffer;}
+\DoxyCodeLine{00867 \textcolor{keywordtype}{size\_t} xReceivedLength = 0, xBytesAvailable, xBytesToStoreMessageLength;}
+\DoxyCodeLine{00868 }
+\DoxyCodeLine{00869     configASSERT( pvRxData );}
+\DoxyCodeLine{00870     configASSERT( pxStreamBuffer );}
+\DoxyCodeLine{00871 }
+\DoxyCodeLine{00872     \textcolor{comment}{/* This receive function is used by both message buffers, which store}}
+\DoxyCodeLine{00873 \textcolor{comment}{    discrete messages, and stream buffers, which store a continuous stream of}}
+\DoxyCodeLine{00874 \textcolor{comment}{    bytes.  Discrete messages include an additional}}
+\DoxyCodeLine{00875 \textcolor{comment}{    sbBYTES\_TO\_STORE\_MESSAGE\_LENGTH bytes that hold the length of the}}
+\DoxyCodeLine{00876 \textcolor{comment}{    message. */}}
+\DoxyCodeLine{00877     \textcolor{keywordflow}{if}( ( pxStreamBuffer-\/>ucFlags \& sbFLAGS\_IS\_MESSAGE\_BUFFER ) != ( uint8\_t ) 0 )}
+\DoxyCodeLine{00878     \{}
+\DoxyCodeLine{00879         xBytesToStoreMessageLength = sbBYTES\_TO\_STORE\_MESSAGE\_LENGTH;}
+\DoxyCodeLine{00880     \}}
+\DoxyCodeLine{00881     \textcolor{keywordflow}{else}}
+\DoxyCodeLine{00882     \{}
+\DoxyCodeLine{00883         xBytesToStoreMessageLength = 0;}
+\DoxyCodeLine{00884     \}}
+\DoxyCodeLine{00885 }
+\DoxyCodeLine{00886     xBytesAvailable = prvBytesInBuffer( pxStreamBuffer );}
+\DoxyCodeLine{00887 }
+\DoxyCodeLine{00888     \textcolor{comment}{/* Whether receiving a discrete message (where xBytesToStoreMessageLength}}
+\DoxyCodeLine{00889 \textcolor{comment}{    holds the number of bytes used to store the message length) or a stream of}}
+\DoxyCodeLine{00890 \textcolor{comment}{    bytes (where xBytesToStoreMessageLength is zero), the number of bytes}}
+\DoxyCodeLine{00891 \textcolor{comment}{    available must be greater than xBytesToStoreMessageLength to be able to}}
+\DoxyCodeLine{00892 \textcolor{comment}{    read bytes from the buffer. */}}
+\DoxyCodeLine{00893     \textcolor{keywordflow}{if}( xBytesAvailable > xBytesToStoreMessageLength )}
+\DoxyCodeLine{00894     \{}
+\DoxyCodeLine{00895         xReceivedLength = prvReadMessageFromBuffer( pxStreamBuffer, pvRxData, xBufferLengthBytes, xBytesAvailable, xBytesToStoreMessageLength );}
+\DoxyCodeLine{00896 }
+\DoxyCodeLine{00897         \textcolor{comment}{/* Was a task waiting for space in the buffer? */}}
+\DoxyCodeLine{00898         \textcolor{keywordflow}{if}( xReceivedLength != ( \textcolor{keywordtype}{size\_t} ) 0 )}
+\DoxyCodeLine{00899         \{}
+\DoxyCodeLine{00900             sbRECEIVE\_COMPLETED\_FROM\_ISR( pxStreamBuffer, pxHigherPriorityTaskWoken );}
+\DoxyCodeLine{00901         \}}
+\DoxyCodeLine{00902         \textcolor{keywordflow}{else}}
+\DoxyCodeLine{00903         \{}
+\DoxyCodeLine{00904             mtCOVERAGE\_TEST\_MARKER();}
+\DoxyCodeLine{00905         \}}
+\DoxyCodeLine{00906     \}}
+\DoxyCodeLine{00907     \textcolor{keywordflow}{else}}
+\DoxyCodeLine{00908     \{}
+\DoxyCodeLine{00909         mtCOVERAGE\_TEST\_MARKER();}
+\DoxyCodeLine{00910     \}}
+\DoxyCodeLine{00911 }
+\DoxyCodeLine{00912     traceSTREAM\_BUFFER\_RECEIVE\_FROM\_ISR( xStreamBuffer, xReceivedLength );}
+\DoxyCodeLine{00913 }
+\DoxyCodeLine{00914     \textcolor{keywordflow}{return} xReceivedLength;}
+\DoxyCodeLine{00915 \}}
+\DoxyCodeLine{00916 \textcolor{comment}{/*-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/*/}}
+\DoxyCodeLine{00917 }
+\DoxyCodeLine{00918 \textcolor{keyword}{static} \textcolor{keywordtype}{size\_t} prvReadMessageFromBuffer( StreamBuffer\_t *pxStreamBuffer,}
+\DoxyCodeLine{00919                                         \textcolor{keywordtype}{void} *pvRxData,}
+\DoxyCodeLine{00920                                         \textcolor{keywordtype}{size\_t} xBufferLengthBytes,}
+\DoxyCodeLine{00921                                         \textcolor{keywordtype}{size\_t} xBytesAvailable,}
+\DoxyCodeLine{00922                                         \textcolor{keywordtype}{size\_t} xBytesToStoreMessageLength )}
+\DoxyCodeLine{00923 \{}
+\DoxyCodeLine{00924 \textcolor{keywordtype}{size\_t} xOriginalTail, xReceivedLength, xNextMessageLength;}
+\DoxyCodeLine{00925 configMESSAGE\_BUFFER\_LENGTH\_TYPE xTempNextMessageLength;}
+\DoxyCodeLine{00926 }
+\DoxyCodeLine{00927     \textcolor{keywordflow}{if}( xBytesToStoreMessageLength != ( \textcolor{keywordtype}{size\_t} ) 0 )}
+\DoxyCodeLine{00928     \{}
+\DoxyCodeLine{00929         \textcolor{comment}{/* A discrete message is being received.  First receive the length}}
+\DoxyCodeLine{00930 \textcolor{comment}{        of the message.  A copy of the tail is stored so the buffer can be}}
+\DoxyCodeLine{00931 \textcolor{comment}{        returned to its prior state if the length of the message is too}}
+\DoxyCodeLine{00932 \textcolor{comment}{        large for the provided buffer. */}}
+\DoxyCodeLine{00933         xOriginalTail = pxStreamBuffer-\/>xTail;}
+\DoxyCodeLine{00934         ( void ) prvReadBytesFromBuffer( pxStreamBuffer, ( uint8\_t * ) \&xTempNextMessageLength, xBytesToStoreMessageLength, xBytesAvailable );}
+\DoxyCodeLine{00935         xNextMessageLength = ( size\_t ) xTempNextMessageLength;}
+\DoxyCodeLine{00936 }
+\DoxyCodeLine{00937         \textcolor{comment}{/* Reduce the number of bytes available by the number of bytes just}}
+\DoxyCodeLine{00938 \textcolor{comment}{        read out. */}}
+\DoxyCodeLine{00939         xBytesAvailable -\/= xBytesToStoreMessageLength;}
+\DoxyCodeLine{00940 }
+\DoxyCodeLine{00941         \textcolor{comment}{/* Check there is enough space in the buffer provided by the}}
+\DoxyCodeLine{00942 \textcolor{comment}{        user. */}}
+\DoxyCodeLine{00943         \textcolor{keywordflow}{if}( xNextMessageLength > xBufferLengthBytes )}
+\DoxyCodeLine{00944         \{}
+\DoxyCodeLine{00945             \textcolor{comment}{/* The user has provided insufficient space to read the message}}
+\DoxyCodeLine{00946 \textcolor{comment}{            so return the buffer to its previous state (so the length of}}
+\DoxyCodeLine{00947 \textcolor{comment}{            the message is in the buffer again). */}}
+\DoxyCodeLine{00948             pxStreamBuffer-\/>xTail = xOriginalTail;}
+\DoxyCodeLine{00949             xNextMessageLength = 0;}
+\DoxyCodeLine{00950         \}}
+\DoxyCodeLine{00951         \textcolor{keywordflow}{else}}
+\DoxyCodeLine{00952         \{}
+\DoxyCodeLine{00953             mtCOVERAGE\_TEST\_MARKER();}
+\DoxyCodeLine{00954         \}}
+\DoxyCodeLine{00955     \}}
+\DoxyCodeLine{00956     \textcolor{keywordflow}{else}}
+\DoxyCodeLine{00957     \{}
+\DoxyCodeLine{00958         \textcolor{comment}{/* A stream of bytes is being received (as opposed to a discrete}}
+\DoxyCodeLine{00959 \textcolor{comment}{        message), so read as many bytes as possible. */}}
+\DoxyCodeLine{00960         xNextMessageLength = xBufferLengthBytes;}
+\DoxyCodeLine{00961     \}}
+\DoxyCodeLine{00962 }
+\DoxyCodeLine{00963     \textcolor{comment}{/* Read the actual data. */}}
+\DoxyCodeLine{00964     xReceivedLength = prvReadBytesFromBuffer( pxStreamBuffer, ( uint8\_t * ) pvRxData, xNextMessageLength, xBytesAvailable ); \textcolor{comment}{/*lint !e9079 Data storage area is implemented as uint8\_t array for ease of sizing, indexing and alignment. */}}
+\DoxyCodeLine{00965 }
+\DoxyCodeLine{00966     \textcolor{keywordflow}{return} xReceivedLength;}
+\DoxyCodeLine{00967 \}}
+\DoxyCodeLine{00968 \textcolor{comment}{/*-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/*/}}
+\DoxyCodeLine{00969 }
+\DoxyCodeLine{00970 BaseType\_t xStreamBufferIsEmpty( StreamBufferHandle\_t xStreamBuffer )}
+\DoxyCodeLine{00971 \{}
+\DoxyCodeLine{00972 \textcolor{keyword}{const} StreamBuffer\_t * \textcolor{keyword}{const} pxStreamBuffer = xStreamBuffer;}
+\DoxyCodeLine{00973 BaseType\_t xReturn;}
+\DoxyCodeLine{00974 \textcolor{keywordtype}{size\_t} xTail;}
+\DoxyCodeLine{00975 }
+\DoxyCodeLine{00976     configASSERT( pxStreamBuffer );}
+\DoxyCodeLine{00977 }
+\DoxyCodeLine{00978     \textcolor{comment}{/* True if no bytes are available. */}}
+\DoxyCodeLine{00979     xTail = pxStreamBuffer-\/>xTail;}
+\DoxyCodeLine{00980     \textcolor{keywordflow}{if}( pxStreamBuffer-\/>xHead == xTail )}
+\DoxyCodeLine{00981     \{}
+\DoxyCodeLine{00982         xReturn = pdTRUE;}
+\DoxyCodeLine{00983     \}}
+\DoxyCodeLine{00984     \textcolor{keywordflow}{else}}
+\DoxyCodeLine{00985     \{}
+\DoxyCodeLine{00986         xReturn = pdFALSE;}
+\DoxyCodeLine{00987     \}}
+\DoxyCodeLine{00988 }
+\DoxyCodeLine{00989     \textcolor{keywordflow}{return} xReturn;}
+\DoxyCodeLine{00990 \}}
+\DoxyCodeLine{00991 \textcolor{comment}{/*-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/*/}}
+\DoxyCodeLine{00992 }
+\DoxyCodeLine{00993 BaseType\_t xStreamBufferIsFull( StreamBufferHandle\_t xStreamBuffer )}
+\DoxyCodeLine{00994 \{}
+\DoxyCodeLine{00995 BaseType\_t xReturn;}
+\DoxyCodeLine{00996 \textcolor{keywordtype}{size\_t} xBytesToStoreMessageLength;}
+\DoxyCodeLine{00997 \textcolor{keyword}{const} StreamBuffer\_t * \textcolor{keyword}{const} pxStreamBuffer = xStreamBuffer;}
+\DoxyCodeLine{00998 }
+\DoxyCodeLine{00999     configASSERT( pxStreamBuffer );}
+\DoxyCodeLine{01000 }
+\DoxyCodeLine{01001     \textcolor{comment}{/* This generic version of the receive function is used by both message}}
+\DoxyCodeLine{01002 \textcolor{comment}{    buffers, which store discrete messages, and stream buffers, which store a}}
+\DoxyCodeLine{01003 \textcolor{comment}{    continuous stream of bytes.  Discrete messages include an additional}}
+\DoxyCodeLine{01004 \textcolor{comment}{    sbBYTES\_TO\_STORE\_MESSAGE\_LENGTH bytes that hold the length of the message. */}}
+\DoxyCodeLine{01005     \textcolor{keywordflow}{if}( ( pxStreamBuffer-\/>ucFlags \& sbFLAGS\_IS\_MESSAGE\_BUFFER ) != ( uint8\_t ) 0 )}
+\DoxyCodeLine{01006     \{}
+\DoxyCodeLine{01007         xBytesToStoreMessageLength = sbBYTES\_TO\_STORE\_MESSAGE\_LENGTH;}
+\DoxyCodeLine{01008     \}}
+\DoxyCodeLine{01009     \textcolor{keywordflow}{else}}
+\DoxyCodeLine{01010     \{}
+\DoxyCodeLine{01011         xBytesToStoreMessageLength = 0;}
+\DoxyCodeLine{01012     \}}
+\DoxyCodeLine{01013 }
+\DoxyCodeLine{01014     \textcolor{comment}{/* True if the available space equals zero. */}}
+\DoxyCodeLine{01015     \textcolor{keywordflow}{if}( xStreamBufferSpacesAvailable( xStreamBuffer ) <= xBytesToStoreMessageLength )}
+\DoxyCodeLine{01016     \{}
+\DoxyCodeLine{01017         xReturn = pdTRUE;}
+\DoxyCodeLine{01018     \}}
+\DoxyCodeLine{01019     \textcolor{keywordflow}{else}}
+\DoxyCodeLine{01020     \{}
+\DoxyCodeLine{01021         xReturn = pdFALSE;}
+\DoxyCodeLine{01022     \}}
+\DoxyCodeLine{01023 }
+\DoxyCodeLine{01024     \textcolor{keywordflow}{return} xReturn;}
+\DoxyCodeLine{01025 \}}
+\DoxyCodeLine{01026 \textcolor{comment}{/*-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/*/}}
+\DoxyCodeLine{01027 }
+\DoxyCodeLine{01028 BaseType\_t xStreamBufferSendCompletedFromISR( StreamBufferHandle\_t xStreamBuffer, BaseType\_t *pxHigherPriorityTaskWoken )}
+\DoxyCodeLine{01029 \{}
+\DoxyCodeLine{01030 StreamBuffer\_t * \textcolor{keyword}{const} pxStreamBuffer = xStreamBuffer;}
+\DoxyCodeLine{01031 BaseType\_t xReturn;}
+\DoxyCodeLine{01032 UBaseType\_t uxSavedInterruptStatus;}
+\DoxyCodeLine{01033 }
+\DoxyCodeLine{01034     configASSERT( pxStreamBuffer );}
+\DoxyCodeLine{01035 }
+\DoxyCodeLine{01036     uxSavedInterruptStatus = ( UBaseType\_t ) portSET\_INTERRUPT\_MASK\_FROM\_ISR();}
+\DoxyCodeLine{01037     \{}
+\DoxyCodeLine{01038         \textcolor{keywordflow}{if}( ( pxStreamBuffer )-\/>xTaskWaitingToReceive != NULL )}
+\DoxyCodeLine{01039         \{}
+\DoxyCodeLine{01040             ( void ) xTaskNotifyFromISR( ( pxStreamBuffer )-\/>xTaskWaitingToReceive,}
+\DoxyCodeLine{01041                                          ( uint32\_t ) 0,}
+\DoxyCodeLine{01042                                          eNoAction,}
+\DoxyCodeLine{01043                                          pxHigherPriorityTaskWoken );}
+\DoxyCodeLine{01044             ( pxStreamBuffer )-\/>xTaskWaitingToReceive = NULL;}
+\DoxyCodeLine{01045             xReturn = pdTRUE;}
+\DoxyCodeLine{01046         \}}
+\DoxyCodeLine{01047         \textcolor{keywordflow}{else}}
+\DoxyCodeLine{01048         \{}
+\DoxyCodeLine{01049             xReturn = pdFALSE;}
+\DoxyCodeLine{01050         \}}
+\DoxyCodeLine{01051     \}}
+\DoxyCodeLine{01052     portCLEAR\_INTERRUPT\_MASK\_FROM\_ISR( uxSavedInterruptStatus );}
+\DoxyCodeLine{01053 }
+\DoxyCodeLine{01054     \textcolor{keywordflow}{return} xReturn;}
+\DoxyCodeLine{01055 \}}
+\DoxyCodeLine{01056 \textcolor{comment}{/*-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/*/}}
+\DoxyCodeLine{01057 }
+\DoxyCodeLine{01058 BaseType\_t xStreamBufferReceiveCompletedFromISR( StreamBufferHandle\_t xStreamBuffer, BaseType\_t *pxHigherPriorityTaskWoken )}
+\DoxyCodeLine{01059 \{}
+\DoxyCodeLine{01060 StreamBuffer\_t * \textcolor{keyword}{const} pxStreamBuffer = xStreamBuffer;}
+\DoxyCodeLine{01061 BaseType\_t xReturn;}
+\DoxyCodeLine{01062 UBaseType\_t uxSavedInterruptStatus;}
+\DoxyCodeLine{01063 }
+\DoxyCodeLine{01064     configASSERT( pxStreamBuffer );}
+\DoxyCodeLine{01065 }
+\DoxyCodeLine{01066     uxSavedInterruptStatus = ( UBaseType\_t ) portSET\_INTERRUPT\_MASK\_FROM\_ISR();}
+\DoxyCodeLine{01067     \{}
+\DoxyCodeLine{01068         \textcolor{keywordflow}{if}( ( pxStreamBuffer )-\/>xTaskWaitingToSend != NULL )}
+\DoxyCodeLine{01069         \{}
+\DoxyCodeLine{01070             ( void ) xTaskNotifyFromISR( ( pxStreamBuffer )-\/>xTaskWaitingToSend,}
+\DoxyCodeLine{01071                                          ( uint32\_t ) 0,}
+\DoxyCodeLine{01072                                          eNoAction,}
+\DoxyCodeLine{01073                                          pxHigherPriorityTaskWoken );}
+\DoxyCodeLine{01074             ( pxStreamBuffer )-\/>xTaskWaitingToSend = NULL;}
+\DoxyCodeLine{01075             xReturn = pdTRUE;}
+\DoxyCodeLine{01076         \}}
+\DoxyCodeLine{01077         \textcolor{keywordflow}{else}}
+\DoxyCodeLine{01078         \{}
+\DoxyCodeLine{01079             xReturn = pdFALSE;}
+\DoxyCodeLine{01080         \}}
+\DoxyCodeLine{01081     \}}
+\DoxyCodeLine{01082     portCLEAR\_INTERRUPT\_MASK\_FROM\_ISR( uxSavedInterruptStatus );}
+\DoxyCodeLine{01083 }
+\DoxyCodeLine{01084     \textcolor{keywordflow}{return} xReturn;}
+\DoxyCodeLine{01085 \}}
+\DoxyCodeLine{01086 \textcolor{comment}{/*-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/*/}}
+\DoxyCodeLine{01087 }
+\DoxyCodeLine{01088 \textcolor{keyword}{static} \textcolor{keywordtype}{size\_t} prvWriteBytesToBuffer( StreamBuffer\_t * \textcolor{keyword}{const} pxStreamBuffer, \textcolor{keyword}{const} uint8\_t *pucData, \textcolor{keywordtype}{size\_t} xCount )}
+\DoxyCodeLine{01089 \{}
+\DoxyCodeLine{01090 \textcolor{keywordtype}{size\_t} xNextHead, xFirstLength;}
+\DoxyCodeLine{01091 }
+\DoxyCodeLine{01092     configASSERT( xCount > ( \textcolor{keywordtype}{size\_t} ) 0 );}
+\DoxyCodeLine{01093 }
+\DoxyCodeLine{01094     xNextHead = pxStreamBuffer-\/>xHead;}
+\DoxyCodeLine{01095 }
+\DoxyCodeLine{01096     \textcolor{comment}{/* Calculate the number of bytes that can be added in the first write -\/}}
+\DoxyCodeLine{01097 \textcolor{comment}{    which may be less than the total number of bytes that need to be added if}}
+\DoxyCodeLine{01098 \textcolor{comment}{    the buffer will wrap back to the beginning. */}}
+\DoxyCodeLine{01099     xFirstLength = configMIN( pxStreamBuffer-\/>xLength -\/ xNextHead, xCount );}
+\DoxyCodeLine{01100 }
+\DoxyCodeLine{01101     \textcolor{comment}{/* Write as many bytes as can be written in the first write. */}}
+\DoxyCodeLine{01102     configASSERT( ( xNextHead + xFirstLength ) <= pxStreamBuffer-\/>xLength );}
+\DoxyCodeLine{01103     ( void ) memcpy( ( \textcolor{keywordtype}{void}* ) ( \&( pxStreamBuffer-\/>pucBuffer[ xNextHead ] ) ), ( \textcolor{keyword}{const} \textcolor{keywordtype}{void} * ) pucData, xFirstLength ); \textcolor{comment}{/*lint !e9087 memcpy() requires void *. */}}
+\DoxyCodeLine{01104 }
+\DoxyCodeLine{01105     \textcolor{comment}{/* If the number of bytes written was less than the number that could be}}
+\DoxyCodeLine{01106 \textcolor{comment}{    written in the first write... */}}
+\DoxyCodeLine{01107     \textcolor{keywordflow}{if}( xCount > xFirstLength )}
+\DoxyCodeLine{01108     \{}
+\DoxyCodeLine{01109         \textcolor{comment}{/* ...then write the remaining bytes to the start of the buffer. */}}
+\DoxyCodeLine{01110         configASSERT( ( xCount -\/ xFirstLength ) <= pxStreamBuffer-\/>xLength );}
+\DoxyCodeLine{01111         ( void ) memcpy( ( \textcolor{keywordtype}{void} * ) pxStreamBuffer-\/>pucBuffer, ( \textcolor{keyword}{const} \textcolor{keywordtype}{void} * ) \&( pucData[ xFirstLength ] ), xCount -\/ xFirstLength ); \textcolor{comment}{/*lint !e9087 memcpy() requires void *. */}}
+\DoxyCodeLine{01112     \}}
+\DoxyCodeLine{01113     \textcolor{keywordflow}{else}}
+\DoxyCodeLine{01114     \{}
+\DoxyCodeLine{01115         mtCOVERAGE\_TEST\_MARKER();}
+\DoxyCodeLine{01116     \}}
+\DoxyCodeLine{01117 }
+\DoxyCodeLine{01118     xNextHead += xCount;}
+\DoxyCodeLine{01119     \textcolor{keywordflow}{if}( xNextHead >= pxStreamBuffer-\/>xLength )}
+\DoxyCodeLine{01120     \{}
+\DoxyCodeLine{01121         xNextHead -\/= pxStreamBuffer-\/>xLength;}
+\DoxyCodeLine{01122     \}}
+\DoxyCodeLine{01123     \textcolor{keywordflow}{else}}
+\DoxyCodeLine{01124     \{}
+\DoxyCodeLine{01125         mtCOVERAGE\_TEST\_MARKER();}
+\DoxyCodeLine{01126     \}}
+\DoxyCodeLine{01127 }
+\DoxyCodeLine{01128     pxStreamBuffer-\/>xHead = xNextHead;}
+\DoxyCodeLine{01129 }
+\DoxyCodeLine{01130     \textcolor{keywordflow}{return} xCount;}
+\DoxyCodeLine{01131 \}}
+\DoxyCodeLine{01132 \textcolor{comment}{/*-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/*/}}
+\DoxyCodeLine{01133 }
+\DoxyCodeLine{01134 \textcolor{keyword}{static} \textcolor{keywordtype}{size\_t} prvReadBytesFromBuffer( StreamBuffer\_t *pxStreamBuffer, uint8\_t *pucData, \textcolor{keywordtype}{size\_t} xMaxCount, \textcolor{keywordtype}{size\_t} xBytesAvailable )}
+\DoxyCodeLine{01135 \{}
+\DoxyCodeLine{01136 \textcolor{keywordtype}{size\_t} xCount, xFirstLength, xNextTail;}
+\DoxyCodeLine{01137 }
+\DoxyCodeLine{01138     \textcolor{comment}{/* Use the minimum of the wanted bytes and the available bytes. */}}
+\DoxyCodeLine{01139     xCount = configMIN( xBytesAvailable, xMaxCount );}
+\DoxyCodeLine{01140 }
+\DoxyCodeLine{01141     \textcolor{keywordflow}{if}( xCount > ( \textcolor{keywordtype}{size\_t} ) 0 )}
+\DoxyCodeLine{01142     \{}
+\DoxyCodeLine{01143         xNextTail = pxStreamBuffer-\/>xTail;}
+\DoxyCodeLine{01144 }
+\DoxyCodeLine{01145         \textcolor{comment}{/* Calculate the number of bytes that can be read -\/ which may be}}
+\DoxyCodeLine{01146 \textcolor{comment}{        less than the number wanted if the data wraps around to the start of}}
+\DoxyCodeLine{01147 \textcolor{comment}{        the buffer. */}}
+\DoxyCodeLine{01148         xFirstLength = configMIN( pxStreamBuffer-\/>xLength -\/ xNextTail, xCount );}
+\DoxyCodeLine{01149 }
+\DoxyCodeLine{01150         \textcolor{comment}{/* Obtain the number of bytes it is possible to obtain in the first}}
+\DoxyCodeLine{01151 \textcolor{comment}{        read.  Asserts check bounds of read and write. */}}
+\DoxyCodeLine{01152         configASSERT( xFirstLength <= xMaxCount );}
+\DoxyCodeLine{01153         configASSERT( ( xNextTail + xFirstLength ) <= pxStreamBuffer-\/>xLength );}
+\DoxyCodeLine{01154         ( void ) memcpy( ( \textcolor{keywordtype}{void} * ) pucData, ( \textcolor{keyword}{const} \textcolor{keywordtype}{void} * ) \&( pxStreamBuffer-\/>pucBuffer[ xNextTail ] ), xFirstLength ); \textcolor{comment}{/*lint !e9087 memcpy() requires void *. */}}
+\DoxyCodeLine{01155 }
+\DoxyCodeLine{01156         \textcolor{comment}{/* If the total number of wanted bytes is greater than the number}}
+\DoxyCodeLine{01157 \textcolor{comment}{        that could be read in the first read... */}}
+\DoxyCodeLine{01158         \textcolor{keywordflow}{if}( xCount > xFirstLength )}
+\DoxyCodeLine{01159         \{}
+\DoxyCodeLine{01160             \textcolor{comment}{/*...then read the remaining bytes from the start of the buffer. */}}
+\DoxyCodeLine{01161             configASSERT( xCount <= xMaxCount );}
+\DoxyCodeLine{01162             ( void ) memcpy( ( \textcolor{keywordtype}{void} * ) \&( pucData[ xFirstLength ] ), ( \textcolor{keywordtype}{void} * ) ( pxStreamBuffer-\/>pucBuffer ), xCount -\/ xFirstLength ); \textcolor{comment}{/*lint !e9087 memcpy() requires void *. */}}
+\DoxyCodeLine{01163         \}}
+\DoxyCodeLine{01164         \textcolor{keywordflow}{else}}
+\DoxyCodeLine{01165         \{}
+\DoxyCodeLine{01166             mtCOVERAGE\_TEST\_MARKER();}
+\DoxyCodeLine{01167         \}}
+\DoxyCodeLine{01168 }
+\DoxyCodeLine{01169         \textcolor{comment}{/* Move the tail pointer to effectively remove the data read from}}
+\DoxyCodeLine{01170 \textcolor{comment}{        the buffer. */}}
+\DoxyCodeLine{01171         xNextTail += xCount;}
+\DoxyCodeLine{01172 }
+\DoxyCodeLine{01173         \textcolor{keywordflow}{if}( xNextTail >= pxStreamBuffer-\/>xLength )}
+\DoxyCodeLine{01174         \{}
+\DoxyCodeLine{01175             xNextTail -\/= pxStreamBuffer-\/>xLength;}
+\DoxyCodeLine{01176         \}}
+\DoxyCodeLine{01177 }
+\DoxyCodeLine{01178         pxStreamBuffer-\/>xTail = xNextTail;}
+\DoxyCodeLine{01179     \}}
+\DoxyCodeLine{01180     \textcolor{keywordflow}{else}}
+\DoxyCodeLine{01181     \{}
+\DoxyCodeLine{01182         mtCOVERAGE\_TEST\_MARKER();}
+\DoxyCodeLine{01183     \}}
+\DoxyCodeLine{01184 }
+\DoxyCodeLine{01185     \textcolor{keywordflow}{return} xCount;}
+\DoxyCodeLine{01186 \}}
+\DoxyCodeLine{01187 \textcolor{comment}{/*-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/*/}}
+\DoxyCodeLine{01188 }
+\DoxyCodeLine{01189 \textcolor{keyword}{static} \textcolor{keywordtype}{size\_t} prvBytesInBuffer( \textcolor{keyword}{const} StreamBuffer\_t * \textcolor{keyword}{const} pxStreamBuffer )}
+\DoxyCodeLine{01190 \{}
+\DoxyCodeLine{01191 \textcolor{comment}{/* Returns the distance between xTail and xHead. */}}
+\DoxyCodeLine{01192 \textcolor{keywordtype}{size\_t} xCount;}
+\DoxyCodeLine{01193 }
+\DoxyCodeLine{01194     xCount = pxStreamBuffer-\/>xLength + pxStreamBuffer-\/>xHead;}
+\DoxyCodeLine{01195     xCount -\/= pxStreamBuffer-\/>xTail;}
+\DoxyCodeLine{01196     \textcolor{keywordflow}{if} ( xCount >= pxStreamBuffer-\/>xLength )}
+\DoxyCodeLine{01197     \{}
+\DoxyCodeLine{01198         xCount -\/= pxStreamBuffer-\/>xLength;}
+\DoxyCodeLine{01199     \}}
+\DoxyCodeLine{01200     \textcolor{keywordflow}{else}}
+\DoxyCodeLine{01201     \{}
+\DoxyCodeLine{01202         mtCOVERAGE\_TEST\_MARKER();}
+\DoxyCodeLine{01203     \}}
+\DoxyCodeLine{01204 }
+\DoxyCodeLine{01205     \textcolor{keywordflow}{return} xCount;}
+\DoxyCodeLine{01206 \}}
+\DoxyCodeLine{01207 \textcolor{comment}{/*-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/*/}}
+\DoxyCodeLine{01208 }
+\DoxyCodeLine{01209 \textcolor{keyword}{static} \textcolor{keywordtype}{void} prvInitialiseNewStreamBuffer( StreamBuffer\_t * \textcolor{keyword}{const} pxStreamBuffer,}
+\DoxyCodeLine{01210                                           uint8\_t * \textcolor{keyword}{const} pucBuffer,}
+\DoxyCodeLine{01211                                           \textcolor{keywordtype}{size\_t} xBufferSizeBytes,}
+\DoxyCodeLine{01212                                           \textcolor{keywordtype}{size\_t} xTriggerLevelBytes,}
+\DoxyCodeLine{01213                                           uint8\_t ucFlags )}
+\DoxyCodeLine{01214 \{}
+\DoxyCodeLine{01215     \textcolor{comment}{/* Assert here is deliberately writing to the entire buffer to ensure it can}}
+\DoxyCodeLine{01216 \textcolor{comment}{    be written to without generating exceptions, and is setting the buffer to a}}
+\DoxyCodeLine{01217 \textcolor{comment}{    known value to assist in development/debugging. */}}
+\DoxyCodeLine{01218 \textcolor{preprocessor}{    \#if( configASSERT\_DEFINED == 1 )}}
+\DoxyCodeLine{01219     \{}
+\DoxyCodeLine{01220         \textcolor{comment}{/* The value written just has to be identifiable when looking at the}}
+\DoxyCodeLine{01221 \textcolor{comment}{        memory.  Don't use 0xA5 as that is the stack fill value and could}}
+\DoxyCodeLine{01222 \textcolor{comment}{        result in confusion as to what is actually being observed. */}}
+\DoxyCodeLine{01223         \textcolor{keyword}{const} BaseType\_t xWriteValue = 0x55;}
+\DoxyCodeLine{01224         configASSERT( memset( pucBuffer, ( \textcolor{keywordtype}{int} ) xWriteValue, xBufferSizeBytes ) == pucBuffer );}
+\DoxyCodeLine{01225     \} \textcolor{comment}{/*lint !e529 !e438 xWriteValue is only used if configASSERT() is defined. */}}
+\DoxyCodeLine{01226 \textcolor{preprocessor}{    \#endif}}
+\DoxyCodeLine{01227 }
+\DoxyCodeLine{01228     ( void ) memset( ( \textcolor{keywordtype}{void} * ) pxStreamBuffer, 0x00, \textcolor{keyword}{sizeof}( StreamBuffer\_t ) ); \textcolor{comment}{/*lint !e9087 memset() requires void *. */}}
+\DoxyCodeLine{01229     pxStreamBuffer-\/>pucBuffer = pucBuffer;}
+\DoxyCodeLine{01230     pxStreamBuffer-\/>xLength = xBufferSizeBytes;}
+\DoxyCodeLine{01231     pxStreamBuffer-\/>xTriggerLevelBytes = xTriggerLevelBytes;}
+\DoxyCodeLine{01232     pxStreamBuffer-\/>ucFlags = ucFlags;}
+\DoxyCodeLine{01233 \}}
+\DoxyCodeLine{01234 }
+\DoxyCodeLine{01235 \textcolor{preprocessor}{\#if ( configUSE\_TRACE\_FACILITY == 1 )}}
+\DoxyCodeLine{01236 }
+\DoxyCodeLine{01237     UBaseType\_t uxStreamBufferGetStreamBufferNumber( StreamBufferHandle\_t xStreamBuffer )}
+\DoxyCodeLine{01238     \{}
+\DoxyCodeLine{01239         \textcolor{keywordflow}{return} xStreamBuffer-\/>uxStreamBufferNumber;}
+\DoxyCodeLine{01240     \}}
+\DoxyCodeLine{01241 }
+\DoxyCodeLine{01242 \textcolor{preprocessor}{\#endif }\textcolor{comment}{/* configUSE\_TRACE\_FACILITY */}\textcolor{preprocessor}{}}
+\DoxyCodeLine{01243 \textcolor{comment}{/*-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/*/}}
+\DoxyCodeLine{01244 }
+\DoxyCodeLine{01245 \textcolor{preprocessor}{\#if ( configUSE\_TRACE\_FACILITY == 1 )}}
+\DoxyCodeLine{01246 }
+\DoxyCodeLine{01247     \textcolor{keywordtype}{void} vStreamBufferSetStreamBufferNumber( StreamBufferHandle\_t xStreamBuffer, UBaseType\_t uxStreamBufferNumber )}
+\DoxyCodeLine{01248     \{}
+\DoxyCodeLine{01249         xStreamBuffer-\/>uxStreamBufferNumber = uxStreamBufferNumber;}
+\DoxyCodeLine{01250     \}}
+\DoxyCodeLine{01251 }
+\DoxyCodeLine{01252 \textcolor{preprocessor}{\#endif }\textcolor{comment}{/* configUSE\_TRACE\_FACILITY */}\textcolor{preprocessor}{}}
+\DoxyCodeLine{01253 \textcolor{comment}{/*-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/*/}}
+\DoxyCodeLine{01254 }
+\DoxyCodeLine{01255 \textcolor{preprocessor}{\#if ( configUSE\_TRACE\_FACILITY == 1 )}}
+\DoxyCodeLine{01256 }
+\DoxyCodeLine{01257     uint8\_t ucStreamBufferGetStreamBufferType( StreamBufferHandle\_t xStreamBuffer )}
+\DoxyCodeLine{01258     \{}
+\DoxyCodeLine{01259         \textcolor{keywordflow}{return} ( xStreamBuffer-\/>ucFlags \& sbFLAGS\_IS\_MESSAGE\_BUFFER );}
+\DoxyCodeLine{01260     \}}
+\DoxyCodeLine{01261 }
+\DoxyCodeLine{01262 \textcolor{preprocessor}{\#endif }\textcolor{comment}{/* configUSE\_TRACE\_FACILITY */}\textcolor{preprocessor}{}}
+\DoxyCodeLine{01263 \textcolor{comment}{/*-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/*/}}
+
+\end{DoxyCode}

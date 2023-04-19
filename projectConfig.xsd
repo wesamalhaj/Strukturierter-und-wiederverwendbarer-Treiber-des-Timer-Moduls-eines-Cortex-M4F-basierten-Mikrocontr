@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xmlns:hawgitter="https://gitlab.tphys.jku.at/haw-hamburg/tools/haw-gitter.git"
+           targetNamespace="https://gitlab.tphys.jku.at/haw-hamburg/tools/haw-gitter.git"
+           elementFormDefault="qualified">
+
+    <xs:element name="projectConfig" type="hawgitter:projectConfig"></xs:element>
+
+    <xs:complexType name="projectConfig">
+    	<xs:sequence minOccurs="1" maxOccurs="1">
+    		<xs:element name="libraries" type="hawgitter:libraries" minOccurs="1" maxOccurs="1"></xs:element>
+    	</xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="libraries">
+    	<xs:sequence minOccurs="1" maxOccurs="1">
+    		<xs:element name="library" type="hawgitter:library" minOccurs="1" maxOccurs="unbounded"></xs:element>
+    	</xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="library">
+    	<xs:choice minOccurs="1" maxOccurs="1">
+    		<xs:element name="gitLibrary" type="hawgitter:gitLibrary"></xs:element>
+    	</xs:choice>
+    </xs:complexType>
+
+    <xs:complexType name="gitLibrary">
+    	<xs:sequence minOccurs="1" maxOccurs="1">
+    		<xs:element name="localPath" type="xs:anyURI" minOccurs="1"
+    			maxOccurs="1">
+    		</xs:element>
+    		<xs:element name="gitRepository" type="xs:anyURI"
+    			minOccurs="1" maxOccurs="1">
+    		</xs:element>
+    		<xs:element name="gitReference"
+    			type="hawgitter:gitReference" minOccurs="1" maxOccurs="1">
+    		</xs:element>
+    	</xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="gitReference">
+    	<xs:choice minOccurs="1" maxOccurs="1">
+    		<xs:element name="gitBranch" type="xs:string" minOccurs="1"
+    			maxOccurs="1">
+    		</xs:element>
+    		<xs:element name="gitTag" type="xs:string" minOccurs="1" maxOccurs="1"></xs:element>
+    	</xs:choice>
+    </xs:complexType>
+</xs:schema>

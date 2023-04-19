@@ -1,0 +1,53 @@
+<hawgitter:projectConfig
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns:hawgitter="https://gitlab.tphys.jku.at/haw-hamburg/tools/haw-gitter.git"
+  xsi:schemaLocation="https://gitlab.tphys.jku.at/haw-hamburg/tools/haw-gitter.git projectConfig.xsd"
+>
+	<hawgitter:libraries>
+		<hawgitter:library>
+			<hawgitter:gitLibrary>
+				<hawgitter:localPath>rtos/FreeRTOS</hawgitter:localPath>
+				<hawgitter:gitRepository>https://gitlab.tphys.jku.at/haw-hamburg/embedded-c/Tiva-TM4C1294NCPDT/repos/rtos/FreeRTOS.git</hawgitter:gitRepository>
+				<hawgitter:gitReference>
+					<hawgitter:gitTag>FreeRTOSv10.2.1_HAWv0.1</hawgitter:gitTag>
+				</hawgitter:gitReference>
+			</hawgitter:gitLibrary>
+		</hawgitter:library>
+    <hawgitter:library>
+			<hawgitter:gitLibrary>
+				<hawgitter:localPath>hal/sysctl</hawgitter:localPath>
+				<hawgitter:gitRepository>https://gitlab.tphys.jku.at/haw-hamburg/embedded-c/Tiva-TM4C1294NCPDT/repos/hal/sysctl.git</hawgitter:gitRepository>
+				<hawgitter:gitReference>
+					<hawgitter:gitBranch>devel</hawgitter:gitBranch>
+				</hawgitter:gitReference>
+			</hawgitter:gitLibrary>
+		</hawgitter:library>
+    <hawgitter:library>
+			<hawgitter:gitLibrary>
+				<hawgitter:localPath>hal/nvic</hawgitter:localPath>
+				<hawgitter:gitRepository>https://gitlab.tphys.jku.at/haw-hamburg/embedded-c/Tiva-TM4C1294NCPDT/repos/hal/nvic.git</hawgitter:gitRepository>
+				<hawgitter:gitReference>
+					<hawgitter:gitBranch>devel</hawgitter:gitBranch>
+				</hawgitter:gitReference>
+			</hawgitter:gitLibrary>
+		</hawgitter:library>
+    <hawgitter:library>
+			<hawgitter:gitLibrary>
+				<hawgitter:localPath>hal/gpio</hawgitter:localPath>
+				<hawgitter:gitRepository>https://gitlab.tphys.jku.at/haw-hamburg/embedded-c/Tiva-TM4C1294NCPDT/repos/hal/gpio.git</hawgitter:gitRepository>
+				<hawgitter:gitReference>
+					<hawgitter:gitBranch>devel</hawgitter:gitBranch>
+				</hawgitter:gitReference>
+			</hawgitter:gitLibrary>
+		</hawgitter:library>
+    <hawgitter:library>
+			<hawgitter:gitLibrary>
+				<hawgitter:localPath>hal/gptm</hawgitter:localPath>
+				<hawgitter:gitRepository>https://gitlab.tphys.jku.at/haw-hamburg/embedded-c/Tiva-TM4C1294NCPDT/repos/hal/gptm.git</hawgitter:gitRepository>
+				<hawgitter:gitReference>
+					<hawgitter:gitBranch>devel</hawgitter:gitBranch>
+				</hawgitter:gitReference>
+			</hawgitter:gitLibrary>
+		</hawgitter:library>
+	</hawgitter:libraries>
+</hawgitter:projectConfig>

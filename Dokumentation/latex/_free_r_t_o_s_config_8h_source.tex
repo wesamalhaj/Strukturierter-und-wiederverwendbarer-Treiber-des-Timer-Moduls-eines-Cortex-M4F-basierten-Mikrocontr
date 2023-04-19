@@ -1,0 +1,48 @@
+\doxysection{Free\+RTOSConfig.\+h}
+\label{_free_r_t_o_s_config_8h_source}\index{params/os/FreeRTOSConfig.h@{params/os/FreeRTOSConfig.h}}
+
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00001 \textcolor{comment}{/*}}
+\DoxyCodeLine{00002 \textcolor{comment}{ * FreeRTOSConfig.h}}
+\DoxyCodeLine{00003 \textcolor{comment}{ *}}
+\DoxyCodeLine{00004 \textcolor{comment}{ *  Created on: 30.01.2020}}
+\DoxyCodeLine{00005 \textcolor{comment}{ *      Author: Pawel Buczek}}
+\DoxyCodeLine{00006 \textcolor{comment}{ *}}
+\DoxyCodeLine{00007 \textcolor{comment}{ */}}
+\DoxyCodeLine{00008 }
+\DoxyCodeLine{00009 \textcolor{preprocessor}{\#ifndef OS\_FREERTOSCONFIG\_H\_}}
+\DoxyCodeLine{00010 \textcolor{preprocessor}{\#define OS\_FREERTOSCONFIG\_H\_}}
+\DoxyCodeLine{00011 }
+\DoxyCodeLine{00012 \textcolor{comment}{/* Per-\/Project FreeRTOS Configuration */}}
+\DoxyCodeLine{00013 }
+\DoxyCodeLine{00014 \textcolor{comment}{/*}}
+\DoxyCodeLine{00015 \textcolor{comment}{ * Check all the required application specific macros have been defined.}}
+\DoxyCodeLine{00016 \textcolor{comment}{ * These macros are application specific and (as downloaded) are defined}}
+\DoxyCodeLine{00017 \textcolor{comment}{ * within FreeRTOSConfig.h.}}
+\DoxyCodeLine{00018 \textcolor{comment}{ */}}
+\DoxyCodeLine{00019 }
+\DoxyCodeLine{00020 \textcolor{preprocessor}{\#define configMINIMAL\_STACK\_SIZE                128         }\textcolor{comment}{// idle task stack (in 32-\/bit words)}}
+\DoxyCodeLine{00021 \textcolor{preprocessor}{\#define configMAX\_PRIORITIES                    8}}
+\DoxyCodeLine{00022 \textcolor{preprocessor}{\#define configUSE\_PREEMPTION                    1}}
+\DoxyCodeLine{00023 \textcolor{preprocessor}{\#define configUSE\_IDLE\_HOOK                     0}}
+\DoxyCodeLine{00024 \textcolor{preprocessor}{\#define configUSE\_TICK\_HOOK                     0}}
+\DoxyCodeLine{00025 \textcolor{preprocessor}{\#define INCLUDE\_vTaskPrioritySet                0}}
+\DoxyCodeLine{00026 \textcolor{preprocessor}{\#define INCLUDE\_uxTaskPriorityGet               0}}
+\DoxyCodeLine{00027 \textcolor{preprocessor}{\#define INCLUDE\_vTaskDelete                     0}}
+\DoxyCodeLine{00028 \textcolor{preprocessor}{\#define INCLUDE\_vTaskSuspend                    1}}
+\DoxyCodeLine{00029 \textcolor{preprocessor}{\#define INCLUDE\_vTaskDelay                      1           }\textcolor{comment}{// necessary for delaying tasks}}
+\DoxyCodeLine{00030 \textcolor{preprocessor}{\#define INCLUDE\_vTaskDelayUntil                 1           }\textcolor{comment}{// for the "{}delay until"{} functionality}}
+\DoxyCodeLine{00031 \textcolor{preprocessor}{\#define configUSE\_16\_BIT\_TICKS                  0}}
+\DoxyCodeLine{00032 \textcolor{preprocessor}{\#define configKERNEL\_INTERRUPT\_PRIORITY         (7 << 5)}}
+\DoxyCodeLine{00033 \textcolor{preprocessor}{\#define configMAX\_SYSCALL\_INTERRUPT\_PRIORITY    (1 << 5)}}
+\DoxyCodeLine{00034 \textcolor{preprocessor}{\#define configTOTAL\_HEAP\_SIZE                   (8 * 1024)}}
+\DoxyCodeLine{00035 \textcolor{preprocessor}{\#define configCPU\_CLOCK\_HZ                      16000000UL  }\textcolor{comment}{// 16MHz clock}}
+\DoxyCodeLine{00036 \textcolor{preprocessor}{\#define configTICK\_RATE\_HZ                      100         }\textcolor{comment}{// tick interrupt every 10ms}}
+\DoxyCodeLine{00037 }
+\DoxyCodeLine{00038 \textcolor{comment}{// additional options}}
+\DoxyCodeLine{00039 \textcolor{preprocessor}{\#define configUSE\_MUTEXES                       1           }\textcolor{comment}{// mutex required}}
+\DoxyCodeLine{00040 \textcolor{preprocessor}{\#define INCLUDE\_pcTaskGetName                   1           }\textcolor{comment}{// access to the task name}}
+\DoxyCodeLine{00041 }
+\DoxyCodeLine{00042 \textcolor{preprocessor}{\#endif }\textcolor{comment}{/* OS\_FREERTOSCONFIG\_H\_ */}\textcolor{preprocessor}{}}
+
+\end{DoxyCode}

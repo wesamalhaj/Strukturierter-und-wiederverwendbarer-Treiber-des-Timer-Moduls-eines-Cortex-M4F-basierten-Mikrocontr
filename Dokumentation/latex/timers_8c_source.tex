@@ -1,0 +1,1108 @@
+\doxysection{timers.\+c}
+\label{timers_8c_source}\index{rtos/FreeRTOS/source/timers.c@{rtos/FreeRTOS/source/timers.c}}
+
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00001 \textcolor{comment}{/*}}
+\DoxyCodeLine{00002 \textcolor{comment}{ * FreeRTOS Kernel V10.2.1}}
+\DoxyCodeLine{00003 \textcolor{comment}{ * Copyright (C) 2019 Amazon.com, Inc. or its affiliates.  All Rights Reserved.}}
+\DoxyCodeLine{00004 \textcolor{comment}{ *}}
+\DoxyCodeLine{00005 \textcolor{comment}{ * Permission is hereby granted, free of charge, to any person obtaining a copy of}}
+\DoxyCodeLine{00006 \textcolor{comment}{ * this software and associated documentation files (the "{}Software"{}), to deal in}}
+\DoxyCodeLine{00007 \textcolor{comment}{ * the Software without restriction, including without limitation the rights to}}
+\DoxyCodeLine{00008 \textcolor{comment}{ * use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of}}
+\DoxyCodeLine{00009 \textcolor{comment}{ * the Software, and to permit persons to whom the Software is furnished to do so,}}
+\DoxyCodeLine{00010 \textcolor{comment}{ * subject to the following conditions:}}
+\DoxyCodeLine{00011 \textcolor{comment}{ *}}
+\DoxyCodeLine{00012 \textcolor{comment}{ * The above copyright notice and this permission notice shall be included in all}}
+\DoxyCodeLine{00013 \textcolor{comment}{ * copies or substantial portions of the Software.}}
+\DoxyCodeLine{00014 \textcolor{comment}{ *}}
+\DoxyCodeLine{00015 \textcolor{comment}{ * THE SOFTWARE IS PROVIDED "{}AS IS"{}, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR}}
+\DoxyCodeLine{00016 \textcolor{comment}{ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS}}
+\DoxyCodeLine{00017 \textcolor{comment}{ * FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR}}
+\DoxyCodeLine{00018 \textcolor{comment}{ * COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER}}
+\DoxyCodeLine{00019 \textcolor{comment}{ * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN}}
+\DoxyCodeLine{00020 \textcolor{comment}{ * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.}}
+\DoxyCodeLine{00021 \textcolor{comment}{ *}}
+\DoxyCodeLine{00022 \textcolor{comment}{ * http://www.FreeRTOS.org}}
+\DoxyCodeLine{00023 \textcolor{comment}{ * http://aws.amazon.com/freertos}}
+\DoxyCodeLine{00024 \textcolor{comment}{ *}}
+\DoxyCodeLine{00025 \textcolor{comment}{ * 1 tab == 4 spaces!}}
+\DoxyCodeLine{00026 \textcolor{comment}{ */}}
+\DoxyCodeLine{00027 }
+\DoxyCodeLine{00028 \textcolor{comment}{/* Standard includes. */}}
+\DoxyCodeLine{00029 \textcolor{preprocessor}{\#include <stdlib.h>}}
+\DoxyCodeLine{00030 }
+\DoxyCodeLine{00031 \textcolor{comment}{/* Defining MPU\_WRAPPERS\_INCLUDED\_FROM\_API\_FILE prevents task.h from redefining}}
+\DoxyCodeLine{00032 \textcolor{comment}{all the API functions to use the MPU wrappers.  That should only be done when}}
+\DoxyCodeLine{00033 \textcolor{comment}{task.h is included from an application file. */}}
+\DoxyCodeLine{00034 \textcolor{preprocessor}{\#define MPU\_WRAPPERS\_INCLUDED\_FROM\_API\_FILE}}
+\DoxyCodeLine{00035 }
+\DoxyCodeLine{00036 \textcolor{preprocessor}{\#include "{}FreeRTOS.h"{}}}
+\DoxyCodeLine{00037 \textcolor{preprocessor}{\#include "{}task.h"{}}}
+\DoxyCodeLine{00038 \textcolor{preprocessor}{\#include "{}queue.h"{}}}
+\DoxyCodeLine{00039 \textcolor{preprocessor}{\#include "{}timers.h"{}}}
+\DoxyCodeLine{00040 }
+\DoxyCodeLine{00041 \textcolor{preprocessor}{\#if ( INCLUDE\_xTimerPendFunctionCall == 1 ) \&\& ( configUSE\_TIMERS == 0 )}}
+\DoxyCodeLine{00042 \textcolor{preprocessor}{    \#error configUSE\_TIMERS must be set to 1 to make the xTimerPendFunctionCall() function available.}}
+\DoxyCodeLine{00043 \textcolor{preprocessor}{\#endif}}
+\DoxyCodeLine{00044 }
+\DoxyCodeLine{00045 \textcolor{comment}{/* Lint e9021, e961 and e750 are suppressed as a MISRA exception justified}}
+\DoxyCodeLine{00046 \textcolor{comment}{because the MPU ports require MPU\_WRAPPERS\_INCLUDED\_FROM\_API\_FILE to be defined}}
+\DoxyCodeLine{00047 \textcolor{comment}{for the header files above, but not in this file, in order to generate the}}
+\DoxyCodeLine{00048 \textcolor{comment}{correct privileged Vs unprivileged linkage and placement. */}}
+\DoxyCodeLine{00049 \textcolor{preprocessor}{\#undef MPU\_WRAPPERS\_INCLUDED\_FROM\_API\_FILE }\textcolor{comment}{/*lint !e9021 !e961 !e750. */}\textcolor{preprocessor}{}}
+\DoxyCodeLine{00050 }
+\DoxyCodeLine{00051 }
+\DoxyCodeLine{00052 \textcolor{comment}{/* This entire source file will be skipped if the application is not configured}}
+\DoxyCodeLine{00053 \textcolor{comment}{to include software timer functionality.  This \#if is closed at the very bottom}}
+\DoxyCodeLine{00054 \textcolor{comment}{of this file.  If you want to include software timer functionality then ensure}}
+\DoxyCodeLine{00055 \textcolor{comment}{configUSE\_TIMERS is set to 1 in FreeRTOSConfig.h. */}}
+\DoxyCodeLine{00056 \textcolor{preprocessor}{\#if ( configUSE\_TIMERS == 1 )}}
+\DoxyCodeLine{00057 }
+\DoxyCodeLine{00058 \textcolor{comment}{/* Misc definitions. */}}
+\DoxyCodeLine{00059 \textcolor{preprocessor}{\#define tmrNO\_DELAY     ( TickType\_t ) 0U}}
+\DoxyCodeLine{00060 }
+\DoxyCodeLine{00061 \textcolor{comment}{/* The name assigned to the timer service task.  This can be overridden by}}
+\DoxyCodeLine{00062 \textcolor{comment}{defining trmTIMER\_SERVICE\_TASK\_NAME in FreeRTOSConfig.h. */}}
+\DoxyCodeLine{00063 \textcolor{preprocessor}{\#ifndef configTIMER\_SERVICE\_TASK\_NAME}}
+\DoxyCodeLine{00064 \textcolor{preprocessor}{    \#define configTIMER\_SERVICE\_TASK\_NAME "{}Tmr Svc"{}}}
+\DoxyCodeLine{00065 \textcolor{preprocessor}{\#endif}}
+\DoxyCodeLine{00066 }
+\DoxyCodeLine{00067 \textcolor{comment}{/* Bit definitions used in the ucStatus member of a timer structure. */}}
+\DoxyCodeLine{00068 \textcolor{preprocessor}{\#define tmrSTATUS\_IS\_ACTIVE                 ( ( uint8\_t ) 0x01 )}}
+\DoxyCodeLine{00069 \textcolor{preprocessor}{\#define tmrSTATUS\_IS\_STATICALLY\_ALLOCATED   ( ( uint8\_t ) 0x02 )}}
+\DoxyCodeLine{00070 \textcolor{preprocessor}{\#define tmrSTATUS\_IS\_AUTORELOAD             ( ( uint8\_t ) 0x04 )}}
+\DoxyCodeLine{00071 }
+\DoxyCodeLine{00072 \textcolor{comment}{/* The definition of the timers themselves. */}}
+\DoxyCodeLine{00073 \textcolor{keyword}{typedef} \textcolor{keyword}{struct }tmrTimerControl \textcolor{comment}{/* The old naming convention is used to prevent breaking kernel aware debuggers. */}}
+\DoxyCodeLine{00074 \{}
+\DoxyCodeLine{00075     \textcolor{keyword}{const} \textcolor{keywordtype}{char}              *pcTimerName;       \textcolor{comment}{/*<< Text name.  This is not used by the kernel, it is included simply to make debugging easier. */} \textcolor{comment}{/*lint !e971 Unqualified char types are allowed for strings and single characters only. */}}
+\DoxyCodeLine{00076     ListItem\_t                xTimerListItem;     \textcolor{comment}{/*<< Standard linked list item as used by all kernel features for event management. */}}
+\DoxyCodeLine{00077     TickType\_t              xTimerPeriodInTicks;\textcolor{comment}{/*<< How quickly and often the timer expires. */}}
+\DoxyCodeLine{00078     \textcolor{keywordtype}{void}                    *pvTimerID;         \textcolor{comment}{/*<< An ID to identify the timer.  This allows the timer to be identified when the same callback is used for multiple timers. */}}
+\DoxyCodeLine{00079     TimerCallbackFunction\_t pxCallbackFunction; \textcolor{comment}{/*<< The function that will be called when the timer expires. */}}
+\DoxyCodeLine{00080 \textcolor{preprocessor}{    \#if( configUSE\_TRACE\_FACILITY == 1 )}}
+\DoxyCodeLine{00081         UBaseType\_t         uxTimerNumber;      \textcolor{comment}{/*<< An ID assigned by trace tools such as FreeRTOS+Trace */}}
+\DoxyCodeLine{00082 \textcolor{preprocessor}{    \#endif}}
+\DoxyCodeLine{00083     uint8\_t                 ucStatus;           \textcolor{comment}{/*<< Holds bits to say if the timer was statically allocated or not, and if it is active or not. */}}
+\DoxyCodeLine{00084 \} xTIMER;}
+\DoxyCodeLine{00085 }
+\DoxyCodeLine{00086 \textcolor{comment}{/* The old xTIMER name is maintained above then typedefed to the new Timer\_t}}
+\DoxyCodeLine{00087 \textcolor{comment}{name below to enable the use of older kernel aware debuggers. */}}
+\DoxyCodeLine{00088 \textcolor{keyword}{typedef} xTIMER Timer\_t;}
+\DoxyCodeLine{00089 }
+\DoxyCodeLine{00090 \textcolor{comment}{/* The definition of messages that can be sent and received on the timer queue.}}
+\DoxyCodeLine{00091 \textcolor{comment}{Two types of message can be queued -\/ messages that manipulate a software timer,}}
+\DoxyCodeLine{00092 \textcolor{comment}{and messages that request the execution of a non-\/timer related callback.  The}}
+\DoxyCodeLine{00093 \textcolor{comment}{two message types are defined in two separate structures, xTimerParametersType}}
+\DoxyCodeLine{00094 \textcolor{comment}{and xCallbackParametersType respectively. */}}
+\DoxyCodeLine{00095 \textcolor{keyword}{typedef} \textcolor{keyword}{struct }tmrTimerParameters}
+\DoxyCodeLine{00096 \{}
+\DoxyCodeLine{00097     TickType\_t          xMessageValue;      \textcolor{comment}{/*<< An optional value used by a subset of commands, for example, when changing the period of a timer. */}}
+\DoxyCodeLine{00098     Timer\_t *           pxTimer;            \textcolor{comment}{/*<< The timer to which the command will be applied. */}}
+\DoxyCodeLine{00099 \} TimerParameter\_t;}
+\DoxyCodeLine{00100 }
+\DoxyCodeLine{00101 }
+\DoxyCodeLine{00102 \textcolor{keyword}{typedef} \textcolor{keyword}{struct }tmrCallbackParameters}
+\DoxyCodeLine{00103 \{}
+\DoxyCodeLine{00104     PendedFunction\_t    pxCallbackFunction; \textcolor{comment}{/* << The callback function to execute. */}}
+\DoxyCodeLine{00105     \textcolor{keywordtype}{void} *pvParameter1;                     \textcolor{comment}{/* << The value that will be used as the callback functions first parameter. */}}
+\DoxyCodeLine{00106     uint32\_t ulParameter2;                  \textcolor{comment}{/* << The value that will be used as the callback functions second parameter. */}}
+\DoxyCodeLine{00107 \} CallbackParameters\_t;}
+\DoxyCodeLine{00108 }
+\DoxyCodeLine{00109 \textcolor{comment}{/* The structure that contains the two message types, along with an identifier}}
+\DoxyCodeLine{00110 \textcolor{comment}{that is used to determine which message type is valid. */}}
+\DoxyCodeLine{00111 \textcolor{keyword}{typedef} \textcolor{keyword}{struct }tmrTimerQueueMessage}
+\DoxyCodeLine{00112 \{}
+\DoxyCodeLine{00113     BaseType\_t          xMessageID;         \textcolor{comment}{/*<< The command being sent to the timer service task. */}}
+\DoxyCodeLine{00114     \textcolor{keyword}{union}}
+\DoxyCodeLine{00115     \{}
+\DoxyCodeLine{00116         TimerParameter\_t xTimerParameters;}
+\DoxyCodeLine{00117 }
+\DoxyCodeLine{00118         \textcolor{comment}{/* Don't include xCallbackParameters if it is not going to be used as}}
+\DoxyCodeLine{00119 \textcolor{comment}{        it makes the structure (and therefore the timer queue) larger. */}}
+\DoxyCodeLine{00120 \textcolor{preprocessor}{        \#if ( INCLUDE\_xTimerPendFunctionCall == 1 )}}
+\DoxyCodeLine{00121             CallbackParameters\_t xCallbackParameters;}
+\DoxyCodeLine{00122 \textcolor{preprocessor}{        \#endif }\textcolor{comment}{/* INCLUDE\_xTimerPendFunctionCall */}\textcolor{preprocessor}{}}
+\DoxyCodeLine{00123     \} u;}
+\DoxyCodeLine{00124 \} DaemonTaskMessage\_t;}
+\DoxyCodeLine{00125 }
+\DoxyCodeLine{00126 \textcolor{comment}{/*lint -\/save -\/e956 A manual analysis and inspection has been used to determine}}
+\DoxyCodeLine{00127 \textcolor{comment}{which static variables must be declared volatile. */}}
+\DoxyCodeLine{00128 }
+\DoxyCodeLine{00129 \textcolor{comment}{/* The list in which active timers are stored.  Timers are referenced in expire}}
+\DoxyCodeLine{00130 \textcolor{comment}{time order, with the nearest expiry time at the front of the list.  Only the}}
+\DoxyCodeLine{00131 \textcolor{comment}{timer service task is allowed to access these lists.}}
+\DoxyCodeLine{00132 \textcolor{comment}{xActiveTimerList1 and xActiveTimerList2 could be at function scope but that}}
+\DoxyCodeLine{00133 \textcolor{comment}{breaks some kernel aware debuggers, and debuggers that reply on removing the}}
+\DoxyCodeLine{00134 \textcolor{comment}{static qualifier. */}}
+\DoxyCodeLine{00135 PRIVILEGED\_DATA \textcolor{keyword}{static} List\_t xActiveTimerList1;}
+\DoxyCodeLine{00136 PRIVILEGED\_DATA \textcolor{keyword}{static} List\_t xActiveTimerList2;}
+\DoxyCodeLine{00137 PRIVILEGED\_DATA \textcolor{keyword}{static} List\_t *pxCurrentTimerList;}
+\DoxyCodeLine{00138 PRIVILEGED\_DATA \textcolor{keyword}{static} List\_t *pxOverflowTimerList;}
+\DoxyCodeLine{00139 }
+\DoxyCodeLine{00140 \textcolor{comment}{/* A queue that is used to send commands to the timer service task. */}}
+\DoxyCodeLine{00141 PRIVILEGED\_DATA \textcolor{keyword}{static} QueueHandle\_t xTimerQueue = NULL;}
+\DoxyCodeLine{00142 PRIVILEGED\_DATA \textcolor{keyword}{static} TaskHandle\_t xTimerTaskHandle = NULL;}
+\DoxyCodeLine{00143 }
+\DoxyCodeLine{00144 \textcolor{comment}{/*lint -\/restore */}}
+\DoxyCodeLine{00145 }
+\DoxyCodeLine{00146 \textcolor{comment}{/*-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/*/}}
+\DoxyCodeLine{00147 }
+\DoxyCodeLine{00148 \textcolor{preprocessor}{\#if( configSUPPORT\_STATIC\_ALLOCATION == 1 )}}
+\DoxyCodeLine{00149 }
+\DoxyCodeLine{00150     \textcolor{comment}{/* If static allocation is supported then the application must provide the}}
+\DoxyCodeLine{00151 \textcolor{comment}{    following callback function -\/ which enables the application to optionally}}
+\DoxyCodeLine{00152 \textcolor{comment}{    provide the memory that will be used by the timer task as the task's stack}}
+\DoxyCodeLine{00153 \textcolor{comment}{    and TCB. */}}
+\DoxyCodeLine{00154     \textcolor{keyword}{extern} \textcolor{keywordtype}{void} vApplicationGetTimerTaskMemory( StaticTask\_t **ppxTimerTaskTCBBuffer, StackType\_t **ppxTimerTaskStackBuffer, uint32\_t *pulTimerTaskStackSize );}
+\DoxyCodeLine{00155 }
+\DoxyCodeLine{00156 \textcolor{preprocessor}{\#endif}}
+\DoxyCodeLine{00157 }
+\DoxyCodeLine{00158 \textcolor{comment}{/*}}
+\DoxyCodeLine{00159 \textcolor{comment}{ * Initialise the infrastructure used by the timer service task if it has not}}
+\DoxyCodeLine{00160 \textcolor{comment}{ * been initialised already.}}
+\DoxyCodeLine{00161 \textcolor{comment}{ */}}
+\DoxyCodeLine{00162 \textcolor{keyword}{static} \textcolor{keywordtype}{void} prvCheckForValidListAndQueue( \textcolor{keywordtype}{void} ) PRIVILEGED\_FUNCTION;}
+\DoxyCodeLine{00163 }
+\DoxyCodeLine{00164 \textcolor{comment}{/*}}
+\DoxyCodeLine{00165 \textcolor{comment}{ * The timer service task (daemon).  Timer functionality is controlled by this}}
+\DoxyCodeLine{00166 \textcolor{comment}{ * task.  Other tasks communicate with the timer service task using the}}
+\DoxyCodeLine{00167 \textcolor{comment}{ * xTimerQueue queue.}}
+\DoxyCodeLine{00168 \textcolor{comment}{ */}}
+\DoxyCodeLine{00169 \textcolor{keyword}{static} portTASK\_FUNCTION\_PROTO( prvTimerTask, pvParameters ) PRIVILEGED\_FUNCTION;}
+\DoxyCodeLine{00170 }
+\DoxyCodeLine{00171 \textcolor{comment}{/*}}
+\DoxyCodeLine{00172 \textcolor{comment}{ * Called by the timer service task to interpret and process a command it}}
+\DoxyCodeLine{00173 \textcolor{comment}{ * received on the timer queue.}}
+\DoxyCodeLine{00174 \textcolor{comment}{ */}}
+\DoxyCodeLine{00175 \textcolor{keyword}{static} \textcolor{keywordtype}{void} prvProcessReceivedCommands( \textcolor{keywordtype}{void} ) PRIVILEGED\_FUNCTION;}
+\DoxyCodeLine{00176 }
+\DoxyCodeLine{00177 \textcolor{comment}{/*}}
+\DoxyCodeLine{00178 \textcolor{comment}{ * Insert the timer into either xActiveTimerList1, or xActiveTimerList2,}}
+\DoxyCodeLine{00179 \textcolor{comment}{ * depending on if the expire time causes a timer counter overflow.}}
+\DoxyCodeLine{00180 \textcolor{comment}{ */}}
+\DoxyCodeLine{00181 \textcolor{keyword}{static} BaseType\_t prvInsertTimerInActiveList( Timer\_t * \textcolor{keyword}{const} pxTimer, \textcolor{keyword}{const} TickType\_t xNextExpiryTime, \textcolor{keyword}{const} TickType\_t xTimeNow, \textcolor{keyword}{const} TickType\_t xCommandTime ) PRIVILEGED\_FUNCTION;}
+\DoxyCodeLine{00182 }
+\DoxyCodeLine{00183 \textcolor{comment}{/*}}
+\DoxyCodeLine{00184 \textcolor{comment}{ * An active timer has reached its expire time.  Reload the timer if it is an}}
+\DoxyCodeLine{00185 \textcolor{comment}{ * auto reload timer, then call its callback.}}
+\DoxyCodeLine{00186 \textcolor{comment}{ */}}
+\DoxyCodeLine{00187 \textcolor{keyword}{static} \textcolor{keywordtype}{void} prvProcessExpiredTimer( \textcolor{keyword}{const} TickType\_t xNextExpireTime, \textcolor{keyword}{const} TickType\_t xTimeNow ) PRIVILEGED\_FUNCTION;}
+\DoxyCodeLine{00188 }
+\DoxyCodeLine{00189 \textcolor{comment}{/*}}
+\DoxyCodeLine{00190 \textcolor{comment}{ * The tick count has overflowed.  Switch the timer lists after ensuring the}}
+\DoxyCodeLine{00191 \textcolor{comment}{ * current timer list does not still reference some timers.}}
+\DoxyCodeLine{00192 \textcolor{comment}{ */}}
+\DoxyCodeLine{00193 \textcolor{keyword}{static} \textcolor{keywordtype}{void} prvSwitchTimerLists( \textcolor{keywordtype}{void} ) PRIVILEGED\_FUNCTION;}
+\DoxyCodeLine{00194 }
+\DoxyCodeLine{00195 \textcolor{comment}{/*}}
+\DoxyCodeLine{00196 \textcolor{comment}{ * Obtain the current tick count, setting *pxTimerListsWereSwitched to pdTRUE}}
+\DoxyCodeLine{00197 \textcolor{comment}{ * if a tick count overflow occurred since prvSampleTimeNow() was last called.}}
+\DoxyCodeLine{00198 \textcolor{comment}{ */}}
+\DoxyCodeLine{00199 \textcolor{keyword}{static} TickType\_t prvSampleTimeNow( BaseType\_t * \textcolor{keyword}{const} pxTimerListsWereSwitched ) PRIVILEGED\_FUNCTION;}
+\DoxyCodeLine{00200 }
+\DoxyCodeLine{00201 \textcolor{comment}{/*}}
+\DoxyCodeLine{00202 \textcolor{comment}{ * If the timer list contains any active timers then return the expire time of}}
+\DoxyCodeLine{00203 \textcolor{comment}{ * the timer that will expire first and set *pxListWasEmpty to false.  If the}}
+\DoxyCodeLine{00204 \textcolor{comment}{ * timer list does not contain any timers then return 0 and set *pxListWasEmpty}}
+\DoxyCodeLine{00205 \textcolor{comment}{ * to pdTRUE.}}
+\DoxyCodeLine{00206 \textcolor{comment}{ */}}
+\DoxyCodeLine{00207 \textcolor{keyword}{static} TickType\_t prvGetNextExpireTime( BaseType\_t * \textcolor{keyword}{const} pxListWasEmpty ) PRIVILEGED\_FUNCTION;}
+\DoxyCodeLine{00208 }
+\DoxyCodeLine{00209 \textcolor{comment}{/*}}
+\DoxyCodeLine{00210 \textcolor{comment}{ * If a timer has expired, process it.  Otherwise, block the timer service task}}
+\DoxyCodeLine{00211 \textcolor{comment}{ * until either a timer does expire or a command is received.}}
+\DoxyCodeLine{00212 \textcolor{comment}{ */}}
+\DoxyCodeLine{00213 \textcolor{keyword}{static} \textcolor{keywordtype}{void} prvProcessTimerOrBlockTask( \textcolor{keyword}{const} TickType\_t xNextExpireTime, BaseType\_t xListWasEmpty ) PRIVILEGED\_FUNCTION;}
+\DoxyCodeLine{00214 }
+\DoxyCodeLine{00215 \textcolor{comment}{/*}}
+\DoxyCodeLine{00216 \textcolor{comment}{ * Called after a Timer\_t structure has been allocated either statically or}}
+\DoxyCodeLine{00217 \textcolor{comment}{ * dynamically to fill in the structure's members.}}
+\DoxyCodeLine{00218 \textcolor{comment}{ */}}
+\DoxyCodeLine{00219 \textcolor{keyword}{static} \textcolor{keywordtype}{void} prvInitialiseNewTimer(  \textcolor{keyword}{const} \textcolor{keywordtype}{char} * \textcolor{keyword}{const} pcTimerName,         \textcolor{comment}{/*lint !e971 Unqualified char types are allowed for strings and single characters only. */}}
+\DoxyCodeLine{00220                                     \textcolor{keyword}{const} TickType\_t xTimerPeriodInTicks,}
+\DoxyCodeLine{00221                                     \textcolor{keyword}{const} UBaseType\_t uxAutoReload,}
+\DoxyCodeLine{00222                                     \textcolor{keywordtype}{void} * \textcolor{keyword}{const} pvTimerID,}
+\DoxyCodeLine{00223                                     TimerCallbackFunction\_t pxCallbackFunction,}
+\DoxyCodeLine{00224                                     Timer\_t *pxNewTimer ) PRIVILEGED\_FUNCTION;}
+\DoxyCodeLine{00225 \textcolor{comment}{/*-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/*/}}
+\DoxyCodeLine{00226 }
+\DoxyCodeLine{00227 BaseType\_t xTimerCreateTimerTask( \textcolor{keywordtype}{void} )}
+\DoxyCodeLine{00228 \{}
+\DoxyCodeLine{00229 BaseType\_t xReturn = pdFAIL;}
+\DoxyCodeLine{00230 }
+\DoxyCodeLine{00231     \textcolor{comment}{/* This function is called when the scheduler is started if}}
+\DoxyCodeLine{00232 \textcolor{comment}{    configUSE\_TIMERS is set to 1.  Check that the infrastructure used by the}}
+\DoxyCodeLine{00233 \textcolor{comment}{    timer service task has been created/initialised.  If timers have already}}
+\DoxyCodeLine{00234 \textcolor{comment}{    been created then the initialisation will already have been performed. */}}
+\DoxyCodeLine{00235     prvCheckForValidListAndQueue();}
+\DoxyCodeLine{00236 }
+\DoxyCodeLine{00237     \textcolor{keywordflow}{if}( xTimerQueue != NULL )}
+\DoxyCodeLine{00238     \{}
+\DoxyCodeLine{00239 \textcolor{preprocessor}{        \#if( configSUPPORT\_STATIC\_ALLOCATION == 1 )}}
+\DoxyCodeLine{00240         \{}
+\DoxyCodeLine{00241             StaticTask\_t *pxTimerTaskTCBBuffer = NULL;}
+\DoxyCodeLine{00242             StackType\_t *pxTimerTaskStackBuffer = NULL;}
+\DoxyCodeLine{00243             uint32\_t ulTimerTaskStackSize;}
+\DoxyCodeLine{00244 }
+\DoxyCodeLine{00245             vApplicationGetTimerTaskMemory( \&pxTimerTaskTCBBuffer, \&pxTimerTaskStackBuffer, \&ulTimerTaskStackSize );}
+\DoxyCodeLine{00246             xTimerTaskHandle = xTaskCreateStatic(   prvTimerTask,}
+\DoxyCodeLine{00247                                                     configTIMER\_SERVICE\_TASK\_NAME,}
+\DoxyCodeLine{00248                                                     ulTimerTaskStackSize,}
+\DoxyCodeLine{00249                                                     NULL,}
+\DoxyCodeLine{00250                                                     ( ( UBaseType\_t ) configTIMER\_TASK\_PRIORITY ) | portPRIVILEGE\_BIT,}
+\DoxyCodeLine{00251                                                     pxTimerTaskStackBuffer,}
+\DoxyCodeLine{00252                                                     pxTimerTaskTCBBuffer );}
+\DoxyCodeLine{00253 }
+\DoxyCodeLine{00254             \textcolor{keywordflow}{if}( xTimerTaskHandle != NULL )}
+\DoxyCodeLine{00255             \{}
+\DoxyCodeLine{00256                 xReturn = pdPASS;}
+\DoxyCodeLine{00257             \}}
+\DoxyCodeLine{00258         \}}
+\DoxyCodeLine{00259 \textcolor{preprocessor}{        \#else}}
+\DoxyCodeLine{00260         \{}
+\DoxyCodeLine{00261             xReturn = xTaskCreate(  prvTimerTask,}
+\DoxyCodeLine{00262                                     configTIMER\_SERVICE\_TASK\_NAME,}
+\DoxyCodeLine{00263                                     configTIMER\_TASK\_STACK\_DEPTH,}
+\DoxyCodeLine{00264                                     NULL,}
+\DoxyCodeLine{00265                                     ( ( UBaseType\_t ) configTIMER\_TASK\_PRIORITY ) | portPRIVILEGE\_BIT,}
+\DoxyCodeLine{00266                                     \&xTimerTaskHandle );}
+\DoxyCodeLine{00267         \}}
+\DoxyCodeLine{00268 \textcolor{preprocessor}{        \#endif }\textcolor{comment}{/* configSUPPORT\_STATIC\_ALLOCATION */}\textcolor{preprocessor}{}}
+\DoxyCodeLine{00269     \}}
+\DoxyCodeLine{00270     \textcolor{keywordflow}{else}}
+\DoxyCodeLine{00271     \{}
+\DoxyCodeLine{00272         mtCOVERAGE\_TEST\_MARKER();}
+\DoxyCodeLine{00273     \}}
+\DoxyCodeLine{00274 }
+\DoxyCodeLine{00275     configASSERT( xReturn );}
+\DoxyCodeLine{00276     \textcolor{keywordflow}{return} xReturn;}
+\DoxyCodeLine{00277 \}}
+\DoxyCodeLine{00278 \textcolor{comment}{/*-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/*/}}
+\DoxyCodeLine{00279 }
+\DoxyCodeLine{00280 \textcolor{preprocessor}{\#if( configSUPPORT\_DYNAMIC\_ALLOCATION == 1 )}}
+\DoxyCodeLine{00281 }
+\DoxyCodeLine{00282     TimerHandle\_t xTimerCreate( \textcolor{keyword}{const} \textcolor{keywordtype}{char} * \textcolor{keyword}{const} pcTimerName,         \textcolor{comment}{/*lint !e971 Unqualified char types are allowed for strings and single characters only. */}}
+\DoxyCodeLine{00283                                 \textcolor{keyword}{const} TickType\_t xTimerPeriodInTicks,}
+\DoxyCodeLine{00284                                 \textcolor{keyword}{const} UBaseType\_t uxAutoReload,}
+\DoxyCodeLine{00285                                 \textcolor{keywordtype}{void} * \textcolor{keyword}{const} pvTimerID,}
+\DoxyCodeLine{00286                                 TimerCallbackFunction\_t pxCallbackFunction )}
+\DoxyCodeLine{00287     \{}
+\DoxyCodeLine{00288     Timer\_t *pxNewTimer;}
+\DoxyCodeLine{00289 }
+\DoxyCodeLine{00290         pxNewTimer = ( Timer\_t * ) pvPortMalloc( \textcolor{keyword}{sizeof}( Timer\_t ) ); \textcolor{comment}{/*lint !e9087 !e9079 All values returned by pvPortMalloc() have at least the alignment required by the MCU's stack, and the first member of Timer\_t is always a pointer to the timer's mame. */}}
+\DoxyCodeLine{00291 }
+\DoxyCodeLine{00292         \textcolor{keywordflow}{if}( pxNewTimer != NULL )}
+\DoxyCodeLine{00293         \{}
+\DoxyCodeLine{00294             \textcolor{comment}{/* Status is thus far zero as the timer is not created statically}}
+\DoxyCodeLine{00295 \textcolor{comment}{            and has not been started.  The autoreload bit may get set in}}
+\DoxyCodeLine{00296 \textcolor{comment}{            prvInitialiseNewTimer. */}}
+\DoxyCodeLine{00297             pxNewTimer-\/>ucStatus = 0x00;}
+\DoxyCodeLine{00298             prvInitialiseNewTimer( pcTimerName, xTimerPeriodInTicks, uxAutoReload, pvTimerID, pxCallbackFunction, pxNewTimer );}
+\DoxyCodeLine{00299         \}}
+\DoxyCodeLine{00300 }
+\DoxyCodeLine{00301         \textcolor{keywordflow}{return} pxNewTimer;}
+\DoxyCodeLine{00302     \}}
+\DoxyCodeLine{00303 }
+\DoxyCodeLine{00304 \textcolor{preprocessor}{\#endif }\textcolor{comment}{/* configSUPPORT\_DYNAMIC\_ALLOCATION */}\textcolor{preprocessor}{}}
+\DoxyCodeLine{00305 \textcolor{comment}{/*-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/*/}}
+\DoxyCodeLine{00306 }
+\DoxyCodeLine{00307 \textcolor{preprocessor}{\#if( configSUPPORT\_STATIC\_ALLOCATION == 1 )}}
+\DoxyCodeLine{00308 }
+\DoxyCodeLine{00309     TimerHandle\_t xTimerCreateStatic(   \textcolor{keyword}{const} \textcolor{keywordtype}{char} * \textcolor{keyword}{const} pcTimerName,     \textcolor{comment}{/*lint !e971 Unqualified char types are allowed for strings and single characters only. */}}
+\DoxyCodeLine{00310                                         \textcolor{keyword}{const} TickType\_t xTimerPeriodInTicks,}
+\DoxyCodeLine{00311                                         \textcolor{keyword}{const} UBaseType\_t uxAutoReload,}
+\DoxyCodeLine{00312                                         \textcolor{keywordtype}{void} * \textcolor{keyword}{const} pvTimerID,}
+\DoxyCodeLine{00313                                         TimerCallbackFunction\_t pxCallbackFunction,}
+\DoxyCodeLine{00314                                         StaticTimer\_t *pxTimerBuffer )}
+\DoxyCodeLine{00315     \{}
+\DoxyCodeLine{00316     Timer\_t *pxNewTimer;}
+\DoxyCodeLine{00317 }
+\DoxyCodeLine{00318 \textcolor{preprocessor}{        \#if( configASSERT\_DEFINED == 1 )}}
+\DoxyCodeLine{00319         \{}
+\DoxyCodeLine{00320             \textcolor{comment}{/* Sanity check that the size of the structure used to declare a}}
+\DoxyCodeLine{00321 \textcolor{comment}{            variable of type StaticTimer\_t equals the size of the real timer}}
+\DoxyCodeLine{00322 \textcolor{comment}{            structure. */}}
+\DoxyCodeLine{00323             \textcolor{keyword}{volatile} \textcolor{keywordtype}{size\_t} xSize = \textcolor{keyword}{sizeof}( StaticTimer\_t );}
+\DoxyCodeLine{00324             configASSERT( xSize == \textcolor{keyword}{sizeof}( Timer\_t ) );}
+\DoxyCodeLine{00325             ( void ) xSize; \textcolor{comment}{/* Keeps lint quiet when configASSERT() is not defined. */}}
+\DoxyCodeLine{00326         \}}
+\DoxyCodeLine{00327 \textcolor{preprocessor}{        \#endif }\textcolor{comment}{/* configASSERT\_DEFINED */}\textcolor{preprocessor}{}}
+\DoxyCodeLine{00328 }
+\DoxyCodeLine{00329         \textcolor{comment}{/* A pointer to a StaticTimer\_t structure MUST be provided, use it. */}}
+\DoxyCodeLine{00330         configASSERT( pxTimerBuffer );}
+\DoxyCodeLine{00331         pxNewTimer = ( Timer\_t * ) pxTimerBuffer; \textcolor{comment}{/*lint !e740 !e9087 StaticTimer\_t is a pointer to a Timer\_t, so guaranteed to be aligned and sized correctly (checked by an assert()), so this is safe. */}}
+\DoxyCodeLine{00332 }
+\DoxyCodeLine{00333         \textcolor{keywordflow}{if}( pxNewTimer != NULL )}
+\DoxyCodeLine{00334         \{}
+\DoxyCodeLine{00335             \textcolor{comment}{/* Timers can be created statically or dynamically so note this}}
+\DoxyCodeLine{00336 \textcolor{comment}{            timer was created statically in case it is later deleted.  The}}
+\DoxyCodeLine{00337 \textcolor{comment}{            autoreload bit may get set in prvInitialiseNewTimer(). */}}
+\DoxyCodeLine{00338             pxNewTimer-\/>ucStatus = tmrSTATUS\_IS\_STATICALLY\_ALLOCATED;}
+\DoxyCodeLine{00339 }
+\DoxyCodeLine{00340             prvInitialiseNewTimer( pcTimerName, xTimerPeriodInTicks, uxAutoReload, pvTimerID, pxCallbackFunction, pxNewTimer );}
+\DoxyCodeLine{00341         \}}
+\DoxyCodeLine{00342 }
+\DoxyCodeLine{00343         \textcolor{keywordflow}{return} pxNewTimer;}
+\DoxyCodeLine{00344     \}}
+\DoxyCodeLine{00345 }
+\DoxyCodeLine{00346 \textcolor{preprocessor}{\#endif }\textcolor{comment}{/* configSUPPORT\_STATIC\_ALLOCATION */}\textcolor{preprocessor}{}}
+\DoxyCodeLine{00347 \textcolor{comment}{/*-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/*/}}
+\DoxyCodeLine{00348 }
+\DoxyCodeLine{00349 \textcolor{keyword}{static} \textcolor{keywordtype}{void} prvInitialiseNewTimer(  \textcolor{keyword}{const} \textcolor{keywordtype}{char} * \textcolor{keyword}{const} pcTimerName,         \textcolor{comment}{/*lint !e971 Unqualified char types are allowed for strings and single characters only. */}}
+\DoxyCodeLine{00350                                     \textcolor{keyword}{const} TickType\_t xTimerPeriodInTicks,}
+\DoxyCodeLine{00351                                     \textcolor{keyword}{const} UBaseType\_t uxAutoReload,}
+\DoxyCodeLine{00352                                     \textcolor{keywordtype}{void} * \textcolor{keyword}{const} pvTimerID,}
+\DoxyCodeLine{00353                                     TimerCallbackFunction\_t pxCallbackFunction,}
+\DoxyCodeLine{00354                                     Timer\_t *pxNewTimer )}
+\DoxyCodeLine{00355 \{}
+\DoxyCodeLine{00356     \textcolor{comment}{/* 0 is not a valid value for xTimerPeriodInTicks. */}}
+\DoxyCodeLine{00357     configASSERT( ( xTimerPeriodInTicks > 0 ) );}
+\DoxyCodeLine{00358 }
+\DoxyCodeLine{00359     \textcolor{keywordflow}{if}( pxNewTimer != NULL )}
+\DoxyCodeLine{00360     \{}
+\DoxyCodeLine{00361         \textcolor{comment}{/* Ensure the infrastructure used by the timer service task has been}}
+\DoxyCodeLine{00362 \textcolor{comment}{        created/initialised. */}}
+\DoxyCodeLine{00363         prvCheckForValidListAndQueue();}
+\DoxyCodeLine{00364 }
+\DoxyCodeLine{00365         \textcolor{comment}{/* Initialise the timer structure members using the function}}
+\DoxyCodeLine{00366 \textcolor{comment}{        parameters. */}}
+\DoxyCodeLine{00367         pxNewTimer-\/>pcTimerName = pcTimerName;}
+\DoxyCodeLine{00368         pxNewTimer-\/>xTimerPeriodInTicks = xTimerPeriodInTicks;}
+\DoxyCodeLine{00369         pxNewTimer-\/>pvTimerID = pvTimerID;}
+\DoxyCodeLine{00370         pxNewTimer-\/>pxCallbackFunction = pxCallbackFunction;}
+\DoxyCodeLine{00371         vListInitialiseItem( \&( pxNewTimer-\/>xTimerListItem ) );}
+\DoxyCodeLine{00372         \textcolor{keywordflow}{if}( uxAutoReload != pdFALSE )}
+\DoxyCodeLine{00373         \{}
+\DoxyCodeLine{00374             pxNewTimer-\/>ucStatus |= tmrSTATUS\_IS\_AUTORELOAD;}
+\DoxyCodeLine{00375         \}}
+\DoxyCodeLine{00376         traceTIMER\_CREATE( pxNewTimer );}
+\DoxyCodeLine{00377     \}}
+\DoxyCodeLine{00378 \}}
+\DoxyCodeLine{00379 \textcolor{comment}{/*-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/*/}}
+\DoxyCodeLine{00380 }
+\DoxyCodeLine{00381 BaseType\_t xTimerGenericCommand( TimerHandle\_t xTimer, \textcolor{keyword}{const} BaseType\_t xCommandID, \textcolor{keyword}{const} TickType\_t xOptionalValue, BaseType\_t * \textcolor{keyword}{const} pxHigherPriorityTaskWoken, \textcolor{keyword}{const} TickType\_t xTicksToWait )}
+\DoxyCodeLine{00382 \{}
+\DoxyCodeLine{00383 BaseType\_t xReturn = pdFAIL;}
+\DoxyCodeLine{00384 DaemonTaskMessage\_t xMessage;}
+\DoxyCodeLine{00385 }
+\DoxyCodeLine{00386     configASSERT( xTimer );}
+\DoxyCodeLine{00387 }
+\DoxyCodeLine{00388     \textcolor{comment}{/* Send a message to the timer service task to perform a particular action}}
+\DoxyCodeLine{00389 \textcolor{comment}{    on a particular timer definition. */}}
+\DoxyCodeLine{00390     \textcolor{keywordflow}{if}( xTimerQueue != NULL )}
+\DoxyCodeLine{00391     \{}
+\DoxyCodeLine{00392         \textcolor{comment}{/* Send a command to the timer service task to start the xTimer timer. */}}
+\DoxyCodeLine{00393         xMessage.xMessageID = xCommandID;}
+\DoxyCodeLine{00394         xMessage.u.xTimerParameters.xMessageValue = xOptionalValue;}
+\DoxyCodeLine{00395         xMessage.u.xTimerParameters.pxTimer = xTimer;}
+\DoxyCodeLine{00396 }
+\DoxyCodeLine{00397         \textcolor{keywordflow}{if}( xCommandID < tmrFIRST\_FROM\_ISR\_COMMAND )}
+\DoxyCodeLine{00398         \{}
+\DoxyCodeLine{00399             \textcolor{keywordflow}{if}( xTaskGetSchedulerState() == taskSCHEDULER\_RUNNING )}
+\DoxyCodeLine{00400             \{}
+\DoxyCodeLine{00401                 xReturn = xQueueSendToBack( xTimerQueue, \&xMessage, xTicksToWait );}
+\DoxyCodeLine{00402             \}}
+\DoxyCodeLine{00403             \textcolor{keywordflow}{else}}
+\DoxyCodeLine{00404             \{}
+\DoxyCodeLine{00405                 xReturn = xQueueSendToBack( xTimerQueue, \&xMessage, tmrNO\_DELAY );}
+\DoxyCodeLine{00406             \}}
+\DoxyCodeLine{00407         \}}
+\DoxyCodeLine{00408         \textcolor{keywordflow}{else}}
+\DoxyCodeLine{00409         \{}
+\DoxyCodeLine{00410             xReturn = xQueueSendToBackFromISR( xTimerQueue, \&xMessage, pxHigherPriorityTaskWoken );}
+\DoxyCodeLine{00411         \}}
+\DoxyCodeLine{00412 }
+\DoxyCodeLine{00413         traceTIMER\_COMMAND\_SEND( xTimer, xCommandID, xOptionalValue, xReturn );}
+\DoxyCodeLine{00414     \}}
+\DoxyCodeLine{00415     \textcolor{keywordflow}{else}}
+\DoxyCodeLine{00416     \{}
+\DoxyCodeLine{00417         mtCOVERAGE\_TEST\_MARKER();}
+\DoxyCodeLine{00418     \}}
+\DoxyCodeLine{00419 }
+\DoxyCodeLine{00420     \textcolor{keywordflow}{return} xReturn;}
+\DoxyCodeLine{00421 \}}
+\DoxyCodeLine{00422 \textcolor{comment}{/*-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/*/}}
+\DoxyCodeLine{00423 }
+\DoxyCodeLine{00424 TaskHandle\_t xTimerGetTimerDaemonTaskHandle( \textcolor{keywordtype}{void} )}
+\DoxyCodeLine{00425 \{}
+\DoxyCodeLine{00426     \textcolor{comment}{/* If xTimerGetTimerDaemonTaskHandle() is called before the scheduler has been}}
+\DoxyCodeLine{00427 \textcolor{comment}{    started, then xTimerTaskHandle will be NULL. */}}
+\DoxyCodeLine{00428     configASSERT( ( xTimerTaskHandle != NULL ) );}
+\DoxyCodeLine{00429     \textcolor{keywordflow}{return} xTimerTaskHandle;}
+\DoxyCodeLine{00430 \}}
+\DoxyCodeLine{00431 \textcolor{comment}{/*-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/*/}}
+\DoxyCodeLine{00432 }
+\DoxyCodeLine{00433 TickType\_t xTimerGetPeriod( TimerHandle\_t xTimer )}
+\DoxyCodeLine{00434 \{}
+\DoxyCodeLine{00435 Timer\_t *pxTimer = xTimer;}
+\DoxyCodeLine{00436 }
+\DoxyCodeLine{00437     configASSERT( xTimer );}
+\DoxyCodeLine{00438     \textcolor{keywordflow}{return} pxTimer-\/>xTimerPeriodInTicks;}
+\DoxyCodeLine{00439 \}}
+\DoxyCodeLine{00440 \textcolor{comment}{/*-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/*/}}
+\DoxyCodeLine{00441 }
+\DoxyCodeLine{00442 \textcolor{keywordtype}{void} vTimerSetReloadMode( TimerHandle\_t xTimer, \textcolor{keyword}{const} UBaseType\_t uxAutoReload )}
+\DoxyCodeLine{00443 \{}
+\DoxyCodeLine{00444 Timer\_t * pxTimer =  xTimer;}
+\DoxyCodeLine{00445 }
+\DoxyCodeLine{00446     configASSERT( xTimer );}
+\DoxyCodeLine{00447     taskENTER\_CRITICAL();}
+\DoxyCodeLine{00448     \{}
+\DoxyCodeLine{00449         \textcolor{keywordflow}{if}( uxAutoReload != pdFALSE )}
+\DoxyCodeLine{00450         \{}
+\DoxyCodeLine{00451             pxTimer-\/>ucStatus |= tmrSTATUS\_IS\_AUTORELOAD;}
+\DoxyCodeLine{00452         \}}
+\DoxyCodeLine{00453         \textcolor{keywordflow}{else}}
+\DoxyCodeLine{00454         \{}
+\DoxyCodeLine{00455             pxTimer-\/>ucStatus \&= \string~tmrSTATUS\_IS\_AUTORELOAD;}
+\DoxyCodeLine{00456         \}}
+\DoxyCodeLine{00457     \}}
+\DoxyCodeLine{00458     taskEXIT\_CRITICAL();}
+\DoxyCodeLine{00459 \}}
+\DoxyCodeLine{00460 \textcolor{comment}{/*-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/*/}}
+\DoxyCodeLine{00461 }
+\DoxyCodeLine{00462 TickType\_t xTimerGetExpiryTime( TimerHandle\_t xTimer )}
+\DoxyCodeLine{00463 \{}
+\DoxyCodeLine{00464 Timer\_t * pxTimer =  xTimer;}
+\DoxyCodeLine{00465 TickType\_t xReturn;}
+\DoxyCodeLine{00466 }
+\DoxyCodeLine{00467     configASSERT( xTimer );}
+\DoxyCodeLine{00468     xReturn = listGET\_LIST\_ITEM\_VALUE( \&( pxTimer-\/>xTimerListItem ) );}
+\DoxyCodeLine{00469     \textcolor{keywordflow}{return} xReturn;}
+\DoxyCodeLine{00470 \}}
+\DoxyCodeLine{00471 \textcolor{comment}{/*-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/*/}}
+\DoxyCodeLine{00472 }
+\DoxyCodeLine{00473 \textcolor{keyword}{const} \textcolor{keywordtype}{char} * pcTimerGetName( TimerHandle\_t xTimer ) \textcolor{comment}{/*lint !e971 Unqualified char types are allowed for strings and single characters only. */}}
+\DoxyCodeLine{00474 \{}
+\DoxyCodeLine{00475 Timer\_t *pxTimer = xTimer;}
+\DoxyCodeLine{00476 }
+\DoxyCodeLine{00477     configASSERT( xTimer );}
+\DoxyCodeLine{00478     \textcolor{keywordflow}{return} pxTimer-\/>pcTimerName;}
+\DoxyCodeLine{00479 \}}
+\DoxyCodeLine{00480 \textcolor{comment}{/*-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/*/}}
+\DoxyCodeLine{00481 }
+\DoxyCodeLine{00482 \textcolor{keyword}{static} \textcolor{keywordtype}{void} prvProcessExpiredTimer( \textcolor{keyword}{const} TickType\_t xNextExpireTime, \textcolor{keyword}{const} TickType\_t xTimeNow )}
+\DoxyCodeLine{00483 \{}
+\DoxyCodeLine{00484 BaseType\_t xResult;}
+\DoxyCodeLine{00485 Timer\_t * \textcolor{keyword}{const} pxTimer = ( Timer\_t * ) listGET\_OWNER\_OF\_HEAD\_ENTRY( pxCurrentTimerList ); \textcolor{comment}{/*lint !e9087 !e9079 void * is used as this macro is used with tasks and co-\/routines too.  Alignment is known to be fine as the type of the pointer stored and retrieved is the same. */}}
+\DoxyCodeLine{00486 }
+\DoxyCodeLine{00487     \textcolor{comment}{/* Remove the timer from the list of active timers.  A check has already}}
+\DoxyCodeLine{00488 \textcolor{comment}{    been performed to ensure the list is not empty. */}}
+\DoxyCodeLine{00489     ( void ) uxListRemove( \&( pxTimer-\/>xTimerListItem ) );}
+\DoxyCodeLine{00490     traceTIMER\_EXPIRED( pxTimer );}
+\DoxyCodeLine{00491 }
+\DoxyCodeLine{00492     \textcolor{comment}{/* If the timer is an auto reload timer then calculate the next}}
+\DoxyCodeLine{00493 \textcolor{comment}{    expiry time and re-\/insert the timer in the list of active timers. */}}
+\DoxyCodeLine{00494     \textcolor{keywordflow}{if}( ( pxTimer-\/>ucStatus \& tmrSTATUS\_IS\_AUTORELOAD ) != 0 )}
+\DoxyCodeLine{00495     \{}
+\DoxyCodeLine{00496         \textcolor{comment}{/* The timer is inserted into a list using a time relative to anything}}
+\DoxyCodeLine{00497 \textcolor{comment}{        other than the current time.  It will therefore be inserted into the}}
+\DoxyCodeLine{00498 \textcolor{comment}{        correct list relative to the time this task thinks it is now. */}}
+\DoxyCodeLine{00499         \textcolor{keywordflow}{if}( prvInsertTimerInActiveList( pxTimer, ( xNextExpireTime + pxTimer-\/>xTimerPeriodInTicks ), xTimeNow, xNextExpireTime ) != pdFALSE )}
+\DoxyCodeLine{00500         \{}
+\DoxyCodeLine{00501             \textcolor{comment}{/* The timer expired before it was added to the active timer}}
+\DoxyCodeLine{00502 \textcolor{comment}{            list.  Reload it now.  */}}
+\DoxyCodeLine{00503             xResult = xTimerGenericCommand( pxTimer, tmrCOMMAND\_START\_DONT\_TRACE, xNextExpireTime, NULL, tmrNO\_DELAY );}
+\DoxyCodeLine{00504             configASSERT( xResult );}
+\DoxyCodeLine{00505             ( void ) xResult;}
+\DoxyCodeLine{00506         \}}
+\DoxyCodeLine{00507         \textcolor{keywordflow}{else}}
+\DoxyCodeLine{00508         \{}
+\DoxyCodeLine{00509             mtCOVERAGE\_TEST\_MARKER();}
+\DoxyCodeLine{00510         \}}
+\DoxyCodeLine{00511     \}}
+\DoxyCodeLine{00512     \textcolor{keywordflow}{else}}
+\DoxyCodeLine{00513     \{}
+\DoxyCodeLine{00514         pxTimer-\/>ucStatus \&= \string~tmrSTATUS\_IS\_ACTIVE;}
+\DoxyCodeLine{00515         mtCOVERAGE\_TEST\_MARKER();}
+\DoxyCodeLine{00516     \}}
+\DoxyCodeLine{00517 }
+\DoxyCodeLine{00518     \textcolor{comment}{/* Call the timer callback. */}}
+\DoxyCodeLine{00519     pxTimer-\/>pxCallbackFunction( ( TimerHandle\_t ) pxTimer );}
+\DoxyCodeLine{00520 \}}
+\DoxyCodeLine{00521 \textcolor{comment}{/*-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/*/}}
+\DoxyCodeLine{00522 }
+\DoxyCodeLine{00523 \textcolor{keyword}{static} portTASK\_FUNCTION( prvTimerTask, pvParameters )}
+\DoxyCodeLine{00524 \{}
+\DoxyCodeLine{00525 TickType\_t xNextExpireTime;}
+\DoxyCodeLine{00526 BaseType\_t xListWasEmpty;}
+\DoxyCodeLine{00527 }
+\DoxyCodeLine{00528     \textcolor{comment}{/* Just to avoid compiler warnings. */}}
+\DoxyCodeLine{00529     ( void ) pvParameters;}
+\DoxyCodeLine{00530 }
+\DoxyCodeLine{00531 \textcolor{preprocessor}{    \#if( configUSE\_DAEMON\_TASK\_STARTUP\_HOOK == 1 )}}
+\DoxyCodeLine{00532     \{}
+\DoxyCodeLine{00533         \textcolor{keyword}{extern} \textcolor{keywordtype}{void} vApplicationDaemonTaskStartupHook( \textcolor{keywordtype}{void} );}
+\DoxyCodeLine{00534 }
+\DoxyCodeLine{00535         \textcolor{comment}{/* Allow the application writer to execute some code in the context of}}
+\DoxyCodeLine{00536 \textcolor{comment}{        this task at the point the task starts executing.  This is useful if the}}
+\DoxyCodeLine{00537 \textcolor{comment}{        application includes initialisation code that would benefit from}}
+\DoxyCodeLine{00538 \textcolor{comment}{        executing after the scheduler has been started. */}}
+\DoxyCodeLine{00539         vApplicationDaemonTaskStartupHook();}
+\DoxyCodeLine{00540     \}}
+\DoxyCodeLine{00541 \textcolor{preprocessor}{    \#endif }\textcolor{comment}{/* configUSE\_DAEMON\_TASK\_STARTUP\_HOOK */}\textcolor{preprocessor}{}}
+\DoxyCodeLine{00542 }
+\DoxyCodeLine{00543     \textcolor{keywordflow}{for}( ;; )}
+\DoxyCodeLine{00544     \{}
+\DoxyCodeLine{00545         \textcolor{comment}{/* Query the timers list to see if it contains any timers, and if so,}}
+\DoxyCodeLine{00546 \textcolor{comment}{        obtain the time at which the next timer will expire. */}}
+\DoxyCodeLine{00547         xNextExpireTime = prvGetNextExpireTime( \&xListWasEmpty );}
+\DoxyCodeLine{00548 }
+\DoxyCodeLine{00549         \textcolor{comment}{/* If a timer has expired, process it.  Otherwise, block this task}}
+\DoxyCodeLine{00550 \textcolor{comment}{        until either a timer does expire, or a command is received. */}}
+\DoxyCodeLine{00551         prvProcessTimerOrBlockTask( xNextExpireTime, xListWasEmpty );}
+\DoxyCodeLine{00552 }
+\DoxyCodeLine{00553         \textcolor{comment}{/* Empty the command queue. */}}
+\DoxyCodeLine{00554         prvProcessReceivedCommands();}
+\DoxyCodeLine{00555     \}}
+\DoxyCodeLine{00556 \}}
+\DoxyCodeLine{00557 \textcolor{comment}{/*-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/*/}}
+\DoxyCodeLine{00558 }
+\DoxyCodeLine{00559 \textcolor{keyword}{static} \textcolor{keywordtype}{void} prvProcessTimerOrBlockTask( \textcolor{keyword}{const} TickType\_t xNextExpireTime, BaseType\_t xListWasEmpty )}
+\DoxyCodeLine{00560 \{}
+\DoxyCodeLine{00561 TickType\_t xTimeNow;}
+\DoxyCodeLine{00562 BaseType\_t xTimerListsWereSwitched;}
+\DoxyCodeLine{00563 }
+\DoxyCodeLine{00564     vTaskSuspendAll();}
+\DoxyCodeLine{00565     \{}
+\DoxyCodeLine{00566         \textcolor{comment}{/* Obtain the time now to make an assessment as to whether the timer}}
+\DoxyCodeLine{00567 \textcolor{comment}{        has expired or not.  If obtaining the time causes the lists to switch}}
+\DoxyCodeLine{00568 \textcolor{comment}{        then don't process this timer as any timers that remained in the list}}
+\DoxyCodeLine{00569 \textcolor{comment}{        when the lists were switched will have been processed within the}}
+\DoxyCodeLine{00570 \textcolor{comment}{        prvSampleTimeNow() function. */}}
+\DoxyCodeLine{00571         xTimeNow = prvSampleTimeNow( \&xTimerListsWereSwitched );}
+\DoxyCodeLine{00572         \textcolor{keywordflow}{if}( xTimerListsWereSwitched == pdFALSE )}
+\DoxyCodeLine{00573         \{}
+\DoxyCodeLine{00574             \textcolor{comment}{/* The tick count has not overflowed, has the timer expired? */}}
+\DoxyCodeLine{00575             \textcolor{keywordflow}{if}( ( xListWasEmpty == pdFALSE ) \&\& ( xNextExpireTime <= xTimeNow ) )}
+\DoxyCodeLine{00576             \{}
+\DoxyCodeLine{00577                 ( void ) xTaskResumeAll();}
+\DoxyCodeLine{00578                 prvProcessExpiredTimer( xNextExpireTime, xTimeNow );}
+\DoxyCodeLine{00579             \}}
+\DoxyCodeLine{00580             \textcolor{keywordflow}{else}}
+\DoxyCodeLine{00581             \{}
+\DoxyCodeLine{00582                 \textcolor{comment}{/* The tick count has not overflowed, and the next expire}}
+\DoxyCodeLine{00583 \textcolor{comment}{                time has not been reached yet.  This task should therefore}}
+\DoxyCodeLine{00584 \textcolor{comment}{                block to wait for the next expire time or a command to be}}
+\DoxyCodeLine{00585 \textcolor{comment}{                received -\/ whichever comes first.  The following line cannot}}
+\DoxyCodeLine{00586 \textcolor{comment}{                be reached unless xNextExpireTime > xTimeNow, except in the}}
+\DoxyCodeLine{00587 \textcolor{comment}{                case when the current timer list is empty. */}}
+\DoxyCodeLine{00588                 \textcolor{keywordflow}{if}( xListWasEmpty != pdFALSE )}
+\DoxyCodeLine{00589                 \{}
+\DoxyCodeLine{00590                     \textcolor{comment}{/* The current timer list is empty -\/ is the overflow list}}
+\DoxyCodeLine{00591 \textcolor{comment}{                    also empty? */}}
+\DoxyCodeLine{00592                     xListWasEmpty = listLIST\_IS\_EMPTY( pxOverflowTimerList );}
+\DoxyCodeLine{00593                 \}}
+\DoxyCodeLine{00594 }
+\DoxyCodeLine{00595                 vQueueWaitForMessageRestricted( xTimerQueue, ( xNextExpireTime -\/ xTimeNow ), xListWasEmpty );}
+\DoxyCodeLine{00596 }
+\DoxyCodeLine{00597                 \textcolor{keywordflow}{if}( xTaskResumeAll() == pdFALSE )}
+\DoxyCodeLine{00598                 \{}
+\DoxyCodeLine{00599                     \textcolor{comment}{/* Yield to wait for either a command to arrive, or the}}
+\DoxyCodeLine{00600 \textcolor{comment}{                    block time to expire.  If a command arrived between the}}
+\DoxyCodeLine{00601 \textcolor{comment}{                    critical section being exited and this yield then the yield}}
+\DoxyCodeLine{00602 \textcolor{comment}{                    will not cause the task to block. */}}
+\DoxyCodeLine{00603                     portYIELD\_WITHIN\_API();}
+\DoxyCodeLine{00604                 \}}
+\DoxyCodeLine{00605                 \textcolor{keywordflow}{else}}
+\DoxyCodeLine{00606                 \{}
+\DoxyCodeLine{00607                     mtCOVERAGE\_TEST\_MARKER();}
+\DoxyCodeLine{00608                 \}}
+\DoxyCodeLine{00609             \}}
+\DoxyCodeLine{00610         \}}
+\DoxyCodeLine{00611         \textcolor{keywordflow}{else}}
+\DoxyCodeLine{00612         \{}
+\DoxyCodeLine{00613             ( void ) xTaskResumeAll();}
+\DoxyCodeLine{00614         \}}
+\DoxyCodeLine{00615     \}}
+\DoxyCodeLine{00616 \}}
+\DoxyCodeLine{00617 \textcolor{comment}{/*-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/*/}}
+\DoxyCodeLine{00618 }
+\DoxyCodeLine{00619 \textcolor{keyword}{static} TickType\_t prvGetNextExpireTime( BaseType\_t * \textcolor{keyword}{const} pxListWasEmpty )}
+\DoxyCodeLine{00620 \{}
+\DoxyCodeLine{00621 TickType\_t xNextExpireTime;}
+\DoxyCodeLine{00622 }
+\DoxyCodeLine{00623     \textcolor{comment}{/* Timers are listed in expiry time order, with the head of the list}}
+\DoxyCodeLine{00624 \textcolor{comment}{    referencing the task that will expire first.  Obtain the time at which}}
+\DoxyCodeLine{00625 \textcolor{comment}{    the timer with the nearest expiry time will expire.  If there are no}}
+\DoxyCodeLine{00626 \textcolor{comment}{    active timers then just set the next expire time to 0.  That will cause}}
+\DoxyCodeLine{00627 \textcolor{comment}{    this task to unblock when the tick count overflows, at which point the}}
+\DoxyCodeLine{00628 \textcolor{comment}{    timer lists will be switched and the next expiry time can be}}
+\DoxyCodeLine{00629 \textcolor{comment}{    re-\/assessed.  */}}
+\DoxyCodeLine{00630     *pxListWasEmpty = listLIST\_IS\_EMPTY( pxCurrentTimerList );}
+\DoxyCodeLine{00631     \textcolor{keywordflow}{if}( *pxListWasEmpty == pdFALSE )}
+\DoxyCodeLine{00632     \{}
+\DoxyCodeLine{00633         xNextExpireTime = listGET\_ITEM\_VALUE\_OF\_HEAD\_ENTRY( pxCurrentTimerList );}
+\DoxyCodeLine{00634     \}}
+\DoxyCodeLine{00635     \textcolor{keywordflow}{else}}
+\DoxyCodeLine{00636     \{}
+\DoxyCodeLine{00637         \textcolor{comment}{/* Ensure the task unblocks when the tick count rolls over. */}}
+\DoxyCodeLine{00638         xNextExpireTime = ( TickType\_t ) 0U;}
+\DoxyCodeLine{00639     \}}
+\DoxyCodeLine{00640 }
+\DoxyCodeLine{00641     \textcolor{keywordflow}{return} xNextExpireTime;}
+\DoxyCodeLine{00642 \}}
+\DoxyCodeLine{00643 \textcolor{comment}{/*-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/*/}}
+\DoxyCodeLine{00644 }
+\DoxyCodeLine{00645 \textcolor{keyword}{static} TickType\_t prvSampleTimeNow( BaseType\_t * \textcolor{keyword}{const} pxTimerListsWereSwitched )}
+\DoxyCodeLine{00646 \{}
+\DoxyCodeLine{00647 TickType\_t xTimeNow;}
+\DoxyCodeLine{00648 PRIVILEGED\_DATA \textcolor{keyword}{static} TickType\_t xLastTime = ( TickType\_t ) 0U; \textcolor{comment}{/*lint !e956 Variable is only accessible to one task. */}}
+\DoxyCodeLine{00649 }
+\DoxyCodeLine{00650     xTimeNow = xTaskGetTickCount();}
+\DoxyCodeLine{00651 }
+\DoxyCodeLine{00652     \textcolor{keywordflow}{if}( xTimeNow < xLastTime )}
+\DoxyCodeLine{00653     \{}
+\DoxyCodeLine{00654         prvSwitchTimerLists();}
+\DoxyCodeLine{00655         *pxTimerListsWereSwitched = pdTRUE;}
+\DoxyCodeLine{00656     \}}
+\DoxyCodeLine{00657     \textcolor{keywordflow}{else}}
+\DoxyCodeLine{00658     \{}
+\DoxyCodeLine{00659         *pxTimerListsWereSwitched = pdFALSE;}
+\DoxyCodeLine{00660     \}}
+\DoxyCodeLine{00661 }
+\DoxyCodeLine{00662     xLastTime = xTimeNow;}
+\DoxyCodeLine{00663 }
+\DoxyCodeLine{00664     \textcolor{keywordflow}{return} xTimeNow;}
+\DoxyCodeLine{00665 \}}
+\DoxyCodeLine{00666 \textcolor{comment}{/*-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/*/}}
+\DoxyCodeLine{00667 }
+\DoxyCodeLine{00668 \textcolor{keyword}{static} BaseType\_t prvInsertTimerInActiveList( Timer\_t * \textcolor{keyword}{const} pxTimer, \textcolor{keyword}{const} TickType\_t xNextExpiryTime, \textcolor{keyword}{const} TickType\_t xTimeNow, \textcolor{keyword}{const} TickType\_t xCommandTime )}
+\DoxyCodeLine{00669 \{}
+\DoxyCodeLine{00670 BaseType\_t xProcessTimerNow = pdFALSE;}
+\DoxyCodeLine{00671 }
+\DoxyCodeLine{00672     listSET\_LIST\_ITEM\_VALUE( \&( pxTimer-\/>xTimerListItem ), xNextExpiryTime );}
+\DoxyCodeLine{00673     listSET\_LIST\_ITEM\_OWNER( \&( pxTimer-\/>xTimerListItem ), pxTimer );}
+\DoxyCodeLine{00674 }
+\DoxyCodeLine{00675     \textcolor{keywordflow}{if}( xNextExpiryTime <= xTimeNow )}
+\DoxyCodeLine{00676     \{}
+\DoxyCodeLine{00677         \textcolor{comment}{/* Has the expiry time elapsed between the command to start/reset a}}
+\DoxyCodeLine{00678 \textcolor{comment}{        timer was issued, and the time the command was processed? */}}
+\DoxyCodeLine{00679         \textcolor{keywordflow}{if}( ( ( TickType\_t ) ( xTimeNow -\/ xCommandTime ) ) >= pxTimer-\/>xTimerPeriodInTicks ) \textcolor{comment}{/*lint !e961 MISRA exception as the casts are only redundant for some ports. */}}
+\DoxyCodeLine{00680         \{}
+\DoxyCodeLine{00681             \textcolor{comment}{/* The time between a command being issued and the command being}}
+\DoxyCodeLine{00682 \textcolor{comment}{            processed actually exceeds the timers period.  */}}
+\DoxyCodeLine{00683             xProcessTimerNow = pdTRUE;}
+\DoxyCodeLine{00684         \}}
+\DoxyCodeLine{00685         \textcolor{keywordflow}{else}}
+\DoxyCodeLine{00686         \{}
+\DoxyCodeLine{00687             vListInsert( pxOverflowTimerList, \&( pxTimer-\/>xTimerListItem ) );}
+\DoxyCodeLine{00688         \}}
+\DoxyCodeLine{00689     \}}
+\DoxyCodeLine{00690     \textcolor{keywordflow}{else}}
+\DoxyCodeLine{00691     \{}
+\DoxyCodeLine{00692         \textcolor{keywordflow}{if}( ( xTimeNow < xCommandTime ) \&\& ( xNextExpiryTime >= xCommandTime ) )}
+\DoxyCodeLine{00693         \{}
+\DoxyCodeLine{00694             \textcolor{comment}{/* If, since the command was issued, the tick count has overflowed}}
+\DoxyCodeLine{00695 \textcolor{comment}{            but the expiry time has not, then the timer must have already passed}}
+\DoxyCodeLine{00696 \textcolor{comment}{            its expiry time and should be processed immediately. */}}
+\DoxyCodeLine{00697             xProcessTimerNow = pdTRUE;}
+\DoxyCodeLine{00698         \}}
+\DoxyCodeLine{00699         \textcolor{keywordflow}{else}}
+\DoxyCodeLine{00700         \{}
+\DoxyCodeLine{00701             vListInsert( pxCurrentTimerList, \&( pxTimer-\/>xTimerListItem ) );}
+\DoxyCodeLine{00702         \}}
+\DoxyCodeLine{00703     \}}
+\DoxyCodeLine{00704 }
+\DoxyCodeLine{00705     \textcolor{keywordflow}{return} xProcessTimerNow;}
+\DoxyCodeLine{00706 \}}
+\DoxyCodeLine{00707 \textcolor{comment}{/*-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/*/}}
+\DoxyCodeLine{00708 }
+\DoxyCodeLine{00709 \textcolor{keyword}{static} \textcolor{keywordtype}{void} prvProcessReceivedCommands( \textcolor{keywordtype}{void} )}
+\DoxyCodeLine{00710 \{}
+\DoxyCodeLine{00711 DaemonTaskMessage\_t xMessage;}
+\DoxyCodeLine{00712 Timer\_t *pxTimer;}
+\DoxyCodeLine{00713 BaseType\_t xTimerListsWereSwitched, xResult;}
+\DoxyCodeLine{00714 TickType\_t xTimeNow;}
+\DoxyCodeLine{00715 }
+\DoxyCodeLine{00716     \textcolor{keywordflow}{while}( xQueueReceive( xTimerQueue, \&xMessage, tmrNO\_DELAY ) != pdFAIL ) \textcolor{comment}{/*lint !e603 xMessage does not have to be initialised as it is passed out, not in, and it is not used unless xQueueReceive() returns pdTRUE. */}}
+\DoxyCodeLine{00717     \{}
+\DoxyCodeLine{00718 \textcolor{preprocessor}{        \#if ( INCLUDE\_xTimerPendFunctionCall == 1 )}}
+\DoxyCodeLine{00719         \{}
+\DoxyCodeLine{00720             \textcolor{comment}{/* Negative commands are pended function calls rather than timer}}
+\DoxyCodeLine{00721 \textcolor{comment}{            commands. */}}
+\DoxyCodeLine{00722             \textcolor{keywordflow}{if}( xMessage.xMessageID < ( BaseType\_t ) 0 )}
+\DoxyCodeLine{00723             \{}
+\DoxyCodeLine{00724                 \textcolor{keyword}{const} CallbackParameters\_t * \textcolor{keyword}{const} pxCallback = \&( xMessage.u.xCallbackParameters );}
+\DoxyCodeLine{00725 }
+\DoxyCodeLine{00726                 \textcolor{comment}{/* The timer uses the xCallbackParameters member to request a}}
+\DoxyCodeLine{00727 \textcolor{comment}{                callback be executed.  Check the callback is not NULL. */}}
+\DoxyCodeLine{00728                 configASSERT( pxCallback );}
+\DoxyCodeLine{00729 }
+\DoxyCodeLine{00730                 \textcolor{comment}{/* Call the function. */}}
+\DoxyCodeLine{00731                 pxCallback-\/>pxCallbackFunction( pxCallback-\/>pvParameter1, pxCallback-\/>ulParameter2 );}
+\DoxyCodeLine{00732             \}}
+\DoxyCodeLine{00733             \textcolor{keywordflow}{else}}
+\DoxyCodeLine{00734             \{}
+\DoxyCodeLine{00735                 mtCOVERAGE\_TEST\_MARKER();}
+\DoxyCodeLine{00736             \}}
+\DoxyCodeLine{00737         \}}
+\DoxyCodeLine{00738 \textcolor{preprocessor}{        \#endif }\textcolor{comment}{/* INCLUDE\_xTimerPendFunctionCall */}\textcolor{preprocessor}{}}
+\DoxyCodeLine{00739 }
+\DoxyCodeLine{00740         \textcolor{comment}{/* Commands that are positive are timer commands rather than pended}}
+\DoxyCodeLine{00741 \textcolor{comment}{        function calls. */}}
+\DoxyCodeLine{00742         \textcolor{keywordflow}{if}( xMessage.xMessageID >= ( BaseType\_t ) 0 )}
+\DoxyCodeLine{00743         \{}
+\DoxyCodeLine{00744             \textcolor{comment}{/* The messages uses the xTimerParameters member to work on a}}
+\DoxyCodeLine{00745 \textcolor{comment}{            software timer. */}}
+\DoxyCodeLine{00746             pxTimer = xMessage.u.xTimerParameters.pxTimer;}
+\DoxyCodeLine{00747 }
+\DoxyCodeLine{00748             \textcolor{keywordflow}{if}( listIS\_CONTAINED\_WITHIN( NULL, \&( pxTimer-\/>xTimerListItem ) ) == pdFALSE ) \textcolor{comment}{/*lint !e961. The cast is only redundant when NULL is passed into the macro. */}}
+\DoxyCodeLine{00749             \{}
+\DoxyCodeLine{00750                 \textcolor{comment}{/* The timer is in a list, remove it. */}}
+\DoxyCodeLine{00751                 ( void ) uxListRemove( \&( pxTimer-\/>xTimerListItem ) );}
+\DoxyCodeLine{00752             \}}
+\DoxyCodeLine{00753             \textcolor{keywordflow}{else}}
+\DoxyCodeLine{00754             \{}
+\DoxyCodeLine{00755                 mtCOVERAGE\_TEST\_MARKER();}
+\DoxyCodeLine{00756             \}}
+\DoxyCodeLine{00757 }
+\DoxyCodeLine{00758             traceTIMER\_COMMAND\_RECEIVED( pxTimer, xMessage.xMessageID, xMessage.u.xTimerParameters.xMessageValue );}
+\DoxyCodeLine{00759 }
+\DoxyCodeLine{00760             \textcolor{comment}{/* In this case the xTimerListsWereSwitched parameter is not used, but}}
+\DoxyCodeLine{00761 \textcolor{comment}{            it must be present in the function call.  prvSampleTimeNow() must be}}
+\DoxyCodeLine{00762 \textcolor{comment}{            called after the message is received from xTimerQueue so there is no}}
+\DoxyCodeLine{00763 \textcolor{comment}{            possibility of a higher priority task adding a message to the message}}
+\DoxyCodeLine{00764 \textcolor{comment}{            queue with a time that is ahead of the timer daemon task (because it}}
+\DoxyCodeLine{00765 \textcolor{comment}{            pre-\/empted the timer daemon task after the xTimeNow value was set). */}}
+\DoxyCodeLine{00766             xTimeNow = prvSampleTimeNow( \&xTimerListsWereSwitched );}
+\DoxyCodeLine{00767 }
+\DoxyCodeLine{00768             \textcolor{keywordflow}{switch}( xMessage.xMessageID )}
+\DoxyCodeLine{00769             \{}
+\DoxyCodeLine{00770                 \textcolor{keywordflow}{case} tmrCOMMAND\_START :}
+\DoxyCodeLine{00771                 \textcolor{keywordflow}{case} tmrCOMMAND\_START\_FROM\_ISR :}
+\DoxyCodeLine{00772                 \textcolor{keywordflow}{case} tmrCOMMAND\_RESET :}
+\DoxyCodeLine{00773                 \textcolor{keywordflow}{case} tmrCOMMAND\_RESET\_FROM\_ISR :}
+\DoxyCodeLine{00774                 \textcolor{keywordflow}{case} tmrCOMMAND\_START\_DONT\_TRACE :}
+\DoxyCodeLine{00775                     \textcolor{comment}{/* Start or restart a timer. */}}
+\DoxyCodeLine{00776                     pxTimer-\/>ucStatus |= tmrSTATUS\_IS\_ACTIVE;}
+\DoxyCodeLine{00777                     \textcolor{keywordflow}{if}( prvInsertTimerInActiveList( pxTimer,  xMessage.u.xTimerParameters.xMessageValue + pxTimer-\/>xTimerPeriodInTicks, xTimeNow, xMessage.u.xTimerParameters.xMessageValue ) != pdFALSE )}
+\DoxyCodeLine{00778                     \{}
+\DoxyCodeLine{00779                         \textcolor{comment}{/* The timer expired before it was added to the active}}
+\DoxyCodeLine{00780 \textcolor{comment}{                        timer list.  Process it now. */}}
+\DoxyCodeLine{00781                         pxTimer-\/>pxCallbackFunction( ( TimerHandle\_t ) pxTimer );}
+\DoxyCodeLine{00782                         traceTIMER\_EXPIRED( pxTimer );}
+\DoxyCodeLine{00783 }
+\DoxyCodeLine{00784                         \textcolor{keywordflow}{if}( ( pxTimer-\/>ucStatus \& tmrSTATUS\_IS\_AUTORELOAD ) != 0 )}
+\DoxyCodeLine{00785                         \{}
+\DoxyCodeLine{00786                             xResult = xTimerGenericCommand( pxTimer, tmrCOMMAND\_START\_DONT\_TRACE, xMessage.u.xTimerParameters.xMessageValue + pxTimer-\/>xTimerPeriodInTicks, NULL, tmrNO\_DELAY );}
+\DoxyCodeLine{00787                             configASSERT( xResult );}
+\DoxyCodeLine{00788                             ( void ) xResult;}
+\DoxyCodeLine{00789                         \}}
+\DoxyCodeLine{00790                         \textcolor{keywordflow}{else}}
+\DoxyCodeLine{00791                         \{}
+\DoxyCodeLine{00792                             mtCOVERAGE\_TEST\_MARKER();}
+\DoxyCodeLine{00793                         \}}
+\DoxyCodeLine{00794                     \}}
+\DoxyCodeLine{00795                     \textcolor{keywordflow}{else}}
+\DoxyCodeLine{00796                     \{}
+\DoxyCodeLine{00797                         mtCOVERAGE\_TEST\_MARKER();}
+\DoxyCodeLine{00798                     \}}
+\DoxyCodeLine{00799                     \textcolor{keywordflow}{break};}
+\DoxyCodeLine{00800 }
+\DoxyCodeLine{00801                 \textcolor{keywordflow}{case} tmrCOMMAND\_STOP :}
+\DoxyCodeLine{00802                 \textcolor{keywordflow}{case} tmrCOMMAND\_STOP\_FROM\_ISR :}
+\DoxyCodeLine{00803                     \textcolor{comment}{/* The timer has already been removed from the active list. */}}
+\DoxyCodeLine{00804                     pxTimer-\/>ucStatus \&= \string~tmrSTATUS\_IS\_ACTIVE;}
+\DoxyCodeLine{00805                     \textcolor{keywordflow}{break};}
+\DoxyCodeLine{00806 }
+\DoxyCodeLine{00807                 \textcolor{keywordflow}{case} tmrCOMMAND\_CHANGE\_PERIOD :}
+\DoxyCodeLine{00808                 \textcolor{keywordflow}{case} tmrCOMMAND\_CHANGE\_PERIOD\_FROM\_ISR :}
+\DoxyCodeLine{00809                     pxTimer-\/>ucStatus |= tmrSTATUS\_IS\_ACTIVE;}
+\DoxyCodeLine{00810                     pxTimer-\/>xTimerPeriodInTicks = xMessage.u.xTimerParameters.xMessageValue;}
+\DoxyCodeLine{00811                     configASSERT( ( pxTimer-\/>xTimerPeriodInTicks > 0 ) );}
+\DoxyCodeLine{00812 }
+\DoxyCodeLine{00813                     \textcolor{comment}{/* The new period does not really have a reference, and can}}
+\DoxyCodeLine{00814 \textcolor{comment}{                    be longer or shorter than the old one.  The command time is}}
+\DoxyCodeLine{00815 \textcolor{comment}{                    therefore set to the current time, and as the period cannot}}
+\DoxyCodeLine{00816 \textcolor{comment}{                    be zero the next expiry time can only be in the future,}}
+\DoxyCodeLine{00817 \textcolor{comment}{                    meaning (unlike for the xTimerStart() case above) there is}}
+\DoxyCodeLine{00818 \textcolor{comment}{                    no fail case that needs to be handled here. */}}
+\DoxyCodeLine{00819                     ( void ) prvInsertTimerInActiveList( pxTimer, ( xTimeNow + pxTimer-\/>xTimerPeriodInTicks ), xTimeNow, xTimeNow );}
+\DoxyCodeLine{00820                     \textcolor{keywordflow}{break};}
+\DoxyCodeLine{00821 }
+\DoxyCodeLine{00822                 \textcolor{keywordflow}{case} tmrCOMMAND\_DELETE :}
+\DoxyCodeLine{00823 \textcolor{preprocessor}{                    \#if ( configSUPPORT\_DYNAMIC\_ALLOCATION == 1 )}}
+\DoxyCodeLine{00824                     \{}
+\DoxyCodeLine{00825                         \textcolor{comment}{/* The timer has already been removed from the active list,}}
+\DoxyCodeLine{00826 \textcolor{comment}{                        just free up the memory if the memory was dynamically}}
+\DoxyCodeLine{00827 \textcolor{comment}{                        allocated. */}}
+\DoxyCodeLine{00828                         \textcolor{keywordflow}{if}( ( pxTimer-\/>ucStatus \& tmrSTATUS\_IS\_STATICALLY\_ALLOCATED ) == ( uint8\_t ) 0 )}
+\DoxyCodeLine{00829                         \{}
+\DoxyCodeLine{00830                             vPortFree( pxTimer );}
+\DoxyCodeLine{00831                         \}}
+\DoxyCodeLine{00832                         \textcolor{keywordflow}{else}}
+\DoxyCodeLine{00833                         \{}
+\DoxyCodeLine{00834                             pxTimer-\/>ucStatus \&= \string~tmrSTATUS\_IS\_ACTIVE;}
+\DoxyCodeLine{00835                         \}}
+\DoxyCodeLine{00836                     \}}
+\DoxyCodeLine{00837 \textcolor{preprocessor}{                    \#else}}
+\DoxyCodeLine{00838                     \{}
+\DoxyCodeLine{00839                         \textcolor{comment}{/* If dynamic allocation is not enabled, the memory}}
+\DoxyCodeLine{00840 \textcolor{comment}{                        could not have been dynamically allocated. So there is}}
+\DoxyCodeLine{00841 \textcolor{comment}{                        no need to free the memory -\/ just mark the timer as}}
+\DoxyCodeLine{00842 \textcolor{comment}{                        "{}not active"{}. */}}
+\DoxyCodeLine{00843                         pxTimer-\/>ucStatus \&= \string~tmrSTATUS\_IS\_ACTIVE;}
+\DoxyCodeLine{00844                     \}}
+\DoxyCodeLine{00845 \textcolor{preprocessor}{                    \#endif }\textcolor{comment}{/* configSUPPORT\_DYNAMIC\_ALLOCATION */}\textcolor{preprocessor}{}}
+\DoxyCodeLine{00846                     \textcolor{keywordflow}{break};}
+\DoxyCodeLine{00847 }
+\DoxyCodeLine{00848                 default :}
+\DoxyCodeLine{00849                     \textcolor{comment}{/* Don't expect to get here. */}}
+\DoxyCodeLine{00850                     \textcolor{keywordflow}{break};}
+\DoxyCodeLine{00851             \}}
+\DoxyCodeLine{00852         \}}
+\DoxyCodeLine{00853     \}}
+\DoxyCodeLine{00854 \}}
+\DoxyCodeLine{00855 \textcolor{comment}{/*-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/*/}}
+\DoxyCodeLine{00856 }
+\DoxyCodeLine{00857 \textcolor{keyword}{static} \textcolor{keywordtype}{void} prvSwitchTimerLists( \textcolor{keywordtype}{void} )}
+\DoxyCodeLine{00858 \{}
+\DoxyCodeLine{00859 TickType\_t xNextExpireTime, xReloadTime;}
+\DoxyCodeLine{00860 List\_t *pxTemp;}
+\DoxyCodeLine{00861 Timer\_t *pxTimer;}
+\DoxyCodeLine{00862 BaseType\_t xResult;}
+\DoxyCodeLine{00863 }
+\DoxyCodeLine{00864     \textcolor{comment}{/* The tick count has overflowed.  The timer lists must be switched.}}
+\DoxyCodeLine{00865 \textcolor{comment}{    If there are any timers still referenced from the current timer list}}
+\DoxyCodeLine{00866 \textcolor{comment}{    then they must have expired and should be processed before the lists}}
+\DoxyCodeLine{00867 \textcolor{comment}{    are switched. */}}
+\DoxyCodeLine{00868     \textcolor{keywordflow}{while}( listLIST\_IS\_EMPTY( pxCurrentTimerList ) == pdFALSE )}
+\DoxyCodeLine{00869     \{}
+\DoxyCodeLine{00870         xNextExpireTime = listGET\_ITEM\_VALUE\_OF\_HEAD\_ENTRY( pxCurrentTimerList );}
+\DoxyCodeLine{00871 }
+\DoxyCodeLine{00872         \textcolor{comment}{/* Remove the timer from the list. */}}
+\DoxyCodeLine{00873         pxTimer = ( Timer\_t * ) listGET\_OWNER\_OF\_HEAD\_ENTRY( pxCurrentTimerList ); \textcolor{comment}{/*lint !e9087 !e9079 void * is used as this macro is used with tasks and co-\/routines too.  Alignment is known to be fine as the type of the pointer stored and retrieved is the same. */}}
+\DoxyCodeLine{00874         ( void ) uxListRemove( \&( pxTimer-\/>xTimerListItem ) );}
+\DoxyCodeLine{00875         traceTIMER\_EXPIRED( pxTimer );}
+\DoxyCodeLine{00876 }
+\DoxyCodeLine{00877         \textcolor{comment}{/* Execute its callback, then send a command to restart the timer if}}
+\DoxyCodeLine{00878 \textcolor{comment}{        it is an auto-\/reload timer.  It cannot be restarted here as the lists}}
+\DoxyCodeLine{00879 \textcolor{comment}{        have not yet been switched. */}}
+\DoxyCodeLine{00880         pxTimer-\/>pxCallbackFunction( ( TimerHandle\_t ) pxTimer );}
+\DoxyCodeLine{00881 }
+\DoxyCodeLine{00882         \textcolor{keywordflow}{if}( ( pxTimer-\/>ucStatus \& tmrSTATUS\_IS\_AUTORELOAD ) != 0 )}
+\DoxyCodeLine{00883         \{}
+\DoxyCodeLine{00884             \textcolor{comment}{/* Calculate the reload value, and if the reload value results in}}
+\DoxyCodeLine{00885 \textcolor{comment}{            the timer going into the same timer list then it has already expired}}
+\DoxyCodeLine{00886 \textcolor{comment}{            and the timer should be re-\/inserted into the current list so it is}}
+\DoxyCodeLine{00887 \textcolor{comment}{            processed again within this loop.  Otherwise a command should be sent}}
+\DoxyCodeLine{00888 \textcolor{comment}{            to restart the timer to ensure it is only inserted into a list after}}
+\DoxyCodeLine{00889 \textcolor{comment}{            the lists have been swapped. */}}
+\DoxyCodeLine{00890             xReloadTime = ( xNextExpireTime + pxTimer-\/>xTimerPeriodInTicks );}
+\DoxyCodeLine{00891             \textcolor{keywordflow}{if}( xReloadTime > xNextExpireTime )}
+\DoxyCodeLine{00892             \{}
+\DoxyCodeLine{00893                 listSET\_LIST\_ITEM\_VALUE( \&( pxTimer-\/>xTimerListItem ), xReloadTime );}
+\DoxyCodeLine{00894                 listSET\_LIST\_ITEM\_OWNER( \&( pxTimer-\/>xTimerListItem ), pxTimer );}
+\DoxyCodeLine{00895                 vListInsert( pxCurrentTimerList, \&( pxTimer-\/>xTimerListItem ) );}
+\DoxyCodeLine{00896             \}}
+\DoxyCodeLine{00897             \textcolor{keywordflow}{else}}
+\DoxyCodeLine{00898             \{}
+\DoxyCodeLine{00899                 xResult = xTimerGenericCommand( pxTimer, tmrCOMMAND\_START\_DONT\_TRACE, xNextExpireTime, NULL, tmrNO\_DELAY );}
+\DoxyCodeLine{00900                 configASSERT( xResult );}
+\DoxyCodeLine{00901                 ( void ) xResult;}
+\DoxyCodeLine{00902             \}}
+\DoxyCodeLine{00903         \}}
+\DoxyCodeLine{00904         \textcolor{keywordflow}{else}}
+\DoxyCodeLine{00905         \{}
+\DoxyCodeLine{00906             mtCOVERAGE\_TEST\_MARKER();}
+\DoxyCodeLine{00907         \}}
+\DoxyCodeLine{00908     \}}
+\DoxyCodeLine{00909 }
+\DoxyCodeLine{00910     pxTemp = pxCurrentTimerList;}
+\DoxyCodeLine{00911     pxCurrentTimerList = pxOverflowTimerList;}
+\DoxyCodeLine{00912     pxOverflowTimerList = pxTemp;}
+\DoxyCodeLine{00913 \}}
+\DoxyCodeLine{00914 \textcolor{comment}{/*-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/*/}}
+\DoxyCodeLine{00915 }
+\DoxyCodeLine{00916 \textcolor{keyword}{static} \textcolor{keywordtype}{void} prvCheckForValidListAndQueue( \textcolor{keywordtype}{void} )}
+\DoxyCodeLine{00917 \{}
+\DoxyCodeLine{00918     \textcolor{comment}{/* Check that the list from which active timers are referenced, and the}}
+\DoxyCodeLine{00919 \textcolor{comment}{    queue used to communicate with the timer service, have been}}
+\DoxyCodeLine{00920 \textcolor{comment}{    initialised. */}}
+\DoxyCodeLine{00921     taskENTER\_CRITICAL();}
+\DoxyCodeLine{00922     \{}
+\DoxyCodeLine{00923         \textcolor{keywordflow}{if}( xTimerQueue == NULL )}
+\DoxyCodeLine{00924         \{}
+\DoxyCodeLine{00925             vListInitialise( \&xActiveTimerList1 );}
+\DoxyCodeLine{00926             vListInitialise( \&xActiveTimerList2 );}
+\DoxyCodeLine{00927             pxCurrentTimerList = \&xActiveTimerList1;}
+\DoxyCodeLine{00928             pxOverflowTimerList = \&xActiveTimerList2;}
+\DoxyCodeLine{00929 }
+\DoxyCodeLine{00930 \textcolor{preprocessor}{            \#if( configSUPPORT\_STATIC\_ALLOCATION == 1 )}}
+\DoxyCodeLine{00931             \{}
+\DoxyCodeLine{00932                 \textcolor{comment}{/* The timer queue is allocated statically in case}}
+\DoxyCodeLine{00933 \textcolor{comment}{                configSUPPORT\_DYNAMIC\_ALLOCATION is 0. */}}
+\DoxyCodeLine{00934                 \textcolor{keyword}{static} StaticQueue\_t xStaticTimerQueue; \textcolor{comment}{/*lint !e956 Ok to declare in this manner to prevent additional conditional compilation guards in other locations. */}}
+\DoxyCodeLine{00935                 \textcolor{keyword}{static} uint8\_t ucStaticTimerQueueStorage[ ( size\_t ) configTIMER\_QUEUE\_LENGTH * \textcolor{keyword}{sizeof}( DaemonTaskMessage\_t ) ]; \textcolor{comment}{/*lint !e956 Ok to declare in this manner to prevent additional conditional compilation guards in other locations. */}}
+\DoxyCodeLine{00936 }
+\DoxyCodeLine{00937                 xTimerQueue = xQueueCreateStatic( ( UBaseType\_t ) configTIMER\_QUEUE\_LENGTH, ( UBaseType\_t ) \textcolor{keyword}{sizeof}( DaemonTaskMessage\_t ), \&( ucStaticTimerQueueStorage[ 0 ] ), \&xStaticTimerQueue );}
+\DoxyCodeLine{00938             \}}
+\DoxyCodeLine{00939 \textcolor{preprocessor}{            \#else}}
+\DoxyCodeLine{00940             \{}
+\DoxyCodeLine{00941                 xTimerQueue = xQueueCreate( ( UBaseType\_t ) configTIMER\_QUEUE\_LENGTH, \textcolor{keyword}{sizeof}( DaemonTaskMessage\_t ) );}
+\DoxyCodeLine{00942             \}}
+\DoxyCodeLine{00943 \textcolor{preprocessor}{            \#endif}}
+\DoxyCodeLine{00944 }
+\DoxyCodeLine{00945 \textcolor{preprocessor}{            \#if ( configQUEUE\_REGISTRY\_SIZE > 0 )}}
+\DoxyCodeLine{00946             \{}
+\DoxyCodeLine{00947                 \textcolor{keywordflow}{if}( xTimerQueue != NULL )}
+\DoxyCodeLine{00948                 \{}
+\DoxyCodeLine{00949                     vQueueAddToRegistry( xTimerQueue, \textcolor{stringliteral}{"{}TmrQ"{}} );}
+\DoxyCodeLine{00950                 \}}
+\DoxyCodeLine{00951                 \textcolor{keywordflow}{else}}
+\DoxyCodeLine{00952                 \{}
+\DoxyCodeLine{00953                     mtCOVERAGE\_TEST\_MARKER();}
+\DoxyCodeLine{00954                 \}}
+\DoxyCodeLine{00955             \}}
+\DoxyCodeLine{00956 \textcolor{preprocessor}{            \#endif }\textcolor{comment}{/* configQUEUE\_REGISTRY\_SIZE */}\textcolor{preprocessor}{}}
+\DoxyCodeLine{00957         \}}
+\DoxyCodeLine{00958         \textcolor{keywordflow}{else}}
+\DoxyCodeLine{00959         \{}
+\DoxyCodeLine{00960             mtCOVERAGE\_TEST\_MARKER();}
+\DoxyCodeLine{00961         \}}
+\DoxyCodeLine{00962     \}}
+\DoxyCodeLine{00963     taskEXIT\_CRITICAL();}
+\DoxyCodeLine{00964 \}}
+\DoxyCodeLine{00965 \textcolor{comment}{/*-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/*/}}
+\DoxyCodeLine{00966 }
+\DoxyCodeLine{00967 BaseType\_t xTimerIsTimerActive( TimerHandle\_t xTimer )}
+\DoxyCodeLine{00968 \{}
+\DoxyCodeLine{00969 BaseType\_t xReturn;}
+\DoxyCodeLine{00970 Timer\_t *pxTimer = xTimer;}
+\DoxyCodeLine{00971 }
+\DoxyCodeLine{00972     configASSERT( xTimer );}
+\DoxyCodeLine{00973 }
+\DoxyCodeLine{00974     \textcolor{comment}{/* Is the timer in the list of active timers? */}}
+\DoxyCodeLine{00975     taskENTER\_CRITICAL();}
+\DoxyCodeLine{00976     \{}
+\DoxyCodeLine{00977         \textcolor{keywordflow}{if}( ( pxTimer-\/>ucStatus \& tmrSTATUS\_IS\_ACTIVE ) == 0 )}
+\DoxyCodeLine{00978         \{}
+\DoxyCodeLine{00979             xReturn = pdFALSE;}
+\DoxyCodeLine{00980         \}}
+\DoxyCodeLine{00981         \textcolor{keywordflow}{else}}
+\DoxyCodeLine{00982         \{}
+\DoxyCodeLine{00983             xReturn = pdTRUE;}
+\DoxyCodeLine{00984         \}}
+\DoxyCodeLine{00985     \}}
+\DoxyCodeLine{00986     taskEXIT\_CRITICAL();}
+\DoxyCodeLine{00987 }
+\DoxyCodeLine{00988     \textcolor{keywordflow}{return} xReturn;}
+\DoxyCodeLine{00989 \} \textcolor{comment}{/*lint !e818 Can't be pointer to const due to the typedef. */}}
+\DoxyCodeLine{00990 \textcolor{comment}{/*-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/*/}}
+\DoxyCodeLine{00991 }
+\DoxyCodeLine{00992 \textcolor{keywordtype}{void} *pvTimerGetTimerID( \textcolor{keyword}{const} TimerHandle\_t xTimer )}
+\DoxyCodeLine{00993 \{}
+\DoxyCodeLine{00994 Timer\_t * \textcolor{keyword}{const} pxTimer = xTimer;}
+\DoxyCodeLine{00995 \textcolor{keywordtype}{void} *pvReturn;}
+\DoxyCodeLine{00996 }
+\DoxyCodeLine{00997     configASSERT( xTimer );}
+\DoxyCodeLine{00998 }
+\DoxyCodeLine{00999     taskENTER\_CRITICAL();}
+\DoxyCodeLine{01000     \{}
+\DoxyCodeLine{01001         pvReturn = pxTimer-\/>pvTimerID;}
+\DoxyCodeLine{01002     \}}
+\DoxyCodeLine{01003     taskEXIT\_CRITICAL();}
+\DoxyCodeLine{01004 }
+\DoxyCodeLine{01005     \textcolor{keywordflow}{return} pvReturn;}
+\DoxyCodeLine{01006 \}}
+\DoxyCodeLine{01007 \textcolor{comment}{/*-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/*/}}
+\DoxyCodeLine{01008 }
+\DoxyCodeLine{01009 \textcolor{keywordtype}{void} vTimerSetTimerID( TimerHandle\_t xTimer, \textcolor{keywordtype}{void} *pvNewID )}
+\DoxyCodeLine{01010 \{}
+\DoxyCodeLine{01011 Timer\_t * \textcolor{keyword}{const} pxTimer = xTimer;}
+\DoxyCodeLine{01012 }
+\DoxyCodeLine{01013     configASSERT( xTimer );}
+\DoxyCodeLine{01014 }
+\DoxyCodeLine{01015     taskENTER\_CRITICAL();}
+\DoxyCodeLine{01016     \{}
+\DoxyCodeLine{01017         pxTimer-\/>pvTimerID = pvNewID;}
+\DoxyCodeLine{01018     \}}
+\DoxyCodeLine{01019     taskEXIT\_CRITICAL();}
+\DoxyCodeLine{01020 \}}
+\DoxyCodeLine{01021 \textcolor{comment}{/*-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/*/}}
+\DoxyCodeLine{01022 }
+\DoxyCodeLine{01023 \textcolor{preprocessor}{\#if( INCLUDE\_xTimerPendFunctionCall == 1 )}}
+\DoxyCodeLine{01024 }
+\DoxyCodeLine{01025     BaseType\_t xTimerPendFunctionCallFromISR( PendedFunction\_t xFunctionToPend, \textcolor{keywordtype}{void} *pvParameter1, uint32\_t ulParameter2, BaseType\_t *pxHigherPriorityTaskWoken )}
+\DoxyCodeLine{01026     \{}
+\DoxyCodeLine{01027     DaemonTaskMessage\_t xMessage;}
+\DoxyCodeLine{01028     BaseType\_t xReturn;}
+\DoxyCodeLine{01029 }
+\DoxyCodeLine{01030         \textcolor{comment}{/* Complete the message with the function parameters and post it to the}}
+\DoxyCodeLine{01031 \textcolor{comment}{        daemon task. */}}
+\DoxyCodeLine{01032         xMessage.xMessageID = tmrCOMMAND\_EXECUTE\_CALLBACK\_FROM\_ISR;}
+\DoxyCodeLine{01033         xMessage.u.xCallbackParameters.pxCallbackFunction = xFunctionToPend;}
+\DoxyCodeLine{01034         xMessage.u.xCallbackParameters.pvParameter1 = pvParameter1;}
+\DoxyCodeLine{01035         xMessage.u.xCallbackParameters.ulParameter2 = ulParameter2;}
+\DoxyCodeLine{01036 }
+\DoxyCodeLine{01037         xReturn = xQueueSendFromISR( xTimerQueue, \&xMessage, pxHigherPriorityTaskWoken );}
+\DoxyCodeLine{01038 }
+\DoxyCodeLine{01039         tracePEND\_FUNC\_CALL\_FROM\_ISR( xFunctionToPend, pvParameter1, ulParameter2, xReturn );}
+\DoxyCodeLine{01040 }
+\DoxyCodeLine{01041         \textcolor{keywordflow}{return} xReturn;}
+\DoxyCodeLine{01042     \}}
+\DoxyCodeLine{01043 }
+\DoxyCodeLine{01044 \textcolor{preprocessor}{\#endif }\textcolor{comment}{/* INCLUDE\_xTimerPendFunctionCall */}\textcolor{preprocessor}{}}
+\DoxyCodeLine{01045 \textcolor{comment}{/*-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/*/}}
+\DoxyCodeLine{01046 }
+\DoxyCodeLine{01047 \textcolor{preprocessor}{\#if( INCLUDE\_xTimerPendFunctionCall == 1 )}}
+\DoxyCodeLine{01048 }
+\DoxyCodeLine{01049     BaseType\_t xTimerPendFunctionCall( PendedFunction\_t xFunctionToPend, \textcolor{keywordtype}{void} *pvParameter1, uint32\_t ulParameter2, TickType\_t xTicksToWait )}
+\DoxyCodeLine{01050     \{}
+\DoxyCodeLine{01051     DaemonTaskMessage\_t xMessage;}
+\DoxyCodeLine{01052     BaseType\_t xReturn;}
+\DoxyCodeLine{01053 }
+\DoxyCodeLine{01054         \textcolor{comment}{/* This function can only be called after a timer has been created or}}
+\DoxyCodeLine{01055 \textcolor{comment}{        after the scheduler has been started because, until then, the timer}}
+\DoxyCodeLine{01056 \textcolor{comment}{        queue does not exist. */}}
+\DoxyCodeLine{01057         configASSERT( xTimerQueue );}
+\DoxyCodeLine{01058 }
+\DoxyCodeLine{01059         \textcolor{comment}{/* Complete the message with the function parameters and post it to the}}
+\DoxyCodeLine{01060 \textcolor{comment}{        daemon task. */}}
+\DoxyCodeLine{01061         xMessage.xMessageID = tmrCOMMAND\_EXECUTE\_CALLBACK;}
+\DoxyCodeLine{01062         xMessage.u.xCallbackParameters.pxCallbackFunction = xFunctionToPend;}
+\DoxyCodeLine{01063         xMessage.u.xCallbackParameters.pvParameter1 = pvParameter1;}
+\DoxyCodeLine{01064         xMessage.u.xCallbackParameters.ulParameter2 = ulParameter2;}
+\DoxyCodeLine{01065 }
+\DoxyCodeLine{01066         xReturn = xQueueSendToBack( xTimerQueue, \&xMessage, xTicksToWait );}
+\DoxyCodeLine{01067 }
+\DoxyCodeLine{01068         tracePEND\_FUNC\_CALL( xFunctionToPend, pvParameter1, ulParameter2, xReturn );}
+\DoxyCodeLine{01069 }
+\DoxyCodeLine{01070         \textcolor{keywordflow}{return} xReturn;}
+\DoxyCodeLine{01071     \}}
+\DoxyCodeLine{01072 }
+\DoxyCodeLine{01073 \textcolor{preprocessor}{\#endif }\textcolor{comment}{/* INCLUDE\_xTimerPendFunctionCall */}\textcolor{preprocessor}{}}
+\DoxyCodeLine{01074 \textcolor{comment}{/*-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/*/}}
+\DoxyCodeLine{01075 }
+\DoxyCodeLine{01076 \textcolor{preprocessor}{\#if ( configUSE\_TRACE\_FACILITY == 1 )}}
+\DoxyCodeLine{01077 }
+\DoxyCodeLine{01078     UBaseType\_t uxTimerGetTimerNumber( TimerHandle\_t xTimer )}
+\DoxyCodeLine{01079     \{}
+\DoxyCodeLine{01080         \textcolor{keywordflow}{return} ( ( Timer\_t * ) xTimer )-\/>uxTimerNumber;}
+\DoxyCodeLine{01081     \}}
+\DoxyCodeLine{01082 }
+\DoxyCodeLine{01083 \textcolor{preprocessor}{\#endif }\textcolor{comment}{/* configUSE\_TRACE\_FACILITY */}\textcolor{preprocessor}{}}
+\DoxyCodeLine{01084 \textcolor{comment}{/*-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/*/}}
+\DoxyCodeLine{01085 }
+\DoxyCodeLine{01086 \textcolor{preprocessor}{\#if ( configUSE\_TRACE\_FACILITY == 1 )}}
+\DoxyCodeLine{01087 }
+\DoxyCodeLine{01088     \textcolor{keywordtype}{void} vTimerSetTimerNumber( TimerHandle\_t xTimer, UBaseType\_t uxTimerNumber )}
+\DoxyCodeLine{01089     \{}
+\DoxyCodeLine{01090         ( ( Timer\_t * ) xTimer )-\/>uxTimerNumber = uxTimerNumber;}
+\DoxyCodeLine{01091     \}}
+\DoxyCodeLine{01092 }
+\DoxyCodeLine{01093 \textcolor{preprocessor}{\#endif }\textcolor{comment}{/* configUSE\_TRACE\_FACILITY */}\textcolor{preprocessor}{}}
+\DoxyCodeLine{01094 \textcolor{comment}{/*-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/*/}}
+\DoxyCodeLine{01095 }
+\DoxyCodeLine{01096 \textcolor{comment}{/* This entire source file will be skipped if the application is not configured}}
+\DoxyCodeLine{01097 \textcolor{comment}{to include software timer functionality.  If you want to include software timer}}
+\DoxyCodeLine{01098 \textcolor{comment}{functionality then ensure configUSE\_TIMERS is set to 1 in FreeRTOSConfig.h. */}}
+\DoxyCodeLine{01099 \textcolor{preprocessor}{\#endif }\textcolor{comment}{/* configUSE\_TIMERS == 1 */}\textcolor{preprocessor}{}}
+\DoxyCodeLine{01100 }
+\DoxyCodeLine{01101 }
+\DoxyCodeLine{01102 }
+
+\end{DoxyCode}

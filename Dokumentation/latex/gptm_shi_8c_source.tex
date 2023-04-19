@@ -1,0 +1,1131 @@
+\doxysection{gptm\+Shi.\+c}
+\label{gptm_shi_8c_source}\index{hal/gptm/src/gptmShi.c@{hal/gptm/src/gptmShi.c}}
+
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00001 \textcolor{comment}{//*****************************************************************************}}
+\DoxyCodeLine{00002 \textcolor{comment}{// Name        : gptmShi.c}}
+\DoxyCodeLine{00003 \textcolor{comment}{// Author      : Ole Rönna }}
+\DoxyCodeLine{00004 \textcolor{comment}{// Maintainer  : Prof. Dr. Paweł Buczek }}
+\DoxyCodeLine{00005 \textcolor{comment}{// Version     : 0.4 }}
+\DoxyCodeLine{00006 \textcolor{comment}{// Copyright   : All rights reserved }}
+\DoxyCodeLine{00007 \textcolor{comment}{// Description : }}
+\DoxyCodeLine{00008 \textcolor{comment}{// This code was generated from a template. Manual changes to this file will }}
+\DoxyCodeLine{00009 \textcolor{comment}{// be overwritten if the code is regenerated. }}
+\DoxyCodeLine{00010 \textcolor{comment}{//}}
+\DoxyCodeLine{00011 \textcolor{comment}{//*****************************************************************************}}
+\DoxyCodeLine{00012 }
+\DoxyCodeLine{00013 \textcolor{preprocessor}{\#include "{}hal/gptm/halGptmShiCores.h"{}}}
+\DoxyCodeLine{00014 \textcolor{preprocessor}{\#include "{}gptmShi.h"{}}}
+\DoxyCodeLine{00015 \textcolor{preprocessor}{\#include "{}stdint.h"{}}}
+\DoxyCodeLine{00016 }
+\DoxyCodeLine{00017 \textcolor{comment}{//*****************************************************************************}}
+\DoxyCodeLine{00018 \textcolor{comment}{//}}
+\DoxyCodeLine{00019 \textcolor{comment}{// gptm base addresses}}
+\DoxyCodeLine{00020 \textcolor{comment}{//}}
+\DoxyCodeLine{00021 \textcolor{comment}{//*****************************************************************************}}
+\DoxyCodeLine{00022 }
+\DoxyCodeLine{00023 \textcolor{keyword}{static} \textcolor{keyword}{const} uint32\_t gptmCoreBaseAddresses\_[halGptmCoreCount] = \{}
+\DoxyCodeLine{00024     0x40030000,}
+\DoxyCodeLine{00025     0x40031000,}
+\DoxyCodeLine{00026     0x40032000,}
+\DoxyCodeLine{00027     0x40033000,}
+\DoxyCodeLine{00028     0x40034000,}
+\DoxyCodeLine{00029     0x40035000,}
+\DoxyCodeLine{00030     0x400E0000,}
+\DoxyCodeLine{00031     0x400E1000}
+\DoxyCodeLine{00032 \};}
+\DoxyCodeLine{00033 }
+\DoxyCodeLine{00034 \textcolor{comment}{//*****************************************************************************}}
+\DoxyCodeLine{00035 \textcolor{comment}{//}}
+\DoxyCodeLine{00036 \textcolor{comment}{// gptm functions for reading/writing of the whole register}}
+\DoxyCodeLine{00037 \textcolor{comment}{//}}
+\DoxyCodeLine{00038 \textcolor{comment}{//*****************************************************************************}}
+\DoxyCodeLine{00039 }
+\DoxyCodeLine{00040 uint32\_t gptmShiReadGptmcfg\_(\textcolor{keyword}{enum} HalGptmCores \textcolor{keyword}{const} core) \{}
+\DoxyCodeLine{00041     \textcolor{keywordflow}{return} *((\textcolor{keyword}{volatile} uint32\_t *)(gptmGptmcfg\_ + gptmCoreBaseAddresses\_[core]));}
+\DoxyCodeLine{00042 \}}
+\DoxyCodeLine{00043 }
+\DoxyCodeLine{00044 \textcolor{keywordtype}{void} gptmShiWriteGptmcfg\_(\textcolor{keyword}{enum} HalGptmCores \textcolor{keyword}{const} core, uint32\_t \textcolor{keyword}{const} registerValue) \{}
+\DoxyCodeLine{00045     *((\textcolor{keyword}{volatile} uint32\_t *)(gptmGptmcfg\_ + gptmCoreBaseAddresses\_[core])) = registerValue;}
+\DoxyCodeLine{00046 \}}
+\DoxyCodeLine{00047 }
+\DoxyCodeLine{00048 }
+\DoxyCodeLine{00049 uint32\_t gptmShiReadGptmtamr\_(\textcolor{keyword}{enum} HalGptmCores \textcolor{keyword}{const} core) \{}
+\DoxyCodeLine{00050     \textcolor{keywordflow}{return} *((\textcolor{keyword}{volatile} uint32\_t *)(gptmGptmtamr\_ + gptmCoreBaseAddresses\_[core]));}
+\DoxyCodeLine{00051 \}}
+\DoxyCodeLine{00052 }
+\DoxyCodeLine{00053 \textcolor{keywordtype}{void} gptmShiWriteGptmtamr\_(\textcolor{keyword}{enum} HalGptmCores \textcolor{keyword}{const} core, uint32\_t \textcolor{keyword}{const} registerValue) \{}
+\DoxyCodeLine{00054     *((\textcolor{keyword}{volatile} uint32\_t *)(gptmGptmtamr\_ + gptmCoreBaseAddresses\_[core])) = registerValue;}
+\DoxyCodeLine{00055 \}}
+\DoxyCodeLine{00056 }
+\DoxyCodeLine{00057 }
+\DoxyCodeLine{00058 uint32\_t gptmShiReadGptmtbmr\_(\textcolor{keyword}{enum} HalGptmCores \textcolor{keyword}{const} core) \{}
+\DoxyCodeLine{00059     \textcolor{keywordflow}{return} *((\textcolor{keyword}{volatile} uint32\_t *)(gptmGptmtbmr\_ + gptmCoreBaseAddresses\_[core]));}
+\DoxyCodeLine{00060 \}}
+\DoxyCodeLine{00061 }
+\DoxyCodeLine{00062 \textcolor{keywordtype}{void} gptmShiWriteGptmtbmr\_(\textcolor{keyword}{enum} HalGptmCores \textcolor{keyword}{const} core, uint32\_t \textcolor{keyword}{const} registerValue) \{}
+\DoxyCodeLine{00063     *((\textcolor{keyword}{volatile} uint32\_t *)(gptmGptmtbmr\_ + gptmCoreBaseAddresses\_[core])) = registerValue;}
+\DoxyCodeLine{00064 \}}
+\DoxyCodeLine{00065 }
+\DoxyCodeLine{00066 }
+\DoxyCodeLine{00067 uint32\_t gptmShiReadGptmctl\_(\textcolor{keyword}{enum} HalGptmCores \textcolor{keyword}{const} core) \{}
+\DoxyCodeLine{00068     \textcolor{keywordflow}{return} *((\textcolor{keyword}{volatile} uint32\_t *)(gptmGptmctl\_ + gptmCoreBaseAddresses\_[core]));}
+\DoxyCodeLine{00069 \}}
+\DoxyCodeLine{00070 }
+\DoxyCodeLine{00071 \textcolor{keywordtype}{void} gptmShiWriteGptmctl\_(\textcolor{keyword}{enum} HalGptmCores \textcolor{keyword}{const} core, uint32\_t \textcolor{keyword}{const} registerValue) \{}
+\DoxyCodeLine{00072     *((\textcolor{keyword}{volatile} uint32\_t *)(gptmGptmctl\_ + gptmCoreBaseAddresses\_[core])) = registerValue;}
+\DoxyCodeLine{00073 \}}
+\DoxyCodeLine{00074 }
+\DoxyCodeLine{00075 }
+\DoxyCodeLine{00076 uint32\_t gptmShiReadGptmtapr\_(\textcolor{keyword}{enum} HalGptmCores \textcolor{keyword}{const} core) \{}
+\DoxyCodeLine{00077     \textcolor{keywordflow}{return} *((\textcolor{keyword}{volatile} uint32\_t *)(gptmGptmtapr\_ + gptmCoreBaseAddresses\_[core]));}
+\DoxyCodeLine{00078 \}}
+\DoxyCodeLine{00079 }
+\DoxyCodeLine{00080 \textcolor{keywordtype}{void} gptmShiWriteGptmtapr\_(\textcolor{keyword}{enum} HalGptmCores \textcolor{keyword}{const} core, uint32\_t \textcolor{keyword}{const} registerValue) \{}
+\DoxyCodeLine{00081     *((\textcolor{keyword}{volatile} uint32\_t *)(gptmGptmtapr\_ + gptmCoreBaseAddresses\_[core])) = registerValue;}
+\DoxyCodeLine{00082 \}}
+\DoxyCodeLine{00083 }
+\DoxyCodeLine{00084 }
+\DoxyCodeLine{00085 uint32\_t gptmShiReadGptmtbpr\_(\textcolor{keyword}{enum} HalGptmCores \textcolor{keyword}{const} core) \{}
+\DoxyCodeLine{00086     \textcolor{keywordflow}{return} *((\textcolor{keyword}{volatile} uint32\_t *)(gptmGptmtbpr\_ + gptmCoreBaseAddresses\_[core]));}
+\DoxyCodeLine{00087 \}}
+\DoxyCodeLine{00088 }
+\DoxyCodeLine{00089 \textcolor{keywordtype}{void} gptmShiWriteGptmtbpr\_(\textcolor{keyword}{enum} HalGptmCores \textcolor{keyword}{const} core, uint32\_t \textcolor{keyword}{const} registerValue) \{}
+\DoxyCodeLine{00090     *((\textcolor{keyword}{volatile} uint32\_t *)(gptmGptmtbpr\_ + gptmCoreBaseAddresses\_[core])) = registerValue;}
+\DoxyCodeLine{00091 \}}
+\DoxyCodeLine{00092 }
+\DoxyCodeLine{00093 }
+\DoxyCodeLine{00094 uint32\_t gptmShiReadGptmtapmr\_(\textcolor{keyword}{enum} HalGptmCores \textcolor{keyword}{const} core) \{}
+\DoxyCodeLine{00095     \textcolor{keywordflow}{return} *((\textcolor{keyword}{volatile} uint32\_t *)(gptmGptmtapmr\_ + gptmCoreBaseAddresses\_[core]));}
+\DoxyCodeLine{00096 \}}
+\DoxyCodeLine{00097 }
+\DoxyCodeLine{00098 \textcolor{keywordtype}{void} gptmShiWriteGptmtapmr\_(\textcolor{keyword}{enum} HalGptmCores \textcolor{keyword}{const} core, uint32\_t \textcolor{keyword}{const} registerValue) \{}
+\DoxyCodeLine{00099     *((\textcolor{keyword}{volatile} uint32\_t *)(gptmGptmtapmr\_ + gptmCoreBaseAddresses\_[core])) = registerValue;}
+\DoxyCodeLine{00100 \}}
+\DoxyCodeLine{00101 }
+\DoxyCodeLine{00102 }
+\DoxyCodeLine{00103 uint32\_t gptmShiReadGptmtbpmr\_(\textcolor{keyword}{enum} HalGptmCores \textcolor{keyword}{const} core) \{}
+\DoxyCodeLine{00104     \textcolor{keywordflow}{return} *((\textcolor{keyword}{volatile} uint32\_t *)(gptmGptmtbpmr\_ + gptmCoreBaseAddresses\_[core]));}
+\DoxyCodeLine{00105 \}}
+\DoxyCodeLine{00106 }
+\DoxyCodeLine{00107 \textcolor{keywordtype}{void} gptmShiWriteGptmtbpmr\_(\textcolor{keyword}{enum} HalGptmCores \textcolor{keyword}{const} core, uint32\_t \textcolor{keyword}{const} registerValue) \{}
+\DoxyCodeLine{00108     *((\textcolor{keyword}{volatile} uint32\_t *)(gptmGptmtbpmr\_ + gptmCoreBaseAddresses\_[core])) = registerValue;}
+\DoxyCodeLine{00109 \}}
+\DoxyCodeLine{00110 }
+\DoxyCodeLine{00111 }
+\DoxyCodeLine{00112 \textcolor{comment}{//*****************************************************************************}}
+\DoxyCodeLine{00113 \textcolor{comment}{//}}
+\DoxyCodeLine{00114 \textcolor{comment}{// gptm read/write individual bit fields}}
+\DoxyCodeLine{00115 \textcolor{comment}{//}}
+\DoxyCodeLine{00116 \textcolor{comment}{//*****************************************************************************}}
+\DoxyCodeLine{00117 }
+\DoxyCodeLine{00118 uint32\_t gptmShiReadGptmcfgGptmcfg\_(\textcolor{keyword}{enum} HalGptmCores \textcolor{keyword}{const} core) \{}
+\DoxyCodeLine{00119     \textcolor{keywordflow}{return} ((*((\textcolor{keyword}{volatile} uint32\_t *)(gptmGptmcfg\_ + gptmCoreBaseAddresses\_[core])) >> 0) \& 0xf);}
+\DoxyCodeLine{00120 \}}
+\DoxyCodeLine{00121 }
+\DoxyCodeLine{00122 uint32\_t gptmShiReadUIGptmcfgGptmcfg\_(uint32\_t \textcolor{keyword}{const} registerValue) \{}
+\DoxyCodeLine{00123     \textcolor{keywordflow}{return} ((registerValue >> 0) \& 0xf);}
+\DoxyCodeLine{00124 \}}
+\DoxyCodeLine{00125 }
+\DoxyCodeLine{00126 }
+\DoxyCodeLine{00127 \textcolor{keywordtype}{void} gptmShiWriteGptmcfgGptmcfg\_(\textcolor{keyword}{enum} HalGptmCores \textcolor{keyword}{const} core, \textcolor{keyword}{enum} GptmGptmcfgGptmcfgValues\_ \textcolor{keyword}{const} gptmcfg) \{}
+\DoxyCodeLine{00128     uint32\_t registerValue = *((\textcolor{keyword}{volatile} uint32\_t *)(gptmGptmcfg\_ + gptmCoreBaseAddresses\_[core]));}
+\DoxyCodeLine{00129 }
+\DoxyCodeLine{00130     registerValue \&= \string~(0xf << 0);}
+\DoxyCodeLine{00131     registerValue |= (gptmcfg << 0);}
+\DoxyCodeLine{00132 }
+\DoxyCodeLine{00133     *((\textcolor{keyword}{volatile} uint32\_t *)(gptmGptmcfg\_ + gptmCoreBaseAddresses\_[core])) = registerValue;}
+\DoxyCodeLine{00134 \}}
+\DoxyCodeLine{00135 }
+\DoxyCodeLine{00136 \textcolor{keywordtype}{void} gptmShiWriteUIGptmcfgGptmcfg\_(uint32\_t * \textcolor{keyword}{const} registerValue, \textcolor{keyword}{enum} GptmGptmcfgGptmcfgValues\_ \textcolor{keyword}{const} gptmcfg) \{}
+\DoxyCodeLine{00137     *registerValue \&= \string~(0xf << 0);}
+\DoxyCodeLine{00138     *registerValue |= (gptmcfg << 0);}
+\DoxyCodeLine{00139 \}}
+\DoxyCodeLine{00140 }
+\DoxyCodeLine{00141 }
+\DoxyCodeLine{00142 uint32\_t gptmShiReadGptmtamrTamr\_(\textcolor{keyword}{enum} HalGptmCores \textcolor{keyword}{const} core) \{}
+\DoxyCodeLine{00143     \textcolor{keywordflow}{return} ((*((\textcolor{keyword}{volatile} uint32\_t *)(gptmGptmtamr\_ + gptmCoreBaseAddresses\_[core])) >> 0) \& 0x3);}
+\DoxyCodeLine{00144 \}}
+\DoxyCodeLine{00145 }
+\DoxyCodeLine{00146 uint32\_t gptmShiReadUIGptmtamrTamr\_(uint32\_t \textcolor{keyword}{const} registerValue) \{}
+\DoxyCodeLine{00147     \textcolor{keywordflow}{return} ((registerValue >> 0) \& 0x3);}
+\DoxyCodeLine{00148 \}}
+\DoxyCodeLine{00149 }
+\DoxyCodeLine{00150 }
+\DoxyCodeLine{00151 \textcolor{keywordtype}{void} gptmShiWriteGptmtamrTamr\_(\textcolor{keyword}{enum} HalGptmCores \textcolor{keyword}{const} core, \textcolor{keyword}{enum} GptmGptmtamrTamrValues\_ \textcolor{keyword}{const} tamr) \{}
+\DoxyCodeLine{00152     uint32\_t registerValue = *((\textcolor{keyword}{volatile} uint32\_t *)(gptmGptmtamr\_ + gptmCoreBaseAddresses\_[core]));}
+\DoxyCodeLine{00153 }
+\DoxyCodeLine{00154     registerValue \&= \string~(0x3 << 0);}
+\DoxyCodeLine{00155     registerValue |= (tamr << 0);}
+\DoxyCodeLine{00156 }
+\DoxyCodeLine{00157     *((\textcolor{keyword}{volatile} uint32\_t *)(gptmGptmtamr\_ + gptmCoreBaseAddresses\_[core])) = registerValue;}
+\DoxyCodeLine{00158 \}}
+\DoxyCodeLine{00159 }
+\DoxyCodeLine{00160 \textcolor{keywordtype}{void} gptmShiWriteUIGptmtamrTamr\_(uint32\_t * \textcolor{keyword}{const} registerValue, \textcolor{keyword}{enum} GptmGptmtamrTamrValues\_ \textcolor{keyword}{const} tamr) \{}
+\DoxyCodeLine{00161     *registerValue \&= \string~(0x3 << 0);}
+\DoxyCodeLine{00162     *registerValue |= (tamr << 0);}
+\DoxyCodeLine{00163 \}}
+\DoxyCodeLine{00164 }
+\DoxyCodeLine{00165 }
+\DoxyCodeLine{00166 uint32\_t gptmShiReadGptmtamrTacmr\_(\textcolor{keyword}{enum} HalGptmCores \textcolor{keyword}{const} core) \{}
+\DoxyCodeLine{00167     \textcolor{keywordflow}{return} ((*((\textcolor{keyword}{volatile} uint32\_t *)(gptmGptmtamr\_ + gptmCoreBaseAddresses\_[core])) >> 0) \& 0x1);}
+\DoxyCodeLine{00168 \}}
+\DoxyCodeLine{00169 }
+\DoxyCodeLine{00170 uint32\_t gptmShiReadUIGptmtamrTacmr\_(uint32\_t \textcolor{keyword}{const} registerValue) \{}
+\DoxyCodeLine{00171     \textcolor{keywordflow}{return} ((registerValue >> 0) \& 0x1);}
+\DoxyCodeLine{00172 \}}
+\DoxyCodeLine{00173 }
+\DoxyCodeLine{00174 }
+\DoxyCodeLine{00175 \textcolor{keywordtype}{void} gptmShiWriteGptmtamrTacmr\_(\textcolor{keyword}{enum} HalGptmCores \textcolor{keyword}{const} core, \textcolor{keyword}{enum} GptmGptmtamrTacmrValues\_ \textcolor{keyword}{const} tacmr) \{}
+\DoxyCodeLine{00176     uint32\_t registerValue = *((\textcolor{keyword}{volatile} uint32\_t *)(gptmGptmtamr\_ + gptmCoreBaseAddresses\_[core]));}
+\DoxyCodeLine{00177 }
+\DoxyCodeLine{00178     registerValue \&= \string~(0x1 << 0);}
+\DoxyCodeLine{00179     registerValue |= (tacmr << 0);}
+\DoxyCodeLine{00180 }
+\DoxyCodeLine{00181     *((\textcolor{keyword}{volatile} uint32\_t *)(gptmGptmtamr\_ + gptmCoreBaseAddresses\_[core])) = registerValue;}
+\DoxyCodeLine{00182 \}}
+\DoxyCodeLine{00183 }
+\DoxyCodeLine{00184 \textcolor{keywordtype}{void} gptmShiWriteUIGptmtamrTacmr\_(uint32\_t * \textcolor{keyword}{const} registerValue, \textcolor{keyword}{enum} GptmGptmtamrTacmrValues\_ \textcolor{keyword}{const} tacmr) \{}
+\DoxyCodeLine{00185     *registerValue \&= \string~(0x1 << 0);}
+\DoxyCodeLine{00186     *registerValue |= (tacmr << 0);}
+\DoxyCodeLine{00187 \}}
+\DoxyCodeLine{00188 }
+\DoxyCodeLine{00189 }
+\DoxyCodeLine{00190 uint32\_t gptmShiReadGptmtamrTaams\_(\textcolor{keyword}{enum} HalGptmCores \textcolor{keyword}{const} core) \{}
+\DoxyCodeLine{00191     \textcolor{keywordflow}{return} ((*((\textcolor{keyword}{volatile} uint32\_t *)(gptmGptmtamr\_ + gptmCoreBaseAddresses\_[core])) >> 0) \& 0x1);}
+\DoxyCodeLine{00192 \}}
+\DoxyCodeLine{00193 }
+\DoxyCodeLine{00194 uint32\_t gptmShiReadUIGptmtamrTaams\_(uint32\_t \textcolor{keyword}{const} registerValue) \{}
+\DoxyCodeLine{00195     \textcolor{keywordflow}{return} ((registerValue >> 0) \& 0x1);}
+\DoxyCodeLine{00196 \}}
+\DoxyCodeLine{00197 }
+\DoxyCodeLine{00198 }
+\DoxyCodeLine{00199 \textcolor{keywordtype}{void} gptmShiWriteGptmtamrTaams\_(\textcolor{keyword}{enum} HalGptmCores \textcolor{keyword}{const} core, \textcolor{keyword}{enum} GptmGptmtamrTaamsValues\_ \textcolor{keyword}{const} taams) \{}
+\DoxyCodeLine{00200     uint32\_t registerValue = *((\textcolor{keyword}{volatile} uint32\_t *)(gptmGptmtamr\_ + gptmCoreBaseAddresses\_[core]));}
+\DoxyCodeLine{00201 }
+\DoxyCodeLine{00202     registerValue \&= \string~(0x1 << 0);}
+\DoxyCodeLine{00203     registerValue |= (taams << 0);}
+\DoxyCodeLine{00204 }
+\DoxyCodeLine{00205     *((\textcolor{keyword}{volatile} uint32\_t *)(gptmGptmtamr\_ + gptmCoreBaseAddresses\_[core])) = registerValue;}
+\DoxyCodeLine{00206 \}}
+\DoxyCodeLine{00207 }
+\DoxyCodeLine{00208 \textcolor{keywordtype}{void} gptmShiWriteUIGptmtamrTaams\_(uint32\_t * \textcolor{keyword}{const} registerValue, \textcolor{keyword}{enum} GptmGptmtamrTaamsValues\_ \textcolor{keyword}{const} taams) \{}
+\DoxyCodeLine{00209     *registerValue \&= \string~(0x1 << 0);}
+\DoxyCodeLine{00210     *registerValue |= (taams << 0);}
+\DoxyCodeLine{00211 \}}
+\DoxyCodeLine{00212 }
+\DoxyCodeLine{00213 }
+\DoxyCodeLine{00214 uint32\_t gptmShiReadGptmtamrTacdir\_(\textcolor{keyword}{enum} HalGptmCores \textcolor{keyword}{const} core) \{}
+\DoxyCodeLine{00215     \textcolor{keywordflow}{return} ((*((\textcolor{keyword}{volatile} uint32\_t *)(gptmGptmtamr\_ + gptmCoreBaseAddresses\_[core])) >> 0) \& 0x1);}
+\DoxyCodeLine{00216 \}}
+\DoxyCodeLine{00217 }
+\DoxyCodeLine{00218 uint32\_t gptmShiReadUIGptmtamrTacdir\_(uint32\_t \textcolor{keyword}{const} registerValue) \{}
+\DoxyCodeLine{00219     \textcolor{keywordflow}{return} ((registerValue >> 0) \& 0x1);}
+\DoxyCodeLine{00220 \}}
+\DoxyCodeLine{00221 }
+\DoxyCodeLine{00222 }
+\DoxyCodeLine{00223 \textcolor{keywordtype}{void} gptmShiWriteGptmtamrTacdir\_(\textcolor{keyword}{enum} HalGptmCores \textcolor{keyword}{const} core, \textcolor{keyword}{enum} GptmGptmtamrTacdirValues\_ \textcolor{keyword}{const} tacdir) \{}
+\DoxyCodeLine{00224     uint32\_t registerValue = *((\textcolor{keyword}{volatile} uint32\_t *)(gptmGptmtamr\_ + gptmCoreBaseAddresses\_[core]));}
+\DoxyCodeLine{00225 }
+\DoxyCodeLine{00226     registerValue \&= \string~(0x1 << 0);}
+\DoxyCodeLine{00227     registerValue |= (tacdir << 0);}
+\DoxyCodeLine{00228 }
+\DoxyCodeLine{00229     *((\textcolor{keyword}{volatile} uint32\_t *)(gptmGptmtamr\_ + gptmCoreBaseAddresses\_[core])) = registerValue;}
+\DoxyCodeLine{00230 \}}
+\DoxyCodeLine{00231 }
+\DoxyCodeLine{00232 \textcolor{keywordtype}{void} gptmShiWriteUIGptmtamrTacdir\_(uint32\_t * \textcolor{keyword}{const} registerValue, \textcolor{keyword}{enum} GptmGptmtamrTacdirValues\_ \textcolor{keyword}{const} tacdir) \{}
+\DoxyCodeLine{00233     *registerValue \&= \string~(0x1 << 0);}
+\DoxyCodeLine{00234     *registerValue |= (tacdir << 0);}
+\DoxyCodeLine{00235 \}}
+\DoxyCodeLine{00236 }
+\DoxyCodeLine{00237 }
+\DoxyCodeLine{00238 uint32\_t gptmShiReadGptmtamrTamie\_(\textcolor{keyword}{enum} HalGptmCores \textcolor{keyword}{const} core) \{}
+\DoxyCodeLine{00239     \textcolor{keywordflow}{return} ((*((\textcolor{keyword}{volatile} uint32\_t *)(gptmGptmtamr\_ + gptmCoreBaseAddresses\_[core])) >> 0) \& 0x1);}
+\DoxyCodeLine{00240 \}}
+\DoxyCodeLine{00241 }
+\DoxyCodeLine{00242 uint32\_t gptmShiReadUIGptmtamrTamie\_(uint32\_t \textcolor{keyword}{const} registerValue) \{}
+\DoxyCodeLine{00243     \textcolor{keywordflow}{return} ((registerValue >> 0) \& 0x1);}
+\DoxyCodeLine{00244 \}}
+\DoxyCodeLine{00245 }
+\DoxyCodeLine{00246 }
+\DoxyCodeLine{00247 \textcolor{keywordtype}{void} gptmShiWriteGptmtamrTamie\_(\textcolor{keyword}{enum} HalGptmCores \textcolor{keyword}{const} core, \textcolor{keyword}{enum} GptmGptmtamrTamieValues\_ \textcolor{keyword}{const} tamie) \{}
+\DoxyCodeLine{00248     uint32\_t registerValue = *((\textcolor{keyword}{volatile} uint32\_t *)(gptmGptmtamr\_ + gptmCoreBaseAddresses\_[core]));}
+\DoxyCodeLine{00249 }
+\DoxyCodeLine{00250     registerValue \&= \string~(0x1 << 0);}
+\DoxyCodeLine{00251     registerValue |= (tamie << 0);}
+\DoxyCodeLine{00252 }
+\DoxyCodeLine{00253     *((\textcolor{keyword}{volatile} uint32\_t *)(gptmGptmtamr\_ + gptmCoreBaseAddresses\_[core])) = registerValue;}
+\DoxyCodeLine{00254 \}}
+\DoxyCodeLine{00255 }
+\DoxyCodeLine{00256 \textcolor{keywordtype}{void} gptmShiWriteUIGptmtamrTamie\_(uint32\_t * \textcolor{keyword}{const} registerValue, \textcolor{keyword}{enum} GptmGptmtamrTamieValues\_ \textcolor{keyword}{const} tamie) \{}
+\DoxyCodeLine{00257     *registerValue \&= \string~(0x1 << 0);}
+\DoxyCodeLine{00258     *registerValue |= (tamie << 0);}
+\DoxyCodeLine{00259 \}}
+\DoxyCodeLine{00260 }
+\DoxyCodeLine{00261 }
+\DoxyCodeLine{00262 uint32\_t gptmShiReadGptmtamrTawot\_(\textcolor{keyword}{enum} HalGptmCores \textcolor{keyword}{const} core) \{}
+\DoxyCodeLine{00263     \textcolor{keywordflow}{return} ((*((\textcolor{keyword}{volatile} uint32\_t *)(gptmGptmtamr\_ + gptmCoreBaseAddresses\_[core])) >> 0) \& 0x1);}
+\DoxyCodeLine{00264 \}}
+\DoxyCodeLine{00265 }
+\DoxyCodeLine{00266 uint32\_t gptmShiReadUIGptmtamrTawot\_(uint32\_t \textcolor{keyword}{const} registerValue) \{}
+\DoxyCodeLine{00267     \textcolor{keywordflow}{return} ((registerValue >> 0) \& 0x1);}
+\DoxyCodeLine{00268 \}}
+\DoxyCodeLine{00269 }
+\DoxyCodeLine{00270 }
+\DoxyCodeLine{00271 \textcolor{keywordtype}{void} gptmShiWriteGptmtamrTawot\_(\textcolor{keyword}{enum} HalGptmCores \textcolor{keyword}{const} core, \textcolor{keyword}{enum} GptmGptmtamrTawotValues\_ \textcolor{keyword}{const} tawot) \{}
+\DoxyCodeLine{00272     uint32\_t registerValue = *((\textcolor{keyword}{volatile} uint32\_t *)(gptmGptmtamr\_ + gptmCoreBaseAddresses\_[core]));}
+\DoxyCodeLine{00273 }
+\DoxyCodeLine{00274     registerValue \&= \string~(0x1 << 0);}
+\DoxyCodeLine{00275     registerValue |= (tawot << 0);}
+\DoxyCodeLine{00276 }
+\DoxyCodeLine{00277     *((\textcolor{keyword}{volatile} uint32\_t *)(gptmGptmtamr\_ + gptmCoreBaseAddresses\_[core])) = registerValue;}
+\DoxyCodeLine{00278 \}}
+\DoxyCodeLine{00279 }
+\DoxyCodeLine{00280 \textcolor{keywordtype}{void} gptmShiWriteUIGptmtamrTawot\_(uint32\_t * \textcolor{keyword}{const} registerValue, \textcolor{keyword}{enum} GptmGptmtamrTawotValues\_ \textcolor{keyword}{const} tawot) \{}
+\DoxyCodeLine{00281     *registerValue \&= \string~(0x1 << 0);}
+\DoxyCodeLine{00282     *registerValue |= (tawot << 0);}
+\DoxyCodeLine{00283 \}}
+\DoxyCodeLine{00284 }
+\DoxyCodeLine{00285 }
+\DoxyCodeLine{00286 uint32\_t gptmShiReadGptmtamrTasnaps\_(\textcolor{keyword}{enum} HalGptmCores \textcolor{keyword}{const} core) \{}
+\DoxyCodeLine{00287     \textcolor{keywordflow}{return} ((*((\textcolor{keyword}{volatile} uint32\_t *)(gptmGptmtamr\_ + gptmCoreBaseAddresses\_[core])) >> 0) \& 0x1);}
+\DoxyCodeLine{00288 \}}
+\DoxyCodeLine{00289 }
+\DoxyCodeLine{00290 uint32\_t gptmShiReadUIGptmtamrTasnaps\_(uint32\_t \textcolor{keyword}{const} registerValue) \{}
+\DoxyCodeLine{00291     \textcolor{keywordflow}{return} ((registerValue >> 0) \& 0x1);}
+\DoxyCodeLine{00292 \}}
+\DoxyCodeLine{00293 }
+\DoxyCodeLine{00294 }
+\DoxyCodeLine{00295 \textcolor{keywordtype}{void} gptmShiWriteGptmtamrTasnaps\_(\textcolor{keyword}{enum} HalGptmCores \textcolor{keyword}{const} core, \textcolor{keyword}{enum} GptmGptmtamrTasnapsValues\_ \textcolor{keyword}{const} tasnaps) \{}
+\DoxyCodeLine{00296     uint32\_t registerValue = *((\textcolor{keyword}{volatile} uint32\_t *)(gptmGptmtamr\_ + gptmCoreBaseAddresses\_[core]));}
+\DoxyCodeLine{00297 }
+\DoxyCodeLine{00298     registerValue \&= \string~(0x1 << 0);}
+\DoxyCodeLine{00299     registerValue |= (tasnaps << 0);}
+\DoxyCodeLine{00300 }
+\DoxyCodeLine{00301     *((\textcolor{keyword}{volatile} uint32\_t *)(gptmGptmtamr\_ + gptmCoreBaseAddresses\_[core])) = registerValue;}
+\DoxyCodeLine{00302 \}}
+\DoxyCodeLine{00303 }
+\DoxyCodeLine{00304 \textcolor{keywordtype}{void} gptmShiWriteUIGptmtamrTasnaps\_(uint32\_t * \textcolor{keyword}{const} registerValue, \textcolor{keyword}{enum} GptmGptmtamrTasnapsValues\_ \textcolor{keyword}{const} tasnaps) \{}
+\DoxyCodeLine{00305     *registerValue \&= \string~(0x1 << 0);}
+\DoxyCodeLine{00306     *registerValue |= (tasnaps << 0);}
+\DoxyCodeLine{00307 \}}
+\DoxyCodeLine{00308 }
+\DoxyCodeLine{00309 }
+\DoxyCodeLine{00310 uint32\_t gptmShiReadGptmtamrTaild\_(\textcolor{keyword}{enum} HalGptmCores \textcolor{keyword}{const} core) \{}
+\DoxyCodeLine{00311     \textcolor{keywordflow}{return} ((*((\textcolor{keyword}{volatile} uint32\_t *)(gptmGptmtamr\_ + gptmCoreBaseAddresses\_[core])) >> 0) \& 0x1);}
+\DoxyCodeLine{00312 \}}
+\DoxyCodeLine{00313 }
+\DoxyCodeLine{00314 uint32\_t gptmShiReadUIGptmtamrTaild\_(uint32\_t \textcolor{keyword}{const} registerValue) \{}
+\DoxyCodeLine{00315     \textcolor{keywordflow}{return} ((registerValue >> 0) \& 0x1);}
+\DoxyCodeLine{00316 \}}
+\DoxyCodeLine{00317 }
+\DoxyCodeLine{00318 }
+\DoxyCodeLine{00319 \textcolor{keywordtype}{void} gptmShiWriteGptmtamrTaild\_(\textcolor{keyword}{enum} HalGptmCores \textcolor{keyword}{const} core, \textcolor{keyword}{enum} GptmGptmtamrTaildValues\_ \textcolor{keyword}{const} taild) \{}
+\DoxyCodeLine{00320     uint32\_t registerValue = *((\textcolor{keyword}{volatile} uint32\_t *)(gptmGptmtamr\_ + gptmCoreBaseAddresses\_[core]));}
+\DoxyCodeLine{00321 }
+\DoxyCodeLine{00322     registerValue \&= \string~(0x1 << 0);}
+\DoxyCodeLine{00323     registerValue |= (taild << 0);}
+\DoxyCodeLine{00324 }
+\DoxyCodeLine{00325     *((\textcolor{keyword}{volatile} uint32\_t *)(gptmGptmtamr\_ + gptmCoreBaseAddresses\_[core])) = registerValue;}
+\DoxyCodeLine{00326 \}}
+\DoxyCodeLine{00327 }
+\DoxyCodeLine{00328 \textcolor{keywordtype}{void} gptmShiWriteUIGptmtamrTaild\_(uint32\_t * \textcolor{keyword}{const} registerValue, \textcolor{keyword}{enum} GptmGptmtamrTaildValues\_ \textcolor{keyword}{const} taild) \{}
+\DoxyCodeLine{00329     *registerValue \&= \string~(0x1 << 0);}
+\DoxyCodeLine{00330     *registerValue |= (taild << 0);}
+\DoxyCodeLine{00331 \}}
+\DoxyCodeLine{00332 }
+\DoxyCodeLine{00333 }
+\DoxyCodeLine{00334 uint32\_t gptmShiReadGptmtamrTapwmie\_(\textcolor{keyword}{enum} HalGptmCores \textcolor{keyword}{const} core) \{}
+\DoxyCodeLine{00335     \textcolor{keywordflow}{return} ((*((\textcolor{keyword}{volatile} uint32\_t *)(gptmGptmtamr\_ + gptmCoreBaseAddresses\_[core])) >> 0) \& 0x1);}
+\DoxyCodeLine{00336 \}}
+\DoxyCodeLine{00337 }
+\DoxyCodeLine{00338 uint32\_t gptmShiReadUIGptmtamrTapwmie\_(uint32\_t \textcolor{keyword}{const} registerValue) \{}
+\DoxyCodeLine{00339     \textcolor{keywordflow}{return} ((registerValue >> 0) \& 0x1);}
+\DoxyCodeLine{00340 \}}
+\DoxyCodeLine{00341 }
+\DoxyCodeLine{00342 }
+\DoxyCodeLine{00343 \textcolor{keywordtype}{void} gptmShiWriteGptmtamrTapwmie\_(\textcolor{keyword}{enum} HalGptmCores \textcolor{keyword}{const} core, \textcolor{keyword}{enum} GptmGptmtamrTapwmieValues\_ \textcolor{keyword}{const} tapwmie) \{}
+\DoxyCodeLine{00344     uint32\_t registerValue = *((\textcolor{keyword}{volatile} uint32\_t *)(gptmGptmtamr\_ + gptmCoreBaseAddresses\_[core]));}
+\DoxyCodeLine{00345 }
+\DoxyCodeLine{00346     registerValue \&= \string~(0x1 << 0);}
+\DoxyCodeLine{00347     registerValue |= (tapwmie << 0);}
+\DoxyCodeLine{00348 }
+\DoxyCodeLine{00349     *((\textcolor{keyword}{volatile} uint32\_t *)(gptmGptmtamr\_ + gptmCoreBaseAddresses\_[core])) = registerValue;}
+\DoxyCodeLine{00350 \}}
+\DoxyCodeLine{00351 }
+\DoxyCodeLine{00352 \textcolor{keywordtype}{void} gptmShiWriteUIGptmtamrTapwmie\_(uint32\_t * \textcolor{keyword}{const} registerValue, \textcolor{keyword}{enum} GptmGptmtamrTapwmieValues\_ \textcolor{keyword}{const} tapwmie) \{}
+\DoxyCodeLine{00353     *registerValue \&= \string~(0x1 << 0);}
+\DoxyCodeLine{00354     *registerValue |= (tapwmie << 0);}
+\DoxyCodeLine{00355 \}}
+\DoxyCodeLine{00356 }
+\DoxyCodeLine{00357 }
+\DoxyCodeLine{00358 uint32\_t gptmShiReadGptmtamrTamrsu\_(\textcolor{keyword}{enum} HalGptmCores \textcolor{keyword}{const} core) \{}
+\DoxyCodeLine{00359     \textcolor{keywordflow}{return} ((*((\textcolor{keyword}{volatile} uint32\_t *)(gptmGptmtamr\_ + gptmCoreBaseAddresses\_[core])) >> 0) \& 0x1);}
+\DoxyCodeLine{00360 \}}
+\DoxyCodeLine{00361 }
+\DoxyCodeLine{00362 uint32\_t gptmShiReadUIGptmtamrTamrsu\_(uint32\_t \textcolor{keyword}{const} registerValue) \{}
+\DoxyCodeLine{00363     \textcolor{keywordflow}{return} ((registerValue >> 0) \& 0x1);}
+\DoxyCodeLine{00364 \}}
+\DoxyCodeLine{00365 }
+\DoxyCodeLine{00366 }
+\DoxyCodeLine{00367 \textcolor{keywordtype}{void} gptmShiWriteGptmtamrTamrsu\_(\textcolor{keyword}{enum} HalGptmCores \textcolor{keyword}{const} core, \textcolor{keyword}{enum} GptmGptmtamrTamrsuValues\_ \textcolor{keyword}{const} tamrsu) \{}
+\DoxyCodeLine{00368     uint32\_t registerValue = *((\textcolor{keyword}{volatile} uint32\_t *)(gptmGptmtamr\_ + gptmCoreBaseAddresses\_[core]));}
+\DoxyCodeLine{00369 }
+\DoxyCodeLine{00370     registerValue \&= \string~(0x1 << 0);}
+\DoxyCodeLine{00371     registerValue |= (tamrsu << 0);}
+\DoxyCodeLine{00372 }
+\DoxyCodeLine{00373     *((\textcolor{keyword}{volatile} uint32\_t *)(gptmGptmtamr\_ + gptmCoreBaseAddresses\_[core])) = registerValue;}
+\DoxyCodeLine{00374 \}}
+\DoxyCodeLine{00375 }
+\DoxyCodeLine{00376 \textcolor{keywordtype}{void} gptmShiWriteUIGptmtamrTamrsu\_(uint32\_t * \textcolor{keyword}{const} registerValue, \textcolor{keyword}{enum} GptmGptmtamrTamrsuValues\_ \textcolor{keyword}{const} tamrsu) \{}
+\DoxyCodeLine{00377     *registerValue \&= \string~(0x1 << 0);}
+\DoxyCodeLine{00378     *registerValue |= (tamrsu << 0);}
+\DoxyCodeLine{00379 \}}
+\DoxyCodeLine{00380 }
+\DoxyCodeLine{00381 }
+\DoxyCodeLine{00382 uint32\_t gptmShiReadGptmtamrTaplo\_(\textcolor{keyword}{enum} HalGptmCores \textcolor{keyword}{const} core) \{}
+\DoxyCodeLine{00383     \textcolor{keywordflow}{return} ((*((\textcolor{keyword}{volatile} uint32\_t *)(gptmGptmtamr\_ + gptmCoreBaseAddresses\_[core])) >> 0) \& 0x1);}
+\DoxyCodeLine{00384 \}}
+\DoxyCodeLine{00385 }
+\DoxyCodeLine{00386 uint32\_t gptmShiReadUIGptmtamrTaplo\_(uint32\_t \textcolor{keyword}{const} registerValue) \{}
+\DoxyCodeLine{00387     \textcolor{keywordflow}{return} ((registerValue >> 0) \& 0x1);}
+\DoxyCodeLine{00388 \}}
+\DoxyCodeLine{00389 }
+\DoxyCodeLine{00390 }
+\DoxyCodeLine{00391 \textcolor{keywordtype}{void} gptmShiWriteGptmtamrTaplo\_(\textcolor{keyword}{enum} HalGptmCores \textcolor{keyword}{const} core, \textcolor{keyword}{enum} GptmGptmtamrTaploValues\_ \textcolor{keyword}{const} taplo) \{}
+\DoxyCodeLine{00392     uint32\_t registerValue = *((\textcolor{keyword}{volatile} uint32\_t *)(gptmGptmtamr\_ + gptmCoreBaseAddresses\_[core]));}
+\DoxyCodeLine{00393 }
+\DoxyCodeLine{00394     registerValue \&= \string~(0x1 << 0);}
+\DoxyCodeLine{00395     registerValue |= (taplo << 0);}
+\DoxyCodeLine{00396 }
+\DoxyCodeLine{00397     *((\textcolor{keyword}{volatile} uint32\_t *)(gptmGptmtamr\_ + gptmCoreBaseAddresses\_[core])) = registerValue;}
+\DoxyCodeLine{00398 \}}
+\DoxyCodeLine{00399 }
+\DoxyCodeLine{00400 \textcolor{keywordtype}{void} gptmShiWriteUIGptmtamrTaplo\_(uint32\_t * \textcolor{keyword}{const} registerValue, \textcolor{keyword}{enum} GptmGptmtamrTaploValues\_ \textcolor{keyword}{const} taplo) \{}
+\DoxyCodeLine{00401     *registerValue \&= \string~(0x1 << 0);}
+\DoxyCodeLine{00402     *registerValue |= (taplo << 0);}
+\DoxyCodeLine{00403 \}}
+\DoxyCodeLine{00404 }
+\DoxyCodeLine{00405 }
+\DoxyCodeLine{00406 uint32\_t gptmShiReadGptmtamrTacintd\_(\textcolor{keyword}{enum} HalGptmCores \textcolor{keyword}{const} core) \{}
+\DoxyCodeLine{00407     \textcolor{keywordflow}{return} ((*((\textcolor{keyword}{volatile} uint32\_t *)(gptmGptmtamr\_ + gptmCoreBaseAddresses\_[core])) >> 0) \& 0x1);}
+\DoxyCodeLine{00408 \}}
+\DoxyCodeLine{00409 }
+\DoxyCodeLine{00410 uint32\_t gptmShiReadUIGptmtamrTacintd\_(uint32\_t \textcolor{keyword}{const} registerValue) \{}
+\DoxyCodeLine{00411     \textcolor{keywordflow}{return} ((registerValue >> 0) \& 0x1);}
+\DoxyCodeLine{00412 \}}
+\DoxyCodeLine{00413 }
+\DoxyCodeLine{00414 }
+\DoxyCodeLine{00415 \textcolor{keywordtype}{void} gptmShiWriteGptmtamrTacintd\_(\textcolor{keyword}{enum} HalGptmCores \textcolor{keyword}{const} core, \textcolor{keyword}{enum} GptmGptmtamrTacintdValues\_ \textcolor{keyword}{const} tacintd) \{}
+\DoxyCodeLine{00416     uint32\_t registerValue = *((\textcolor{keyword}{volatile} uint32\_t *)(gptmGptmtamr\_ + gptmCoreBaseAddresses\_[core]));}
+\DoxyCodeLine{00417 }
+\DoxyCodeLine{00418     registerValue \&= \string~(0x1 << 0);}
+\DoxyCodeLine{00419     registerValue |= (tacintd << 0);}
+\DoxyCodeLine{00420 }
+\DoxyCodeLine{00421     *((\textcolor{keyword}{volatile} uint32\_t *)(gptmGptmtamr\_ + gptmCoreBaseAddresses\_[core])) = registerValue;}
+\DoxyCodeLine{00422 \}}
+\DoxyCodeLine{00423 }
+\DoxyCodeLine{00424 \textcolor{keywordtype}{void} gptmShiWriteUIGptmtamrTacintd\_(uint32\_t * \textcolor{keyword}{const} registerValue, \textcolor{keyword}{enum} GptmGptmtamrTacintdValues\_ \textcolor{keyword}{const} tacintd) \{}
+\DoxyCodeLine{00425     *registerValue \&= \string~(0x1 << 0);}
+\DoxyCodeLine{00426     *registerValue |= (tacintd << 0);}
+\DoxyCodeLine{00427 \}}
+\DoxyCodeLine{00428 }
+\DoxyCodeLine{00429 }
+\DoxyCodeLine{00430 uint32\_t gptmShiReadGptmtamrTcact\_(\textcolor{keyword}{enum} HalGptmCores \textcolor{keyword}{const} core) \{}
+\DoxyCodeLine{00431     \textcolor{keywordflow}{return} ((*((\textcolor{keyword}{volatile} uint32\_t *)(gptmGptmtamr\_ + gptmCoreBaseAddresses\_[core])) >> 0) \& 0x7);}
+\DoxyCodeLine{00432 \}}
+\DoxyCodeLine{00433 }
+\DoxyCodeLine{00434 uint32\_t gptmShiReadUIGptmtamrTcact\_(uint32\_t \textcolor{keyword}{const} registerValue) \{}
+\DoxyCodeLine{00435     \textcolor{keywordflow}{return} ((registerValue >> 0) \& 0x7);}
+\DoxyCodeLine{00436 \}}
+\DoxyCodeLine{00437 }
+\DoxyCodeLine{00438 }
+\DoxyCodeLine{00439 \textcolor{keywordtype}{void} gptmShiWriteGptmtamrTcact\_(\textcolor{keyword}{enum} HalGptmCores \textcolor{keyword}{const} core, \textcolor{keyword}{enum} GptmGptmtamrTcactValues\_ \textcolor{keyword}{const} tcact) \{}
+\DoxyCodeLine{00440     uint32\_t registerValue = *((\textcolor{keyword}{volatile} uint32\_t *)(gptmGptmtamr\_ + gptmCoreBaseAddresses\_[core]));}
+\DoxyCodeLine{00441 }
+\DoxyCodeLine{00442     registerValue \&= \string~(0x7 << 0);}
+\DoxyCodeLine{00443     registerValue |= (tcact << 0);}
+\DoxyCodeLine{00444 }
+\DoxyCodeLine{00445     *((\textcolor{keyword}{volatile} uint32\_t *)(gptmGptmtamr\_ + gptmCoreBaseAddresses\_[core])) = registerValue;}
+\DoxyCodeLine{00446 \}}
+\DoxyCodeLine{00447 }
+\DoxyCodeLine{00448 \textcolor{keywordtype}{void} gptmShiWriteUIGptmtamrTcact\_(uint32\_t * \textcolor{keyword}{const} registerValue, \textcolor{keyword}{enum} GptmGptmtamrTcactValues\_ \textcolor{keyword}{const} tcact) \{}
+\DoxyCodeLine{00449     *registerValue \&= \string~(0x7 << 0);}
+\DoxyCodeLine{00450     *registerValue |= (tcact << 0);}
+\DoxyCodeLine{00451 \}}
+\DoxyCodeLine{00452 }
+\DoxyCodeLine{00453 }
+\DoxyCodeLine{00454 uint32\_t gptmShiReadGptmtbmrTbmr\_(\textcolor{keyword}{enum} HalGptmCores \textcolor{keyword}{const} core) \{}
+\DoxyCodeLine{00455     \textcolor{keywordflow}{return} ((*((\textcolor{keyword}{volatile} uint32\_t *)(gptmGptmtbmr\_ + gptmCoreBaseAddresses\_[core])) >> 0) \& 0x3);}
+\DoxyCodeLine{00456 \}}
+\DoxyCodeLine{00457 }
+\DoxyCodeLine{00458 uint32\_t gptmShiReadUIGptmtbmrTbmr\_(uint32\_t \textcolor{keyword}{const} registerValue) \{}
+\DoxyCodeLine{00459     \textcolor{keywordflow}{return} ((registerValue >> 0) \& 0x3);}
+\DoxyCodeLine{00460 \}}
+\DoxyCodeLine{00461 }
+\DoxyCodeLine{00462 }
+\DoxyCodeLine{00463 \textcolor{keywordtype}{void} gptmShiWriteGptmtbmrTbmr\_(\textcolor{keyword}{enum} HalGptmCores \textcolor{keyword}{const} core, \textcolor{keyword}{enum} GptmGptmtbmrTbmrValues\_ \textcolor{keyword}{const} tbmr) \{}
+\DoxyCodeLine{00464     uint32\_t registerValue = *((\textcolor{keyword}{volatile} uint32\_t *)(gptmGptmtbmr\_ + gptmCoreBaseAddresses\_[core]));}
+\DoxyCodeLine{00465 }
+\DoxyCodeLine{00466     registerValue \&= \string~(0x3 << 0);}
+\DoxyCodeLine{00467     registerValue |= (tbmr << 0);}
+\DoxyCodeLine{00468 }
+\DoxyCodeLine{00469     *((\textcolor{keyword}{volatile} uint32\_t *)(gptmGptmtbmr\_ + gptmCoreBaseAddresses\_[core])) = registerValue;}
+\DoxyCodeLine{00470 \}}
+\DoxyCodeLine{00471 }
+\DoxyCodeLine{00472 \textcolor{keywordtype}{void} gptmShiWriteUIGptmtbmrTbmr\_(uint32\_t * \textcolor{keyword}{const} registerValue, \textcolor{keyword}{enum} GptmGptmtbmrTbmrValues\_ \textcolor{keyword}{const} tbmr) \{}
+\DoxyCodeLine{00473     *registerValue \&= \string~(0x3 << 0);}
+\DoxyCodeLine{00474     *registerValue |= (tbmr << 0);}
+\DoxyCodeLine{00475 \}}
+\DoxyCodeLine{00476 }
+\DoxyCodeLine{00477 }
+\DoxyCodeLine{00478 uint32\_t gptmShiReadGptmtbmrTbcmr\_(\textcolor{keyword}{enum} HalGptmCores \textcolor{keyword}{const} core) \{}
+\DoxyCodeLine{00479     \textcolor{keywordflow}{return} ((*((\textcolor{keyword}{volatile} uint32\_t *)(gptmGptmtbmr\_ + gptmCoreBaseAddresses\_[core])) >> 0) \& 0x1);}
+\DoxyCodeLine{00480 \}}
+\DoxyCodeLine{00481 }
+\DoxyCodeLine{00482 uint32\_t gptmShiReadUIGptmtbmrTbcmr\_(uint32\_t \textcolor{keyword}{const} registerValue) \{}
+\DoxyCodeLine{00483     \textcolor{keywordflow}{return} ((registerValue >> 0) \& 0x1);}
+\DoxyCodeLine{00484 \}}
+\DoxyCodeLine{00485 }
+\DoxyCodeLine{00486 }
+\DoxyCodeLine{00487 \textcolor{keywordtype}{void} gptmShiWriteGptmtbmrTbcmr\_(\textcolor{keyword}{enum} HalGptmCores \textcolor{keyword}{const} core, \textcolor{keyword}{enum} GptmGptmtbmrTbcmrValues\_ \textcolor{keyword}{const} tbcmr) \{}
+\DoxyCodeLine{00488     uint32\_t registerValue = *((\textcolor{keyword}{volatile} uint32\_t *)(gptmGptmtbmr\_ + gptmCoreBaseAddresses\_[core]));}
+\DoxyCodeLine{00489 }
+\DoxyCodeLine{00490     registerValue \&= \string~(0x1 << 0);}
+\DoxyCodeLine{00491     registerValue |= (tbcmr << 0);}
+\DoxyCodeLine{00492 }
+\DoxyCodeLine{00493     *((\textcolor{keyword}{volatile} uint32\_t *)(gptmGptmtbmr\_ + gptmCoreBaseAddresses\_[core])) = registerValue;}
+\DoxyCodeLine{00494 \}}
+\DoxyCodeLine{00495 }
+\DoxyCodeLine{00496 \textcolor{keywordtype}{void} gptmShiWriteUIGptmtbmrTbcmr\_(uint32\_t * \textcolor{keyword}{const} registerValue, \textcolor{keyword}{enum} GptmGptmtbmrTbcmrValues\_ \textcolor{keyword}{const} tbcmr) \{}
+\DoxyCodeLine{00497     *registerValue \&= \string~(0x1 << 0);}
+\DoxyCodeLine{00498     *registerValue |= (tbcmr << 0);}
+\DoxyCodeLine{00499 \}}
+\DoxyCodeLine{00500 }
+\DoxyCodeLine{00501 }
+\DoxyCodeLine{00502 uint32\_t gptmShiReadGptmtbmrTbams\_(\textcolor{keyword}{enum} HalGptmCores \textcolor{keyword}{const} core) \{}
+\DoxyCodeLine{00503     \textcolor{keywordflow}{return} ((*((\textcolor{keyword}{volatile} uint32\_t *)(gptmGptmtbmr\_ + gptmCoreBaseAddresses\_[core])) >> 0) \& 0x1);}
+\DoxyCodeLine{00504 \}}
+\DoxyCodeLine{00505 }
+\DoxyCodeLine{00506 uint32\_t gptmShiReadUIGptmtbmrTbams\_(uint32\_t \textcolor{keyword}{const} registerValue) \{}
+\DoxyCodeLine{00507     \textcolor{keywordflow}{return} ((registerValue >> 0) \& 0x1);}
+\DoxyCodeLine{00508 \}}
+\DoxyCodeLine{00509 }
+\DoxyCodeLine{00510 }
+\DoxyCodeLine{00511 \textcolor{keywordtype}{void} gptmShiWriteGptmtbmrTbams\_(\textcolor{keyword}{enum} HalGptmCores \textcolor{keyword}{const} core, \textcolor{keyword}{enum} GptmGptmtbmrTbamsValues\_ \textcolor{keyword}{const} tbams) \{}
+\DoxyCodeLine{00512     uint32\_t registerValue = *((\textcolor{keyword}{volatile} uint32\_t *)(gptmGptmtbmr\_ + gptmCoreBaseAddresses\_[core]));}
+\DoxyCodeLine{00513 }
+\DoxyCodeLine{00514     registerValue \&= \string~(0x1 << 0);}
+\DoxyCodeLine{00515     registerValue |= (tbams << 0);}
+\DoxyCodeLine{00516 }
+\DoxyCodeLine{00517     *((\textcolor{keyword}{volatile} uint32\_t *)(gptmGptmtbmr\_ + gptmCoreBaseAddresses\_[core])) = registerValue;}
+\DoxyCodeLine{00518 \}}
+\DoxyCodeLine{00519 }
+\DoxyCodeLine{00520 \textcolor{keywordtype}{void} gptmShiWriteUIGptmtbmrTbams\_(uint32\_t * \textcolor{keyword}{const} registerValue, \textcolor{keyword}{enum} GptmGptmtbmrTbamsValues\_ \textcolor{keyword}{const} tbams) \{}
+\DoxyCodeLine{00521     *registerValue \&= \string~(0x1 << 0);}
+\DoxyCodeLine{00522     *registerValue |= (tbams << 0);}
+\DoxyCodeLine{00523 \}}
+\DoxyCodeLine{00524 }
+\DoxyCodeLine{00525 }
+\DoxyCodeLine{00526 uint32\_t gptmShiReadGptmtbmrTbcdir\_(\textcolor{keyword}{enum} HalGptmCores \textcolor{keyword}{const} core) \{}
+\DoxyCodeLine{00527     \textcolor{keywordflow}{return} ((*((\textcolor{keyword}{volatile} uint32\_t *)(gptmGptmtbmr\_ + gptmCoreBaseAddresses\_[core])) >> 0) \& 0x1);}
+\DoxyCodeLine{00528 \}}
+\DoxyCodeLine{00529 }
+\DoxyCodeLine{00530 uint32\_t gptmShiReadUIGptmtbmrTbcdir\_(uint32\_t \textcolor{keyword}{const} registerValue) \{}
+\DoxyCodeLine{00531     \textcolor{keywordflow}{return} ((registerValue >> 0) \& 0x1);}
+\DoxyCodeLine{00532 \}}
+\DoxyCodeLine{00533 }
+\DoxyCodeLine{00534 }
+\DoxyCodeLine{00535 \textcolor{keywordtype}{void} gptmShiWriteGptmtbmrTbcdir\_(\textcolor{keyword}{enum} HalGptmCores \textcolor{keyword}{const} core, \textcolor{keyword}{enum} GptmGptmtbmrTbcdirValues\_ \textcolor{keyword}{const} tbcdir) \{}
+\DoxyCodeLine{00536     uint32\_t registerValue = *((\textcolor{keyword}{volatile} uint32\_t *)(gptmGptmtbmr\_ + gptmCoreBaseAddresses\_[core]));}
+\DoxyCodeLine{00537 }
+\DoxyCodeLine{00538     registerValue \&= \string~(0x1 << 0);}
+\DoxyCodeLine{00539     registerValue |= (tbcdir << 0);}
+\DoxyCodeLine{00540 }
+\DoxyCodeLine{00541     *((\textcolor{keyword}{volatile} uint32\_t *)(gptmGptmtbmr\_ + gptmCoreBaseAddresses\_[core])) = registerValue;}
+\DoxyCodeLine{00542 \}}
+\DoxyCodeLine{00543 }
+\DoxyCodeLine{00544 \textcolor{keywordtype}{void} gptmShiWriteUIGptmtbmrTbcdir\_(uint32\_t * \textcolor{keyword}{const} registerValue, \textcolor{keyword}{enum} GptmGptmtbmrTbcdirValues\_ \textcolor{keyword}{const} tbcdir) \{}
+\DoxyCodeLine{00545     *registerValue \&= \string~(0x1 << 0);}
+\DoxyCodeLine{00546     *registerValue |= (tbcdir << 0);}
+\DoxyCodeLine{00547 \}}
+\DoxyCodeLine{00548 }
+\DoxyCodeLine{00549 }
+\DoxyCodeLine{00550 uint32\_t gptmShiReadGptmtbmrTbmie\_(\textcolor{keyword}{enum} HalGptmCores \textcolor{keyword}{const} core) \{}
+\DoxyCodeLine{00551     \textcolor{keywordflow}{return} ((*((\textcolor{keyword}{volatile} uint32\_t *)(gptmGptmtbmr\_ + gptmCoreBaseAddresses\_[core])) >> 0) \& 0x1);}
+\DoxyCodeLine{00552 \}}
+\DoxyCodeLine{00553 }
+\DoxyCodeLine{00554 uint32\_t gptmShiReadUIGptmtbmrTbmie\_(uint32\_t \textcolor{keyword}{const} registerValue) \{}
+\DoxyCodeLine{00555     \textcolor{keywordflow}{return} ((registerValue >> 0) \& 0x1);}
+\DoxyCodeLine{00556 \}}
+\DoxyCodeLine{00557 }
+\DoxyCodeLine{00558 }
+\DoxyCodeLine{00559 \textcolor{keywordtype}{void} gptmShiWriteGptmtbmrTbmie\_(\textcolor{keyword}{enum} HalGptmCores \textcolor{keyword}{const} core, \textcolor{keyword}{enum} GptmGptmtbmrTbmieValues\_ \textcolor{keyword}{const} tbmie) \{}
+\DoxyCodeLine{00560     uint32\_t registerValue = *((\textcolor{keyword}{volatile} uint32\_t *)(gptmGptmtbmr\_ + gptmCoreBaseAddresses\_[core]));}
+\DoxyCodeLine{00561 }
+\DoxyCodeLine{00562     registerValue \&= \string~(0x1 << 0);}
+\DoxyCodeLine{00563     registerValue |= (tbmie << 0);}
+\DoxyCodeLine{00564 }
+\DoxyCodeLine{00565     *((\textcolor{keyword}{volatile} uint32\_t *)(gptmGptmtbmr\_ + gptmCoreBaseAddresses\_[core])) = registerValue;}
+\DoxyCodeLine{00566 \}}
+\DoxyCodeLine{00567 }
+\DoxyCodeLine{00568 \textcolor{keywordtype}{void} gptmShiWriteUIGptmtbmrTbmie\_(uint32\_t * \textcolor{keyword}{const} registerValue, \textcolor{keyword}{enum} GptmGptmtbmrTbmieValues\_ \textcolor{keyword}{const} tbmie) \{}
+\DoxyCodeLine{00569     *registerValue \&= \string~(0x1 << 0);}
+\DoxyCodeLine{00570     *registerValue |= (tbmie << 0);}
+\DoxyCodeLine{00571 \}}
+\DoxyCodeLine{00572 }
+\DoxyCodeLine{00573 }
+\DoxyCodeLine{00574 uint32\_t gptmShiReadGptmtbmrTbwot\_(\textcolor{keyword}{enum} HalGptmCores \textcolor{keyword}{const} core) \{}
+\DoxyCodeLine{00575     \textcolor{keywordflow}{return} ((*((\textcolor{keyword}{volatile} uint32\_t *)(gptmGptmtbmr\_ + gptmCoreBaseAddresses\_[core])) >> 0) \& 0x1);}
+\DoxyCodeLine{00576 \}}
+\DoxyCodeLine{00577 }
+\DoxyCodeLine{00578 uint32\_t gptmShiReadUIGptmtbmrTbwot\_(uint32\_t \textcolor{keyword}{const} registerValue) \{}
+\DoxyCodeLine{00579     \textcolor{keywordflow}{return} ((registerValue >> 0) \& 0x1);}
+\DoxyCodeLine{00580 \}}
+\DoxyCodeLine{00581 }
+\DoxyCodeLine{00582 }
+\DoxyCodeLine{00583 \textcolor{keywordtype}{void} gptmShiWriteGptmtbmrTbwot\_(\textcolor{keyword}{enum} HalGptmCores \textcolor{keyword}{const} core, \textcolor{keyword}{enum} GptmGptmtbmrTbwotValues\_ \textcolor{keyword}{const} tbwot) \{}
+\DoxyCodeLine{00584     uint32\_t registerValue = *((\textcolor{keyword}{volatile} uint32\_t *)(gptmGptmtbmr\_ + gptmCoreBaseAddresses\_[core]));}
+\DoxyCodeLine{00585 }
+\DoxyCodeLine{00586     registerValue \&= \string~(0x1 << 0);}
+\DoxyCodeLine{00587     registerValue |= (tbwot << 0);}
+\DoxyCodeLine{00588 }
+\DoxyCodeLine{00589     *((\textcolor{keyword}{volatile} uint32\_t *)(gptmGptmtbmr\_ + gptmCoreBaseAddresses\_[core])) = registerValue;}
+\DoxyCodeLine{00590 \}}
+\DoxyCodeLine{00591 }
+\DoxyCodeLine{00592 \textcolor{keywordtype}{void} gptmShiWriteUIGptmtbmrTbwot\_(uint32\_t * \textcolor{keyword}{const} registerValue, \textcolor{keyword}{enum} GptmGptmtbmrTbwotValues\_ \textcolor{keyword}{const} tbwot) \{}
+\DoxyCodeLine{00593     *registerValue \&= \string~(0x1 << 0);}
+\DoxyCodeLine{00594     *registerValue |= (tbwot << 0);}
+\DoxyCodeLine{00595 \}}
+\DoxyCodeLine{00596 }
+\DoxyCodeLine{00597 }
+\DoxyCodeLine{00598 uint32\_t gptmShiReadGptmtbmrTbsnaps\_(\textcolor{keyword}{enum} HalGptmCores \textcolor{keyword}{const} core) \{}
+\DoxyCodeLine{00599     \textcolor{keywordflow}{return} ((*((\textcolor{keyword}{volatile} uint32\_t *)(gptmGptmtbmr\_ + gptmCoreBaseAddresses\_[core])) >> 0) \& 0x1);}
+\DoxyCodeLine{00600 \}}
+\DoxyCodeLine{00601 }
+\DoxyCodeLine{00602 uint32\_t gptmShiReadUIGptmtbmrTbsnaps\_(uint32\_t \textcolor{keyword}{const} registerValue) \{}
+\DoxyCodeLine{00603     \textcolor{keywordflow}{return} ((registerValue >> 0) \& 0x1);}
+\DoxyCodeLine{00604 \}}
+\DoxyCodeLine{00605 }
+\DoxyCodeLine{00606 }
+\DoxyCodeLine{00607 \textcolor{keywordtype}{void} gptmShiWriteGptmtbmrTbsnaps\_(\textcolor{keyword}{enum} HalGptmCores \textcolor{keyword}{const} core, \textcolor{keyword}{enum} GptmGptmtbmrTbsnapsValues\_ \textcolor{keyword}{const} tbsnaps) \{}
+\DoxyCodeLine{00608     uint32\_t registerValue = *((\textcolor{keyword}{volatile} uint32\_t *)(gptmGptmtbmr\_ + gptmCoreBaseAddresses\_[core]));}
+\DoxyCodeLine{00609 }
+\DoxyCodeLine{00610     registerValue \&= \string~(0x1 << 0);}
+\DoxyCodeLine{00611     registerValue |= (tbsnaps << 0);}
+\DoxyCodeLine{00612 }
+\DoxyCodeLine{00613     *((\textcolor{keyword}{volatile} uint32\_t *)(gptmGptmtbmr\_ + gptmCoreBaseAddresses\_[core])) = registerValue;}
+\DoxyCodeLine{00614 \}}
+\DoxyCodeLine{00615 }
+\DoxyCodeLine{00616 \textcolor{keywordtype}{void} gptmShiWriteUIGptmtbmrTbsnaps\_(uint32\_t * \textcolor{keyword}{const} registerValue, \textcolor{keyword}{enum} GptmGptmtbmrTbsnapsValues\_ \textcolor{keyword}{const} tbsnaps) \{}
+\DoxyCodeLine{00617     *registerValue \&= \string~(0x1 << 0);}
+\DoxyCodeLine{00618     *registerValue |= (tbsnaps << 0);}
+\DoxyCodeLine{00619 \}}
+\DoxyCodeLine{00620 }
+\DoxyCodeLine{00621 }
+\DoxyCodeLine{00622 uint32\_t gptmShiReadGptmtbmrTbild\_(\textcolor{keyword}{enum} HalGptmCores \textcolor{keyword}{const} core) \{}
+\DoxyCodeLine{00623     \textcolor{keywordflow}{return} ((*((\textcolor{keyword}{volatile} uint32\_t *)(gptmGptmtbmr\_ + gptmCoreBaseAddresses\_[core])) >> 0) \& 0x1);}
+\DoxyCodeLine{00624 \}}
+\DoxyCodeLine{00625 }
+\DoxyCodeLine{00626 uint32\_t gptmShiReadUIGptmtbmrTbild\_(uint32\_t \textcolor{keyword}{const} registerValue) \{}
+\DoxyCodeLine{00627     \textcolor{keywordflow}{return} ((registerValue >> 0) \& 0x1);}
+\DoxyCodeLine{00628 \}}
+\DoxyCodeLine{00629 }
+\DoxyCodeLine{00630 }
+\DoxyCodeLine{00631 \textcolor{keywordtype}{void} gptmShiWriteGptmtbmrTbild\_(\textcolor{keyword}{enum} HalGptmCores \textcolor{keyword}{const} core, \textcolor{keyword}{enum} GptmGptmtbmrTbildValues\_ \textcolor{keyword}{const} tbild) \{}
+\DoxyCodeLine{00632     uint32\_t registerValue = *((\textcolor{keyword}{volatile} uint32\_t *)(gptmGptmtbmr\_ + gptmCoreBaseAddresses\_[core]));}
+\DoxyCodeLine{00633 }
+\DoxyCodeLine{00634     registerValue \&= \string~(0x1 << 0);}
+\DoxyCodeLine{00635     registerValue |= (tbild << 0);}
+\DoxyCodeLine{00636 }
+\DoxyCodeLine{00637     *((\textcolor{keyword}{volatile} uint32\_t *)(gptmGptmtbmr\_ + gptmCoreBaseAddresses\_[core])) = registerValue;}
+\DoxyCodeLine{00638 \}}
+\DoxyCodeLine{00639 }
+\DoxyCodeLine{00640 \textcolor{keywordtype}{void} gptmShiWriteUIGptmtbmrTbild\_(uint32\_t * \textcolor{keyword}{const} registerValue, \textcolor{keyword}{enum} GptmGptmtbmrTbildValues\_ \textcolor{keyword}{const} tbild) \{}
+\DoxyCodeLine{00641     *registerValue \&= \string~(0x1 << 0);}
+\DoxyCodeLine{00642     *registerValue |= (tbild << 0);}
+\DoxyCodeLine{00643 \}}
+\DoxyCodeLine{00644 }
+\DoxyCodeLine{00645 }
+\DoxyCodeLine{00646 uint32\_t gptmShiReadGptmtbmrTbpwmie\_(\textcolor{keyword}{enum} HalGptmCores \textcolor{keyword}{const} core) \{}
+\DoxyCodeLine{00647     \textcolor{keywordflow}{return} ((*((\textcolor{keyword}{volatile} uint32\_t *)(gptmGptmtbmr\_ + gptmCoreBaseAddresses\_[core])) >> 0) \& 0x1);}
+\DoxyCodeLine{00648 \}}
+\DoxyCodeLine{00649 }
+\DoxyCodeLine{00650 uint32\_t gptmShiReadUIGptmtbmrTbpwmie\_(uint32\_t \textcolor{keyword}{const} registerValue) \{}
+\DoxyCodeLine{00651     \textcolor{keywordflow}{return} ((registerValue >> 0) \& 0x1);}
+\DoxyCodeLine{00652 \}}
+\DoxyCodeLine{00653 }
+\DoxyCodeLine{00654 }
+\DoxyCodeLine{00655 \textcolor{keywordtype}{void} gptmShiWriteGptmtbmrTbpwmie\_(\textcolor{keyword}{enum} HalGptmCores \textcolor{keyword}{const} core, \textcolor{keyword}{enum} GptmGptmtbmrTbpwmieValues\_ \textcolor{keyword}{const} tbpwmie) \{}
+\DoxyCodeLine{00656     uint32\_t registerValue = *((\textcolor{keyword}{volatile} uint32\_t *)(gptmGptmtbmr\_ + gptmCoreBaseAddresses\_[core]));}
+\DoxyCodeLine{00657 }
+\DoxyCodeLine{00658     registerValue \&= \string~(0x1 << 0);}
+\DoxyCodeLine{00659     registerValue |= (tbpwmie << 0);}
+\DoxyCodeLine{00660 }
+\DoxyCodeLine{00661     *((\textcolor{keyword}{volatile} uint32\_t *)(gptmGptmtbmr\_ + gptmCoreBaseAddresses\_[core])) = registerValue;}
+\DoxyCodeLine{00662 \}}
+\DoxyCodeLine{00663 }
+\DoxyCodeLine{00664 \textcolor{keywordtype}{void} gptmShiWriteUIGptmtbmrTbpwmie\_(uint32\_t * \textcolor{keyword}{const} registerValue, \textcolor{keyword}{enum} GptmGptmtbmrTbpwmieValues\_ \textcolor{keyword}{const} tbpwmie) \{}
+\DoxyCodeLine{00665     *registerValue \&= \string~(0x1 << 0);}
+\DoxyCodeLine{00666     *registerValue |= (tbpwmie << 0);}
+\DoxyCodeLine{00667 \}}
+\DoxyCodeLine{00668 }
+\DoxyCodeLine{00669 }
+\DoxyCodeLine{00670 uint32\_t gptmShiReadGptmtbmrTbmrsu\_(\textcolor{keyword}{enum} HalGptmCores \textcolor{keyword}{const} core) \{}
+\DoxyCodeLine{00671     \textcolor{keywordflow}{return} ((*((\textcolor{keyword}{volatile} uint32\_t *)(gptmGptmtbmr\_ + gptmCoreBaseAddresses\_[core])) >> 0) \& 0x1);}
+\DoxyCodeLine{00672 \}}
+\DoxyCodeLine{00673 }
+\DoxyCodeLine{00674 uint32\_t gptmShiReadUIGptmtbmrTbmrsu\_(uint32\_t \textcolor{keyword}{const} registerValue) \{}
+\DoxyCodeLine{00675     \textcolor{keywordflow}{return} ((registerValue >> 0) \& 0x1);}
+\DoxyCodeLine{00676 \}}
+\DoxyCodeLine{00677 }
+\DoxyCodeLine{00678 }
+\DoxyCodeLine{00679 \textcolor{keywordtype}{void} gptmShiWriteGptmtbmrTbmrsu\_(\textcolor{keyword}{enum} HalGptmCores \textcolor{keyword}{const} core, \textcolor{keyword}{enum} GptmGptmtbmrTbmrsuValues\_ \textcolor{keyword}{const} tbmrsu) \{}
+\DoxyCodeLine{00680     uint32\_t registerValue = *((\textcolor{keyword}{volatile} uint32\_t *)(gptmGptmtbmr\_ + gptmCoreBaseAddresses\_[core]));}
+\DoxyCodeLine{00681 }
+\DoxyCodeLine{00682     registerValue \&= \string~(0x1 << 0);}
+\DoxyCodeLine{00683     registerValue |= (tbmrsu << 0);}
+\DoxyCodeLine{00684 }
+\DoxyCodeLine{00685     *((\textcolor{keyword}{volatile} uint32\_t *)(gptmGptmtbmr\_ + gptmCoreBaseAddresses\_[core])) = registerValue;}
+\DoxyCodeLine{00686 \}}
+\DoxyCodeLine{00687 }
+\DoxyCodeLine{00688 \textcolor{keywordtype}{void} gptmShiWriteUIGptmtbmrTbmrsu\_(uint32\_t * \textcolor{keyword}{const} registerValue, \textcolor{keyword}{enum} GptmGptmtbmrTbmrsuValues\_ \textcolor{keyword}{const} tbmrsu) \{}
+\DoxyCodeLine{00689     *registerValue \&= \string~(0x1 << 0);}
+\DoxyCodeLine{00690     *registerValue |= (tbmrsu << 0);}
+\DoxyCodeLine{00691 \}}
+\DoxyCodeLine{00692 }
+\DoxyCodeLine{00693 }
+\DoxyCodeLine{00694 uint32\_t gptmShiReadGptmtbmrTbplo\_(\textcolor{keyword}{enum} HalGptmCores \textcolor{keyword}{const} core) \{}
+\DoxyCodeLine{00695     \textcolor{keywordflow}{return} ((*((\textcolor{keyword}{volatile} uint32\_t *)(gptmGptmtbmr\_ + gptmCoreBaseAddresses\_[core])) >> 0) \& 0x1);}
+\DoxyCodeLine{00696 \}}
+\DoxyCodeLine{00697 }
+\DoxyCodeLine{00698 uint32\_t gptmShiReadUIGptmtbmrTbplo\_(uint32\_t \textcolor{keyword}{const} registerValue) \{}
+\DoxyCodeLine{00699     \textcolor{keywordflow}{return} ((registerValue >> 0) \& 0x1);}
+\DoxyCodeLine{00700 \}}
+\DoxyCodeLine{00701 }
+\DoxyCodeLine{00702 }
+\DoxyCodeLine{00703 \textcolor{keywordtype}{void} gptmShiWriteGptmtbmrTbplo\_(\textcolor{keyword}{enum} HalGptmCores \textcolor{keyword}{const} core, \textcolor{keyword}{enum} GptmGptmtbmrTbploValues\_ \textcolor{keyword}{const} tbplo) \{}
+\DoxyCodeLine{00704     uint32\_t registerValue = *((\textcolor{keyword}{volatile} uint32\_t *)(gptmGptmtbmr\_ + gptmCoreBaseAddresses\_[core]));}
+\DoxyCodeLine{00705 }
+\DoxyCodeLine{00706     registerValue \&= \string~(0x1 << 0);}
+\DoxyCodeLine{00707     registerValue |= (tbplo << 0);}
+\DoxyCodeLine{00708 }
+\DoxyCodeLine{00709     *((\textcolor{keyword}{volatile} uint32\_t *)(gptmGptmtbmr\_ + gptmCoreBaseAddresses\_[core])) = registerValue;}
+\DoxyCodeLine{00710 \}}
+\DoxyCodeLine{00711 }
+\DoxyCodeLine{00712 \textcolor{keywordtype}{void} gptmShiWriteUIGptmtbmrTbplo\_(uint32\_t * \textcolor{keyword}{const} registerValue, \textcolor{keyword}{enum} GptmGptmtbmrTbploValues\_ \textcolor{keyword}{const} tbplo) \{}
+\DoxyCodeLine{00713     *registerValue \&= \string~(0x1 << 0);}
+\DoxyCodeLine{00714     *registerValue |= (tbplo << 0);}
+\DoxyCodeLine{00715 \}}
+\DoxyCodeLine{00716 }
+\DoxyCodeLine{00717 }
+\DoxyCodeLine{00718 uint32\_t gptmShiReadGptmtbmrTbcintd\_(\textcolor{keyword}{enum} HalGptmCores \textcolor{keyword}{const} core) \{}
+\DoxyCodeLine{00719     \textcolor{keywordflow}{return} ((*((\textcolor{keyword}{volatile} uint32\_t *)(gptmGptmtbmr\_ + gptmCoreBaseAddresses\_[core])) >> 0) \& 0x1);}
+\DoxyCodeLine{00720 \}}
+\DoxyCodeLine{00721 }
+\DoxyCodeLine{00722 uint32\_t gptmShiReadUIGptmtbmrTbcintd\_(uint32\_t \textcolor{keyword}{const} registerValue) \{}
+\DoxyCodeLine{00723     \textcolor{keywordflow}{return} ((registerValue >> 0) \& 0x1);}
+\DoxyCodeLine{00724 \}}
+\DoxyCodeLine{00725 }
+\DoxyCodeLine{00726 }
+\DoxyCodeLine{00727 \textcolor{keywordtype}{void} gptmShiWriteGptmtbmrTbcintd\_(\textcolor{keyword}{enum} HalGptmCores \textcolor{keyword}{const} core, \textcolor{keyword}{enum} GptmGptmtbmrTbcintdValues\_ \textcolor{keyword}{const} tbcintd) \{}
+\DoxyCodeLine{00728     uint32\_t registerValue = *((\textcolor{keyword}{volatile} uint32\_t *)(gptmGptmtbmr\_ + gptmCoreBaseAddresses\_[core]));}
+\DoxyCodeLine{00729 }
+\DoxyCodeLine{00730     registerValue \&= \string~(0x1 << 0);}
+\DoxyCodeLine{00731     registerValue |= (tbcintd << 0);}
+\DoxyCodeLine{00732 }
+\DoxyCodeLine{00733     *((\textcolor{keyword}{volatile} uint32\_t *)(gptmGptmtbmr\_ + gptmCoreBaseAddresses\_[core])) = registerValue;}
+\DoxyCodeLine{00734 \}}
+\DoxyCodeLine{00735 }
+\DoxyCodeLine{00736 \textcolor{keywordtype}{void} gptmShiWriteUIGptmtbmrTbcintd\_(uint32\_t * \textcolor{keyword}{const} registerValue, \textcolor{keyword}{enum} GptmGptmtbmrTbcintdValues\_ \textcolor{keyword}{const} tbcintd) \{}
+\DoxyCodeLine{00737     *registerValue \&= \string~(0x1 << 0);}
+\DoxyCodeLine{00738     *registerValue |= (tbcintd << 0);}
+\DoxyCodeLine{00739 \}}
+\DoxyCodeLine{00740 }
+\DoxyCodeLine{00741 }
+\DoxyCodeLine{00742 uint32\_t gptmShiReadGptmtbmrTcact\_(\textcolor{keyword}{enum} HalGptmCores \textcolor{keyword}{const} core) \{}
+\DoxyCodeLine{00743     \textcolor{keywordflow}{return} ((*((\textcolor{keyword}{volatile} uint32\_t *)(gptmGptmtbmr\_ + gptmCoreBaseAddresses\_[core])) >> 0) \& 0x7);}
+\DoxyCodeLine{00744 \}}
+\DoxyCodeLine{00745 }
+\DoxyCodeLine{00746 uint32\_t gptmShiReadUIGptmtbmrTcact\_(uint32\_t \textcolor{keyword}{const} registerValue) \{}
+\DoxyCodeLine{00747     \textcolor{keywordflow}{return} ((registerValue >> 0) \& 0x7);}
+\DoxyCodeLine{00748 \}}
+\DoxyCodeLine{00749 }
+\DoxyCodeLine{00750 }
+\DoxyCodeLine{00751 \textcolor{keywordtype}{void} gptmShiWriteGptmtbmrTcact\_(\textcolor{keyword}{enum} HalGptmCores \textcolor{keyword}{const} core, \textcolor{keyword}{enum} GptmGptmtbmrTcactValues\_ \textcolor{keyword}{const} tcact) \{}
+\DoxyCodeLine{00752     uint32\_t registerValue = *((\textcolor{keyword}{volatile} uint32\_t *)(gptmGptmtbmr\_ + gptmCoreBaseAddresses\_[core]));}
+\DoxyCodeLine{00753 }
+\DoxyCodeLine{00754     registerValue \&= \string~(0x7 << 0);}
+\DoxyCodeLine{00755     registerValue |= (tcact << 0);}
+\DoxyCodeLine{00756 }
+\DoxyCodeLine{00757     *((\textcolor{keyword}{volatile} uint32\_t *)(gptmGptmtbmr\_ + gptmCoreBaseAddresses\_[core])) = registerValue;}
+\DoxyCodeLine{00758 \}}
+\DoxyCodeLine{00759 }
+\DoxyCodeLine{00760 \textcolor{keywordtype}{void} gptmShiWriteUIGptmtbmrTcact\_(uint32\_t * \textcolor{keyword}{const} registerValue, \textcolor{keyword}{enum} GptmGptmtbmrTcactValues\_ \textcolor{keyword}{const} tcact) \{}
+\DoxyCodeLine{00761     *registerValue \&= \string~(0x7 << 0);}
+\DoxyCodeLine{00762     *registerValue |= (tcact << 0);}
+\DoxyCodeLine{00763 \}}
+\DoxyCodeLine{00764 }
+\DoxyCodeLine{00765 }
+\DoxyCodeLine{00766 uint32\_t gptmShiReadGptmctlTaen\_(\textcolor{keyword}{enum} HalGptmCores \textcolor{keyword}{const} core) \{}
+\DoxyCodeLine{00767     \textcolor{keywordflow}{return} ((*((\textcolor{keyword}{volatile} uint32\_t *)(gptmGptmctl\_ + gptmCoreBaseAddresses\_[core])) >> 0) \& 0x1);}
+\DoxyCodeLine{00768 \}}
+\DoxyCodeLine{00769 }
+\DoxyCodeLine{00770 uint32\_t gptmShiReadUIGptmctlTaen\_(uint32\_t \textcolor{keyword}{const} registerValue) \{}
+\DoxyCodeLine{00771     \textcolor{keywordflow}{return} ((registerValue >> 0) \& 0x1);}
+\DoxyCodeLine{00772 \}}
+\DoxyCodeLine{00773 }
+\DoxyCodeLine{00774 }
+\DoxyCodeLine{00775 \textcolor{keywordtype}{void} gptmShiWriteGptmctlTaen\_(\textcolor{keyword}{enum} HalGptmCores \textcolor{keyword}{const} core, \textcolor{keyword}{enum} GptmGptmctlTaenValues\_ \textcolor{keyword}{const} taen) \{}
+\DoxyCodeLine{00776     uint32\_t registerValue = *((\textcolor{keyword}{volatile} uint32\_t *)(gptmGptmctl\_ + gptmCoreBaseAddresses\_[core]));}
+\DoxyCodeLine{00777 }
+\DoxyCodeLine{00778     registerValue \&= \string~(0x1 << 0);}
+\DoxyCodeLine{00779     registerValue |= (taen << 0);}
+\DoxyCodeLine{00780 }
+\DoxyCodeLine{00781     *((\textcolor{keyword}{volatile} uint32\_t *)(gptmGptmctl\_ + gptmCoreBaseAddresses\_[core])) = registerValue;}
+\DoxyCodeLine{00782 \}}
+\DoxyCodeLine{00783 }
+\DoxyCodeLine{00784 \textcolor{keywordtype}{void} gptmShiWriteUIGptmctlTaen\_(uint32\_t * \textcolor{keyword}{const} registerValue, \textcolor{keyword}{enum} GptmGptmctlTaenValues\_ \textcolor{keyword}{const} taen) \{}
+\DoxyCodeLine{00785     *registerValue \&= \string~(0x1 << 0);}
+\DoxyCodeLine{00786     *registerValue |= (taen << 0);}
+\DoxyCodeLine{00787 \}}
+\DoxyCodeLine{00788 }
+\DoxyCodeLine{00789 }
+\DoxyCodeLine{00790 uint32\_t gptmShiReadGptmctlTastall\_(\textcolor{keyword}{enum} HalGptmCores \textcolor{keyword}{const} core) \{}
+\DoxyCodeLine{00791     \textcolor{keywordflow}{return} ((*((\textcolor{keyword}{volatile} uint32\_t *)(gptmGptmctl\_ + gptmCoreBaseAddresses\_[core])) >> 0) \& 0x1);}
+\DoxyCodeLine{00792 \}}
+\DoxyCodeLine{00793 }
+\DoxyCodeLine{00794 uint32\_t gptmShiReadUIGptmctlTastall\_(uint32\_t \textcolor{keyword}{const} registerValue) \{}
+\DoxyCodeLine{00795     \textcolor{keywordflow}{return} ((registerValue >> 0) \& 0x1);}
+\DoxyCodeLine{00796 \}}
+\DoxyCodeLine{00797 }
+\DoxyCodeLine{00798 }
+\DoxyCodeLine{00799 \textcolor{keywordtype}{void} gptmShiWriteGptmctlTastall\_(\textcolor{keyword}{enum} HalGptmCores \textcolor{keyword}{const} core, \textcolor{keyword}{enum} GptmGptmctlTastallValues\_ \textcolor{keyword}{const} tastall) \{}
+\DoxyCodeLine{00800     uint32\_t registerValue = *((\textcolor{keyword}{volatile} uint32\_t *)(gptmGptmctl\_ + gptmCoreBaseAddresses\_[core]));}
+\DoxyCodeLine{00801 }
+\DoxyCodeLine{00802     registerValue \&= \string~(0x1 << 0);}
+\DoxyCodeLine{00803     registerValue |= (tastall << 0);}
+\DoxyCodeLine{00804 }
+\DoxyCodeLine{00805     *((\textcolor{keyword}{volatile} uint32\_t *)(gptmGptmctl\_ + gptmCoreBaseAddresses\_[core])) = registerValue;}
+\DoxyCodeLine{00806 \}}
+\DoxyCodeLine{00807 }
+\DoxyCodeLine{00808 \textcolor{keywordtype}{void} gptmShiWriteUIGptmctlTastall\_(uint32\_t * \textcolor{keyword}{const} registerValue, \textcolor{keyword}{enum} GptmGptmctlTastallValues\_ \textcolor{keyword}{const} tastall) \{}
+\DoxyCodeLine{00809     *registerValue \&= \string~(0x1 << 0);}
+\DoxyCodeLine{00810     *registerValue |= (tastall << 0);}
+\DoxyCodeLine{00811 \}}
+\DoxyCodeLine{00812 }
+\DoxyCodeLine{00813 }
+\DoxyCodeLine{00814 uint32\_t gptmShiReadGptmctlTaevent\_(\textcolor{keyword}{enum} HalGptmCores \textcolor{keyword}{const} core) \{}
+\DoxyCodeLine{00815     \textcolor{keywordflow}{return} ((*((\textcolor{keyword}{volatile} uint32\_t *)(gptmGptmctl\_ + gptmCoreBaseAddresses\_[core])) >> 0) \& 0x3);}
+\DoxyCodeLine{00816 \}}
+\DoxyCodeLine{00817 }
+\DoxyCodeLine{00818 uint32\_t gptmShiReadUIGptmctlTaevent\_(uint32\_t \textcolor{keyword}{const} registerValue) \{}
+\DoxyCodeLine{00819     \textcolor{keywordflow}{return} ((registerValue >> 0) \& 0x3);}
+\DoxyCodeLine{00820 \}}
+\DoxyCodeLine{00821 }
+\DoxyCodeLine{00822 }
+\DoxyCodeLine{00823 \textcolor{keywordtype}{void} gptmShiWriteGptmctlTaevent\_(\textcolor{keyword}{enum} HalGptmCores \textcolor{keyword}{const} core, \textcolor{keyword}{enum} GptmGptmctlTaeventValues\_ \textcolor{keyword}{const} taevent) \{}
+\DoxyCodeLine{00824     uint32\_t registerValue = *((\textcolor{keyword}{volatile} uint32\_t *)(gptmGptmctl\_ + gptmCoreBaseAddresses\_[core]));}
+\DoxyCodeLine{00825 }
+\DoxyCodeLine{00826     registerValue \&= \string~(0x3 << 0);}
+\DoxyCodeLine{00827     registerValue |= (taevent << 0);}
+\DoxyCodeLine{00828 }
+\DoxyCodeLine{00829     *((\textcolor{keyword}{volatile} uint32\_t *)(gptmGptmctl\_ + gptmCoreBaseAddresses\_[core])) = registerValue;}
+\DoxyCodeLine{00830 \}}
+\DoxyCodeLine{00831 }
+\DoxyCodeLine{00832 \textcolor{keywordtype}{void} gptmShiWriteUIGptmctlTaevent\_(uint32\_t * \textcolor{keyword}{const} registerValue, \textcolor{keyword}{enum} GptmGptmctlTaeventValues\_ \textcolor{keyword}{const} taevent) \{}
+\DoxyCodeLine{00833     *registerValue \&= \string~(0x3 << 0);}
+\DoxyCodeLine{00834     *registerValue |= (taevent << 0);}
+\DoxyCodeLine{00835 \}}
+\DoxyCodeLine{00836 }
+\DoxyCodeLine{00837 }
+\DoxyCodeLine{00838 uint32\_t gptmShiReadGptmctlRtcen\_(\textcolor{keyword}{enum} HalGptmCores \textcolor{keyword}{const} core) \{}
+\DoxyCodeLine{00839     \textcolor{keywordflow}{return} ((*((\textcolor{keyword}{volatile} uint32\_t *)(gptmGptmctl\_ + gptmCoreBaseAddresses\_[core])) >> 0) \& 0x1);}
+\DoxyCodeLine{00840 \}}
+\DoxyCodeLine{00841 }
+\DoxyCodeLine{00842 uint32\_t gptmShiReadUIGptmctlRtcen\_(uint32\_t \textcolor{keyword}{const} registerValue) \{}
+\DoxyCodeLine{00843     \textcolor{keywordflow}{return} ((registerValue >> 0) \& 0x1);}
+\DoxyCodeLine{00844 \}}
+\DoxyCodeLine{00845 }
+\DoxyCodeLine{00846 }
+\DoxyCodeLine{00847 \textcolor{keywordtype}{void} gptmShiWriteGptmctlRtcen\_(\textcolor{keyword}{enum} HalGptmCores \textcolor{keyword}{const} core, \textcolor{keyword}{enum} GptmGptmctlRtcenValues\_ \textcolor{keyword}{const} rtcen) \{}
+\DoxyCodeLine{00848     uint32\_t registerValue = *((\textcolor{keyword}{volatile} uint32\_t *)(gptmGptmctl\_ + gptmCoreBaseAddresses\_[core]));}
+\DoxyCodeLine{00849 }
+\DoxyCodeLine{00850     registerValue \&= \string~(0x1 << 0);}
+\DoxyCodeLine{00851     registerValue |= (rtcen << 0);}
+\DoxyCodeLine{00852 }
+\DoxyCodeLine{00853     *((\textcolor{keyword}{volatile} uint32\_t *)(gptmGptmctl\_ + gptmCoreBaseAddresses\_[core])) = registerValue;}
+\DoxyCodeLine{00854 \}}
+\DoxyCodeLine{00855 }
+\DoxyCodeLine{00856 \textcolor{keywordtype}{void} gptmShiWriteUIGptmctlRtcen\_(uint32\_t * \textcolor{keyword}{const} registerValue, \textcolor{keyword}{enum} GptmGptmctlRtcenValues\_ \textcolor{keyword}{const} rtcen) \{}
+\DoxyCodeLine{00857     *registerValue \&= \string~(0x1 << 0);}
+\DoxyCodeLine{00858     *registerValue |= (rtcen << 0);}
+\DoxyCodeLine{00859 \}}
+\DoxyCodeLine{00860 }
+\DoxyCodeLine{00861 }
+\DoxyCodeLine{00862 uint32\_t gptmShiReadGptmctlTaote\_(\textcolor{keyword}{enum} HalGptmCores \textcolor{keyword}{const} core) \{}
+\DoxyCodeLine{00863     \textcolor{keywordflow}{return} ((*((\textcolor{keyword}{volatile} uint32\_t *)(gptmGptmctl\_ + gptmCoreBaseAddresses\_[core])) >> 0) \& 0x1);}
+\DoxyCodeLine{00864 \}}
+\DoxyCodeLine{00865 }
+\DoxyCodeLine{00866 uint32\_t gptmShiReadUIGptmctlTaote\_(uint32\_t \textcolor{keyword}{const} registerValue) \{}
+\DoxyCodeLine{00867     \textcolor{keywordflow}{return} ((registerValue >> 0) \& 0x1);}
+\DoxyCodeLine{00868 \}}
+\DoxyCodeLine{00869 }
+\DoxyCodeLine{00870 }
+\DoxyCodeLine{00871 \textcolor{keywordtype}{void} gptmShiWriteGptmctlTaote\_(\textcolor{keyword}{enum} HalGptmCores \textcolor{keyword}{const} core, \textcolor{keyword}{enum} GptmGptmctlTaoteValues\_ \textcolor{keyword}{const} taote) \{}
+\DoxyCodeLine{00872     uint32\_t registerValue = *((\textcolor{keyword}{volatile} uint32\_t *)(gptmGptmctl\_ + gptmCoreBaseAddresses\_[core]));}
+\DoxyCodeLine{00873 }
+\DoxyCodeLine{00874     registerValue \&= \string~(0x1 << 0);}
+\DoxyCodeLine{00875     registerValue |= (taote << 0);}
+\DoxyCodeLine{00876 }
+\DoxyCodeLine{00877     *((\textcolor{keyword}{volatile} uint32\_t *)(gptmGptmctl\_ + gptmCoreBaseAddresses\_[core])) = registerValue;}
+\DoxyCodeLine{00878 \}}
+\DoxyCodeLine{00879 }
+\DoxyCodeLine{00880 \textcolor{keywordtype}{void} gptmShiWriteUIGptmctlTaote\_(uint32\_t * \textcolor{keyword}{const} registerValue, \textcolor{keyword}{enum} GptmGptmctlTaoteValues\_ \textcolor{keyword}{const} taote) \{}
+\DoxyCodeLine{00881     *registerValue \&= \string~(0x1 << 0);}
+\DoxyCodeLine{00882     *registerValue |= (taote << 0);}
+\DoxyCodeLine{00883 \}}
+\DoxyCodeLine{00884 }
+\DoxyCodeLine{00885 }
+\DoxyCodeLine{00886 uint32\_t gptmShiReadGptmctlTapwml\_(\textcolor{keyword}{enum} HalGptmCores \textcolor{keyword}{const} core) \{}
+\DoxyCodeLine{00887     \textcolor{keywordflow}{return} ((*((\textcolor{keyword}{volatile} uint32\_t *)(gptmGptmctl\_ + gptmCoreBaseAddresses\_[core])) >> 0) \& 0x1);}
+\DoxyCodeLine{00888 \}}
+\DoxyCodeLine{00889 }
+\DoxyCodeLine{00890 uint32\_t gptmShiReadUIGptmctlTapwml\_(uint32\_t \textcolor{keyword}{const} registerValue) \{}
+\DoxyCodeLine{00891     \textcolor{keywordflow}{return} ((registerValue >> 0) \& 0x1);}
+\DoxyCodeLine{00892 \}}
+\DoxyCodeLine{00893 }
+\DoxyCodeLine{00894 }
+\DoxyCodeLine{00895 \textcolor{keywordtype}{void} gptmShiWriteGptmctlTapwml\_(\textcolor{keyword}{enum} HalGptmCores \textcolor{keyword}{const} core, \textcolor{keyword}{enum} GptmGptmctlTapwmlValues\_ \textcolor{keyword}{const} tapwml) \{}
+\DoxyCodeLine{00896     uint32\_t registerValue = *((\textcolor{keyword}{volatile} uint32\_t *)(gptmGptmctl\_ + gptmCoreBaseAddresses\_[core]));}
+\DoxyCodeLine{00897 }
+\DoxyCodeLine{00898     registerValue \&= \string~(0x1 << 0);}
+\DoxyCodeLine{00899     registerValue |= (tapwml << 0);}
+\DoxyCodeLine{00900 }
+\DoxyCodeLine{00901     *((\textcolor{keyword}{volatile} uint32\_t *)(gptmGptmctl\_ + gptmCoreBaseAddresses\_[core])) = registerValue;}
+\DoxyCodeLine{00902 \}}
+\DoxyCodeLine{00903 }
+\DoxyCodeLine{00904 \textcolor{keywordtype}{void} gptmShiWriteUIGptmctlTapwml\_(uint32\_t * \textcolor{keyword}{const} registerValue, \textcolor{keyword}{enum} GptmGptmctlTapwmlValues\_ \textcolor{keyword}{const} tapwml) \{}
+\DoxyCodeLine{00905     *registerValue \&= \string~(0x1 << 0);}
+\DoxyCodeLine{00906     *registerValue |= (tapwml << 0);}
+\DoxyCodeLine{00907 \}}
+\DoxyCodeLine{00908 }
+\DoxyCodeLine{00909 }
+\DoxyCodeLine{00910 uint32\_t gptmShiReadGptmctlTben\_(\textcolor{keyword}{enum} HalGptmCores \textcolor{keyword}{const} core) \{}
+\DoxyCodeLine{00911     \textcolor{keywordflow}{return} ((*((\textcolor{keyword}{volatile} uint32\_t *)(gptmGptmctl\_ + gptmCoreBaseAddresses\_[core])) >> 0) \& 0x1);}
+\DoxyCodeLine{00912 \}}
+\DoxyCodeLine{00913 }
+\DoxyCodeLine{00914 uint32\_t gptmShiReadUIGptmctlTben\_(uint32\_t \textcolor{keyword}{const} registerValue) \{}
+\DoxyCodeLine{00915     \textcolor{keywordflow}{return} ((registerValue >> 0) \& 0x1);}
+\DoxyCodeLine{00916 \}}
+\DoxyCodeLine{00917 }
+\DoxyCodeLine{00918 }
+\DoxyCodeLine{00919 \textcolor{keywordtype}{void} gptmShiWriteGptmctlTben\_(\textcolor{keyword}{enum} HalGptmCores \textcolor{keyword}{const} core, \textcolor{keyword}{enum} GptmGptmctlTbenValues\_ \textcolor{keyword}{const} tben) \{}
+\DoxyCodeLine{00920     uint32\_t registerValue = *((\textcolor{keyword}{volatile} uint32\_t *)(gptmGptmctl\_ + gptmCoreBaseAddresses\_[core]));}
+\DoxyCodeLine{00921 }
+\DoxyCodeLine{00922     registerValue \&= \string~(0x1 << 0);}
+\DoxyCodeLine{00923     registerValue |= (tben << 0);}
+\DoxyCodeLine{00924 }
+\DoxyCodeLine{00925     *((\textcolor{keyword}{volatile} uint32\_t *)(gptmGptmctl\_ + gptmCoreBaseAddresses\_[core])) = registerValue;}
+\DoxyCodeLine{00926 \}}
+\DoxyCodeLine{00927 }
+\DoxyCodeLine{00928 \textcolor{keywordtype}{void} gptmShiWriteUIGptmctlTben\_(uint32\_t * \textcolor{keyword}{const} registerValue, \textcolor{keyword}{enum} GptmGptmctlTbenValues\_ \textcolor{keyword}{const} tben) \{}
+\DoxyCodeLine{00929     *registerValue \&= \string~(0x1 << 0);}
+\DoxyCodeLine{00930     *registerValue |= (tben << 0);}
+\DoxyCodeLine{00931 \}}
+\DoxyCodeLine{00932 }
+\DoxyCodeLine{00933 }
+\DoxyCodeLine{00934 uint32\_t gptmShiReadGptmctlTbstall\_(\textcolor{keyword}{enum} HalGptmCores \textcolor{keyword}{const} core) \{}
+\DoxyCodeLine{00935     \textcolor{keywordflow}{return} ((*((\textcolor{keyword}{volatile} uint32\_t *)(gptmGptmctl\_ + gptmCoreBaseAddresses\_[core])) >> 0) \& 0x1);}
+\DoxyCodeLine{00936 \}}
+\DoxyCodeLine{00937 }
+\DoxyCodeLine{00938 uint32\_t gptmShiReadUIGptmctlTbstall\_(uint32\_t \textcolor{keyword}{const} registerValue) \{}
+\DoxyCodeLine{00939     \textcolor{keywordflow}{return} ((registerValue >> 0) \& 0x1);}
+\DoxyCodeLine{00940 \}}
+\DoxyCodeLine{00941 }
+\DoxyCodeLine{00942 }
+\DoxyCodeLine{00943 \textcolor{keywordtype}{void} gptmShiWriteGptmctlTbstall\_(\textcolor{keyword}{enum} HalGptmCores \textcolor{keyword}{const} core, \textcolor{keyword}{enum} GptmGptmctlTbstallValues\_ \textcolor{keyword}{const} tbstall) \{}
+\DoxyCodeLine{00944     uint32\_t registerValue = *((\textcolor{keyword}{volatile} uint32\_t *)(gptmGptmctl\_ + gptmCoreBaseAddresses\_[core]));}
+\DoxyCodeLine{00945 }
+\DoxyCodeLine{00946     registerValue \&= \string~(0x1 << 0);}
+\DoxyCodeLine{00947     registerValue |= (tbstall << 0);}
+\DoxyCodeLine{00948 }
+\DoxyCodeLine{00949     *((\textcolor{keyword}{volatile} uint32\_t *)(gptmGptmctl\_ + gptmCoreBaseAddresses\_[core])) = registerValue;}
+\DoxyCodeLine{00950 \}}
+\DoxyCodeLine{00951 }
+\DoxyCodeLine{00952 \textcolor{keywordtype}{void} gptmShiWriteUIGptmctlTbstall\_(uint32\_t * \textcolor{keyword}{const} registerValue, \textcolor{keyword}{enum} GptmGptmctlTbstallValues\_ \textcolor{keyword}{const} tbstall) \{}
+\DoxyCodeLine{00953     *registerValue \&= \string~(0x1 << 0);}
+\DoxyCodeLine{00954     *registerValue |= (tbstall << 0);}
+\DoxyCodeLine{00955 \}}
+\DoxyCodeLine{00956 }
+\DoxyCodeLine{00957 }
+\DoxyCodeLine{00958 uint32\_t gptmShiReadGptmctlTbevent\_(\textcolor{keyword}{enum} HalGptmCores \textcolor{keyword}{const} core) \{}
+\DoxyCodeLine{00959     \textcolor{keywordflow}{return} ((*((\textcolor{keyword}{volatile} uint32\_t *)(gptmGptmctl\_ + gptmCoreBaseAddresses\_[core])) >> 0) \& 0x3);}
+\DoxyCodeLine{00960 \}}
+\DoxyCodeLine{00961 }
+\DoxyCodeLine{00962 uint32\_t gptmShiReadUIGptmctlTbevent\_(uint32\_t \textcolor{keyword}{const} registerValue) \{}
+\DoxyCodeLine{00963     \textcolor{keywordflow}{return} ((registerValue >> 0) \& 0x3);}
+\DoxyCodeLine{00964 \}}
+\DoxyCodeLine{00965 }
+\DoxyCodeLine{00966 }
+\DoxyCodeLine{00967 \textcolor{keywordtype}{void} gptmShiWriteGptmctlTbevent\_(\textcolor{keyword}{enum} HalGptmCores \textcolor{keyword}{const} core, \textcolor{keyword}{enum} GptmGptmctlTbeventValues\_ \textcolor{keyword}{const} tbevent) \{}
+\DoxyCodeLine{00968     uint32\_t registerValue = *((\textcolor{keyword}{volatile} uint32\_t *)(gptmGptmctl\_ + gptmCoreBaseAddresses\_[core]));}
+\DoxyCodeLine{00969 }
+\DoxyCodeLine{00970     registerValue \&= \string~(0x3 << 0);}
+\DoxyCodeLine{00971     registerValue |= (tbevent << 0);}
+\DoxyCodeLine{00972 }
+\DoxyCodeLine{00973     *((\textcolor{keyword}{volatile} uint32\_t *)(gptmGptmctl\_ + gptmCoreBaseAddresses\_[core])) = registerValue;}
+\DoxyCodeLine{00974 \}}
+\DoxyCodeLine{00975 }
+\DoxyCodeLine{00976 \textcolor{keywordtype}{void} gptmShiWriteUIGptmctlTbevent\_(uint32\_t * \textcolor{keyword}{const} registerValue, \textcolor{keyword}{enum} GptmGptmctlTbeventValues\_ \textcolor{keyword}{const} tbevent) \{}
+\DoxyCodeLine{00977     *registerValue \&= \string~(0x3 << 0);}
+\DoxyCodeLine{00978     *registerValue |= (tbevent << 0);}
+\DoxyCodeLine{00979 \}}
+\DoxyCodeLine{00980 }
+\DoxyCodeLine{00981 }
+\DoxyCodeLine{00982 uint32\_t gptmShiReadGptmctlTbote\_(\textcolor{keyword}{enum} HalGptmCores \textcolor{keyword}{const} core) \{}
+\DoxyCodeLine{00983     \textcolor{keywordflow}{return} ((*((\textcolor{keyword}{volatile} uint32\_t *)(gptmGptmctl\_ + gptmCoreBaseAddresses\_[core])) >> 0) \& 0x1);}
+\DoxyCodeLine{00984 \}}
+\DoxyCodeLine{00985 }
+\DoxyCodeLine{00986 uint32\_t gptmShiReadUIGptmctlTbote\_(uint32\_t \textcolor{keyword}{const} registerValue) \{}
+\DoxyCodeLine{00987     \textcolor{keywordflow}{return} ((registerValue >> 0) \& 0x1);}
+\DoxyCodeLine{00988 \}}
+\DoxyCodeLine{00989 }
+\DoxyCodeLine{00990 }
+\DoxyCodeLine{00991 \textcolor{keywordtype}{void} gptmShiWriteGptmctlTbote\_(\textcolor{keyword}{enum} HalGptmCores \textcolor{keyword}{const} core, \textcolor{keyword}{enum} GptmGptmctlTboteValues\_ \textcolor{keyword}{const} tbote) \{}
+\DoxyCodeLine{00992     uint32\_t registerValue = *((\textcolor{keyword}{volatile} uint32\_t *)(gptmGptmctl\_ + gptmCoreBaseAddresses\_[core]));}
+\DoxyCodeLine{00993 }
+\DoxyCodeLine{00994     registerValue \&= \string~(0x1 << 0);}
+\DoxyCodeLine{00995     registerValue |= (tbote << 0);}
+\DoxyCodeLine{00996 }
+\DoxyCodeLine{00997     *((\textcolor{keyword}{volatile} uint32\_t *)(gptmGptmctl\_ + gptmCoreBaseAddresses\_[core])) = registerValue;}
+\DoxyCodeLine{00998 \}}
+\DoxyCodeLine{00999 }
+\DoxyCodeLine{01000 \textcolor{keywordtype}{void} gptmShiWriteUIGptmctlTbote\_(uint32\_t * \textcolor{keyword}{const} registerValue, \textcolor{keyword}{enum} GptmGptmctlTboteValues\_ \textcolor{keyword}{const} tbote) \{}
+\DoxyCodeLine{01001     *registerValue \&= \string~(0x1 << 0);}
+\DoxyCodeLine{01002     *registerValue |= (tbote << 0);}
+\DoxyCodeLine{01003 \}}
+\DoxyCodeLine{01004 }
+\DoxyCodeLine{01005 }
+\DoxyCodeLine{01006 uint32\_t gptmShiReadGptmctlTbpwml\_(\textcolor{keyword}{enum} HalGptmCores \textcolor{keyword}{const} core) \{}
+\DoxyCodeLine{01007     \textcolor{keywordflow}{return} ((*((\textcolor{keyword}{volatile} uint32\_t *)(gptmGptmctl\_ + gptmCoreBaseAddresses\_[core])) >> 0) \& 0x1);}
+\DoxyCodeLine{01008 \}}
+\DoxyCodeLine{01009 }
+\DoxyCodeLine{01010 uint32\_t gptmShiReadUIGptmctlTbpwml\_(uint32\_t \textcolor{keyword}{const} registerValue) \{}
+\DoxyCodeLine{01011     \textcolor{keywordflow}{return} ((registerValue >> 0) \& 0x1);}
+\DoxyCodeLine{01012 \}}
+\DoxyCodeLine{01013 }
+\DoxyCodeLine{01014 }
+\DoxyCodeLine{01015 \textcolor{keywordtype}{void} gptmShiWriteGptmctlTbpwml\_(\textcolor{keyword}{enum} HalGptmCores \textcolor{keyword}{const} core, \textcolor{keyword}{enum} GptmGptmctlTbpwmlValues\_ \textcolor{keyword}{const} tbpwml) \{}
+\DoxyCodeLine{01016     uint32\_t registerValue = *((\textcolor{keyword}{volatile} uint32\_t *)(gptmGptmctl\_ + gptmCoreBaseAddresses\_[core]));}
+\DoxyCodeLine{01017 }
+\DoxyCodeLine{01018     registerValue \&= \string~(0x1 << 0);}
+\DoxyCodeLine{01019     registerValue |= (tbpwml << 0);}
+\DoxyCodeLine{01020 }
+\DoxyCodeLine{01021     *((\textcolor{keyword}{volatile} uint32\_t *)(gptmGptmctl\_ + gptmCoreBaseAddresses\_[core])) = registerValue;}
+\DoxyCodeLine{01022 \}}
+\DoxyCodeLine{01023 }
+\DoxyCodeLine{01024 \textcolor{keywordtype}{void} gptmShiWriteUIGptmctlTbpwml\_(uint32\_t * \textcolor{keyword}{const} registerValue, \textcolor{keyword}{enum} GptmGptmctlTbpwmlValues\_ \textcolor{keyword}{const} tbpwml) \{}
+\DoxyCodeLine{01025     *registerValue \&= \string~(0x1 << 0);}
+\DoxyCodeLine{01026     *registerValue |= (tbpwml << 0);}
+\DoxyCodeLine{01027 \}}
+\DoxyCodeLine{01028 }
+\DoxyCodeLine{01029 }
+\DoxyCodeLine{01030 uint32\_t gptmShiReadGptmtaprTapsr\_(\textcolor{keyword}{enum} HalGptmCores \textcolor{keyword}{const} core) \{}
+\DoxyCodeLine{01031     \textcolor{keywordflow}{return} ((*((\textcolor{keyword}{volatile} uint32\_t *)(gptmGptmtapr\_ + gptmCoreBaseAddresses\_[core])) >> 0) \& 0xff);}
+\DoxyCodeLine{01032 \}}
+\DoxyCodeLine{01033 }
+\DoxyCodeLine{01034 uint32\_t gptmShiReadUIGptmtaprTapsr\_(uint32\_t \textcolor{keyword}{const} registerValue) \{}
+\DoxyCodeLine{01035     \textcolor{keywordflow}{return} ((registerValue >> 0) \& 0xff);}
+\DoxyCodeLine{01036 \}}
+\DoxyCodeLine{01037 }
+\DoxyCodeLine{01038 }
+\DoxyCodeLine{01039 \textcolor{keywordtype}{void} gptmShiWriteGptmtaprTapsr\_(\textcolor{keyword}{enum} HalGptmCores \textcolor{keyword}{const} core, \textcolor{keyword}{enum} GptmGptmtaprTapsrValues\_ \textcolor{keyword}{const} tapsr) \{}
+\DoxyCodeLine{01040     uint32\_t registerValue = *((\textcolor{keyword}{volatile} uint32\_t *)(gptmGptmtapr\_ + gptmCoreBaseAddresses\_[core]));}
+\DoxyCodeLine{01041 }
+\DoxyCodeLine{01042     registerValue \&= \string~(0xff << 0);}
+\DoxyCodeLine{01043     registerValue |= (tapsr << 0);}
+\DoxyCodeLine{01044 }
+\DoxyCodeLine{01045     *((\textcolor{keyword}{volatile} uint32\_t *)(gptmGptmtapr\_ + gptmCoreBaseAddresses\_[core])) = registerValue;}
+\DoxyCodeLine{01046 \}}
+\DoxyCodeLine{01047 }
+\DoxyCodeLine{01048 \textcolor{keywordtype}{void} gptmShiWriteUIGptmtaprTapsr\_(uint32\_t * \textcolor{keyword}{const} registerValue, \textcolor{keyword}{enum} GptmGptmtaprTapsrValues\_ \textcolor{keyword}{const} tapsr) \{}
+\DoxyCodeLine{01049     *registerValue \&= \string~(0xff << 0);}
+\DoxyCodeLine{01050     *registerValue |= (tapsr << 0);}
+\DoxyCodeLine{01051 \}}
+\DoxyCodeLine{01052 }
+\DoxyCodeLine{01053 }
+\DoxyCodeLine{01054 uint32\_t gptmShiReadGptmtbprTbpsr\_(\textcolor{keyword}{enum} HalGptmCores \textcolor{keyword}{const} core) \{}
+\DoxyCodeLine{01055     \textcolor{keywordflow}{return} ((*((\textcolor{keyword}{volatile} uint32\_t *)(gptmGptmtbpr\_ + gptmCoreBaseAddresses\_[core])) >> 0) \& 0xff);}
+\DoxyCodeLine{01056 \}}
+\DoxyCodeLine{01057 }
+\DoxyCodeLine{01058 uint32\_t gptmShiReadUIGptmtbprTbpsr\_(uint32\_t \textcolor{keyword}{const} registerValue) \{}
+\DoxyCodeLine{01059     \textcolor{keywordflow}{return} ((registerValue >> 0) \& 0xff);}
+\DoxyCodeLine{01060 \}}
+\DoxyCodeLine{01061 }
+\DoxyCodeLine{01062 }
+\DoxyCodeLine{01063 \textcolor{keywordtype}{void} gptmShiWriteGptmtbprTbpsr\_(\textcolor{keyword}{enum} HalGptmCores \textcolor{keyword}{const} core, \textcolor{keyword}{enum} GptmGptmtbprTbpsrValues\_ \textcolor{keyword}{const} tbpsr) \{}
+\DoxyCodeLine{01064     uint32\_t registerValue = *((\textcolor{keyword}{volatile} uint32\_t *)(gptmGptmtbpr\_ + gptmCoreBaseAddresses\_[core]));}
+\DoxyCodeLine{01065 }
+\DoxyCodeLine{01066     registerValue \&= \string~(0xff << 0);}
+\DoxyCodeLine{01067     registerValue |= (tbpsr << 0);}
+\DoxyCodeLine{01068 }
+\DoxyCodeLine{01069     *((\textcolor{keyword}{volatile} uint32\_t *)(gptmGptmtbpr\_ + gptmCoreBaseAddresses\_[core])) = registerValue;}
+\DoxyCodeLine{01070 \}}
+\DoxyCodeLine{01071 }
+\DoxyCodeLine{01072 \textcolor{keywordtype}{void} gptmShiWriteUIGptmtbprTbpsr\_(uint32\_t * \textcolor{keyword}{const} registerValue, \textcolor{keyword}{enum} GptmGptmtbprTbpsrValues\_ \textcolor{keyword}{const} tbpsr) \{}
+\DoxyCodeLine{01073     *registerValue \&= \string~(0xff << 0);}
+\DoxyCodeLine{01074     *registerValue |= (tbpsr << 0);}
+\DoxyCodeLine{01075 \}}
+\DoxyCodeLine{01076 }
+\DoxyCodeLine{01077 }
+\DoxyCodeLine{01078 uint32\_t gptmShiReadGptmtapmrTapsmr\_(\textcolor{keyword}{enum} HalGptmCores \textcolor{keyword}{const} core) \{}
+\DoxyCodeLine{01079     \textcolor{keywordflow}{return} ((*((\textcolor{keyword}{volatile} uint32\_t *)(gptmGptmtapmr\_ + gptmCoreBaseAddresses\_[core])) >> 0) \& 0xff);}
+\DoxyCodeLine{01080 \}}
+\DoxyCodeLine{01081 }
+\DoxyCodeLine{01082 uint32\_t gptmShiReadUIGptmtapmrTapsmr\_(uint32\_t \textcolor{keyword}{const} registerValue) \{}
+\DoxyCodeLine{01083     \textcolor{keywordflow}{return} ((registerValue >> 0) \& 0xff);}
+\DoxyCodeLine{01084 \}}
+\DoxyCodeLine{01085 }
+\DoxyCodeLine{01086 }
+\DoxyCodeLine{01087 \textcolor{keywordtype}{void} gptmShiWriteGptmtapmrTapsmr\_(\textcolor{keyword}{enum} HalGptmCores \textcolor{keyword}{const} core, \textcolor{keyword}{enum} GptmGptmtapmrTapsmrValues\_ \textcolor{keyword}{const} tapsmr) \{}
+\DoxyCodeLine{01088     uint32\_t registerValue = *((\textcolor{keyword}{volatile} uint32\_t *)(gptmGptmtapmr\_ + gptmCoreBaseAddresses\_[core]));}
+\DoxyCodeLine{01089 }
+\DoxyCodeLine{01090     registerValue \&= \string~(0xff << 0);}
+\DoxyCodeLine{01091     registerValue |= (tapsmr << 0);}
+\DoxyCodeLine{01092 }
+\DoxyCodeLine{01093     *((\textcolor{keyword}{volatile} uint32\_t *)(gptmGptmtapmr\_ + gptmCoreBaseAddresses\_[core])) = registerValue;}
+\DoxyCodeLine{01094 \}}
+\DoxyCodeLine{01095 }
+\DoxyCodeLine{01096 \textcolor{keywordtype}{void} gptmShiWriteUIGptmtapmrTapsmr\_(uint32\_t * \textcolor{keyword}{const} registerValue, \textcolor{keyword}{enum} GptmGptmtapmrTapsmrValues\_ \textcolor{keyword}{const} tapsmr) \{}
+\DoxyCodeLine{01097     *registerValue \&= \string~(0xff << 0);}
+\DoxyCodeLine{01098     *registerValue |= (tapsmr << 0);}
+\DoxyCodeLine{01099 \}}
+\DoxyCodeLine{01100 }
+\DoxyCodeLine{01101 }
+\DoxyCodeLine{01102 uint32\_t gptmShiReadGptmtbpmrTbpsmr\_(\textcolor{keyword}{enum} HalGptmCores \textcolor{keyword}{const} core) \{}
+\DoxyCodeLine{01103     \textcolor{keywordflow}{return} ((*((\textcolor{keyword}{volatile} uint32\_t *)(gptmGptmtbpmr\_ + gptmCoreBaseAddresses\_[core])) >> 0) \& 0xff);}
+\DoxyCodeLine{01104 \}}
+\DoxyCodeLine{01105 }
+\DoxyCodeLine{01106 uint32\_t gptmShiReadUIGptmtbpmrTbpsmr\_(uint32\_t \textcolor{keyword}{const} registerValue) \{}
+\DoxyCodeLine{01107     \textcolor{keywordflow}{return} ((registerValue >> 0) \& 0xff);}
+\DoxyCodeLine{01108 \}}
+\DoxyCodeLine{01109 }
+\DoxyCodeLine{01110 }
+\DoxyCodeLine{01111 \textcolor{keywordtype}{void} gptmShiWriteGptmtbpmrTbpsmr\_(\textcolor{keyword}{enum} HalGptmCores \textcolor{keyword}{const} core, \textcolor{keyword}{enum} GptmGptmtbpmrTbpsmrValues\_ \textcolor{keyword}{const} tbpsmr) \{}
+\DoxyCodeLine{01112     uint32\_t registerValue = *((\textcolor{keyword}{volatile} uint32\_t *)(gptmGptmtbpmr\_ + gptmCoreBaseAddresses\_[core]));}
+\DoxyCodeLine{01113 }
+\DoxyCodeLine{01114     registerValue \&= \string~(0xff << 0);}
+\DoxyCodeLine{01115     registerValue |= (tbpsmr << 0);}
+\DoxyCodeLine{01116 }
+\DoxyCodeLine{01117     *((\textcolor{keyword}{volatile} uint32\_t *)(gptmGptmtbpmr\_ + gptmCoreBaseAddresses\_[core])) = registerValue;}
+\DoxyCodeLine{01118 \}}
+\DoxyCodeLine{01119 }
+\DoxyCodeLine{01120 \textcolor{keywordtype}{void} gptmShiWriteUIGptmtbpmrTbpsmr\_(uint32\_t * \textcolor{keyword}{const} registerValue, \textcolor{keyword}{enum} GptmGptmtbpmrTbpsmrValues\_ \textcolor{keyword}{const} tbpsmr) \{}
+\DoxyCodeLine{01121     *registerValue \&= \string~(0xff << 0);}
+\DoxyCodeLine{01122     *registerValue |= (tbpsmr << 0);}
+\DoxyCodeLine{01123 \}}
+\DoxyCodeLine{01124 }
+\DoxyCodeLine{01125 }
+
+\end{DoxyCode}

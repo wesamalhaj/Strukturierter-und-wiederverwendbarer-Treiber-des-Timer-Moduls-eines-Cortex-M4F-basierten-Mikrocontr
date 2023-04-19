@@ -1,0 +1,365 @@
+\doxysection{nvic\+Shi.\+c}
+\label{nvic_shi_8c_source}\index{hal/nvic/src/nvicShi.c@{hal/nvic/src/nvicShi.c}}
+
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00001 \textcolor{comment}{//*****************************************************************************}}
+\DoxyCodeLine{00002 \textcolor{comment}{// Name        : nvicShi.c}}
+\DoxyCodeLine{00003 \textcolor{comment}{// Author      : Ole Rönna }}
+\DoxyCodeLine{00004 \textcolor{comment}{// Maintainer  : Prof. Dr. Paweł Buczek }}
+\DoxyCodeLine{00005 \textcolor{comment}{// Version     : 0.4 }}
+\DoxyCodeLine{00006 \textcolor{comment}{// Copyright   : All rights reserved }}
+\DoxyCodeLine{00007 \textcolor{comment}{// Description : }}
+\DoxyCodeLine{00008 \textcolor{comment}{// This code was generated from a template. Manual changes to this file will }}
+\DoxyCodeLine{00009 \textcolor{comment}{// be overwritten if the code is regenerated. }}
+\DoxyCodeLine{00010 \textcolor{comment}{//}}
+\DoxyCodeLine{00011 \textcolor{comment}{//*****************************************************************************}}
+\DoxyCodeLine{00012 }
+\DoxyCodeLine{00013 \textcolor{preprocessor}{\#include "{}nvicShiCores.h"{}}}
+\DoxyCodeLine{00014 \textcolor{preprocessor}{\#include "{}nvicShi.h"{}}}
+\DoxyCodeLine{00015 \textcolor{preprocessor}{\#include "{}stdint.h"{}}}
+\DoxyCodeLine{00016 }
+\DoxyCodeLine{00017 \textcolor{comment}{//*****************************************************************************}}
+\DoxyCodeLine{00018 \textcolor{comment}{//}}
+\DoxyCodeLine{00019 \textcolor{comment}{// nvic base addresses}}
+\DoxyCodeLine{00020 \textcolor{comment}{//}}
+\DoxyCodeLine{00021 \textcolor{comment}{//*****************************************************************************}}
+\DoxyCodeLine{00022 }
+\DoxyCodeLine{00023 \textcolor{keyword}{static} \textcolor{keyword}{const} uint32\_t nvicCoreBaseAddresses\_[nvicCoreCount\_] = \{}
+\DoxyCodeLine{00024     0xE000E000}
+\DoxyCodeLine{00025 \};}
+\DoxyCodeLine{00026 }
+\DoxyCodeLine{00027 \textcolor{comment}{//*****************************************************************************}}
+\DoxyCodeLine{00028 \textcolor{comment}{//}}
+\DoxyCodeLine{00029 \textcolor{comment}{// nvic functions for reading/writing of the whole register}}
+\DoxyCodeLine{00030 \textcolor{comment}{//}}
+\DoxyCodeLine{00031 \textcolor{comment}{//*****************************************************************************}}
+\DoxyCodeLine{00032 }
+\DoxyCodeLine{00033 uint32\_t nvicShiReadSwtrig\_(\textcolor{keyword}{enum} NvicCores\_ \textcolor{keyword}{const} core) \{}
+\DoxyCodeLine{00034     \textcolor{keywordflow}{return} *((\textcolor{keyword}{volatile} uint32\_t *)(nvicSwtrig\_ + nvicCoreBaseAddresses\_[core]));}
+\DoxyCodeLine{00035 \}}
+\DoxyCodeLine{00036 }
+\DoxyCodeLine{00037 \textcolor{keywordtype}{void} nvicShiWriteSwtrig\_(\textcolor{keyword}{enum} NvicCores\_ \textcolor{keyword}{const} core, uint32\_t \textcolor{keyword}{const} registerValue) \{}
+\DoxyCodeLine{00038     *((\textcolor{keyword}{volatile} uint32\_t *)(nvicSwtrig\_ + nvicCoreBaseAddresses\_[core])) = registerValue;}
+\DoxyCodeLine{00039 \}}
+\DoxyCodeLine{00040 }
+\DoxyCodeLine{00041 }
+\DoxyCodeLine{00042 uint32\_t nvicShiReadVtable\_(\textcolor{keyword}{enum} NvicCores\_ \textcolor{keyword}{const} core) \{}
+\DoxyCodeLine{00043     \textcolor{keywordflow}{return} *((\textcolor{keyword}{volatile} uint32\_t *)(nvicVtable\_ + nvicCoreBaseAddresses\_[core]));}
+\DoxyCodeLine{00044 \}}
+\DoxyCodeLine{00045 }
+\DoxyCodeLine{00046 \textcolor{keywordtype}{void} nvicShiWriteVtable\_(\textcolor{keyword}{enum} NvicCores\_ \textcolor{keyword}{const} core, uint32\_t \textcolor{keyword}{const} registerValue) \{}
+\DoxyCodeLine{00047     *((\textcolor{keyword}{volatile} uint32\_t *)(nvicVtable\_ + nvicCoreBaseAddresses\_[core])) = registerValue;}
+\DoxyCodeLine{00048 \}}
+\DoxyCodeLine{00049 }
+\DoxyCodeLine{00050 }
+\DoxyCodeLine{00051 uint32\_t nvicShiReadEn0\_(\textcolor{keyword}{enum} NvicCores\_ \textcolor{keyword}{const} core) \{}
+\DoxyCodeLine{00052     \textcolor{keywordflow}{return} *((\textcolor{keyword}{volatile} uint32\_t *)(nvicEn0\_ + nvicCoreBaseAddresses\_[core]));}
+\DoxyCodeLine{00053 \}}
+\DoxyCodeLine{00054 }
+\DoxyCodeLine{00055 \textcolor{keywordtype}{void} nvicShiWriteEn0\_(\textcolor{keyword}{enum} NvicCores\_ \textcolor{keyword}{const} core, uint32\_t \textcolor{keyword}{const} registerValue) \{}
+\DoxyCodeLine{00056     *((\textcolor{keyword}{volatile} uint32\_t *)(nvicEn0\_ + nvicCoreBaseAddresses\_[core])) = registerValue;}
+\DoxyCodeLine{00057 \}}
+\DoxyCodeLine{00058 }
+\DoxyCodeLine{00059 }
+\DoxyCodeLine{00060 uint32\_t nvicShiReadEn1\_(\textcolor{keyword}{enum} NvicCores\_ \textcolor{keyword}{const} core) \{}
+\DoxyCodeLine{00061     \textcolor{keywordflow}{return} *((\textcolor{keyword}{volatile} uint32\_t *)(nvicEn1\_ + nvicCoreBaseAddresses\_[core]));}
+\DoxyCodeLine{00062 \}}
+\DoxyCodeLine{00063 }
+\DoxyCodeLine{00064 \textcolor{keywordtype}{void} nvicShiWriteEn1\_(\textcolor{keyword}{enum} NvicCores\_ \textcolor{keyword}{const} core, uint32\_t \textcolor{keyword}{const} registerValue) \{}
+\DoxyCodeLine{00065     *((\textcolor{keyword}{volatile} uint32\_t *)(nvicEn1\_ + nvicCoreBaseAddresses\_[core])) = registerValue;}
+\DoxyCodeLine{00066 \}}
+\DoxyCodeLine{00067 }
+\DoxyCodeLine{00068 }
+\DoxyCodeLine{00069 uint32\_t nvicShiReadEn2\_(\textcolor{keyword}{enum} NvicCores\_ \textcolor{keyword}{const} core) \{}
+\DoxyCodeLine{00070     \textcolor{keywordflow}{return} *((\textcolor{keyword}{volatile} uint32\_t *)(nvicEn2\_ + nvicCoreBaseAddresses\_[core]));}
+\DoxyCodeLine{00071 \}}
+\DoxyCodeLine{00072 }
+\DoxyCodeLine{00073 \textcolor{keywordtype}{void} nvicShiWriteEn2\_(\textcolor{keyword}{enum} NvicCores\_ \textcolor{keyword}{const} core, uint32\_t \textcolor{keyword}{const} registerValue) \{}
+\DoxyCodeLine{00074     *((\textcolor{keyword}{volatile} uint32\_t *)(nvicEn2\_ + nvicCoreBaseAddresses\_[core])) = registerValue;}
+\DoxyCodeLine{00075 \}}
+\DoxyCodeLine{00076 }
+\DoxyCodeLine{00077 }
+\DoxyCodeLine{00078 uint32\_t nvicShiReadEn3\_(\textcolor{keyword}{enum} NvicCores\_ \textcolor{keyword}{const} core) \{}
+\DoxyCodeLine{00079     \textcolor{keywordflow}{return} *((\textcolor{keyword}{volatile} uint32\_t *)(nvicEn3\_ + nvicCoreBaseAddresses\_[core]));}
+\DoxyCodeLine{00080 \}}
+\DoxyCodeLine{00081 }
+\DoxyCodeLine{00082 \textcolor{keywordtype}{void} nvicShiWriteEn3\_(\textcolor{keyword}{enum} NvicCores\_ \textcolor{keyword}{const} core, uint32\_t \textcolor{keyword}{const} registerValue) \{}
+\DoxyCodeLine{00083     *((\textcolor{keyword}{volatile} uint32\_t *)(nvicEn3\_ + nvicCoreBaseAddresses\_[core])) = registerValue;}
+\DoxyCodeLine{00084 \}}
+\DoxyCodeLine{00085 }
+\DoxyCodeLine{00086 }
+\DoxyCodeLine{00087 uint32\_t nvicShiReadDis0\_(\textcolor{keyword}{enum} NvicCores\_ \textcolor{keyword}{const} core) \{}
+\DoxyCodeLine{00088     \textcolor{keywordflow}{return} *((\textcolor{keyword}{volatile} uint32\_t *)(nvicDis0\_ + nvicCoreBaseAddresses\_[core]));}
+\DoxyCodeLine{00089 \}}
+\DoxyCodeLine{00090 }
+\DoxyCodeLine{00091 \textcolor{keywordtype}{void} nvicShiWriteDis0\_(\textcolor{keyword}{enum} NvicCores\_ \textcolor{keyword}{const} core, uint32\_t \textcolor{keyword}{const} registerValue) \{}
+\DoxyCodeLine{00092     *((\textcolor{keyword}{volatile} uint32\_t *)(nvicDis0\_ + nvicCoreBaseAddresses\_[core])) = registerValue;}
+\DoxyCodeLine{00093 \}}
+\DoxyCodeLine{00094 }
+\DoxyCodeLine{00095 }
+\DoxyCodeLine{00096 uint32\_t nvicShiReadDis1\_(\textcolor{keyword}{enum} NvicCores\_ \textcolor{keyword}{const} core) \{}
+\DoxyCodeLine{00097     \textcolor{keywordflow}{return} *((\textcolor{keyword}{volatile} uint32\_t *)(nvicDis1\_ + nvicCoreBaseAddresses\_[core]));}
+\DoxyCodeLine{00098 \}}
+\DoxyCodeLine{00099 }
+\DoxyCodeLine{00100 \textcolor{keywordtype}{void} nvicShiWriteDis1\_(\textcolor{keyword}{enum} NvicCores\_ \textcolor{keyword}{const} core, uint32\_t \textcolor{keyword}{const} registerValue) \{}
+\DoxyCodeLine{00101     *((\textcolor{keyword}{volatile} uint32\_t *)(nvicDis1\_ + nvicCoreBaseAddresses\_[core])) = registerValue;}
+\DoxyCodeLine{00102 \}}
+\DoxyCodeLine{00103 }
+\DoxyCodeLine{00104 }
+\DoxyCodeLine{00105 uint32\_t nvicShiReadDis2\_(\textcolor{keyword}{enum} NvicCores\_ \textcolor{keyword}{const} core) \{}
+\DoxyCodeLine{00106     \textcolor{keywordflow}{return} *((\textcolor{keyword}{volatile} uint32\_t *)(nvicDis2\_ + nvicCoreBaseAddresses\_[core]));}
+\DoxyCodeLine{00107 \}}
+\DoxyCodeLine{00108 }
+\DoxyCodeLine{00109 \textcolor{keywordtype}{void} nvicShiWriteDis2\_(\textcolor{keyword}{enum} NvicCores\_ \textcolor{keyword}{const} core, uint32\_t \textcolor{keyword}{const} registerValue) \{}
+\DoxyCodeLine{00110     *((\textcolor{keyword}{volatile} uint32\_t *)(nvicDis2\_ + nvicCoreBaseAddresses\_[core])) = registerValue;}
+\DoxyCodeLine{00111 \}}
+\DoxyCodeLine{00112 }
+\DoxyCodeLine{00113 }
+\DoxyCodeLine{00114 uint32\_t nvicShiReadDis3\_(\textcolor{keyword}{enum} NvicCores\_ \textcolor{keyword}{const} core) \{}
+\DoxyCodeLine{00115     \textcolor{keywordflow}{return} *((\textcolor{keyword}{volatile} uint32\_t *)(nvicDis3\_ + nvicCoreBaseAddresses\_[core]));}
+\DoxyCodeLine{00116 \}}
+\DoxyCodeLine{00117 }
+\DoxyCodeLine{00118 \textcolor{keywordtype}{void} nvicShiWriteDis3\_(\textcolor{keyword}{enum} NvicCores\_ \textcolor{keyword}{const} core, uint32\_t \textcolor{keyword}{const} registerValue) \{}
+\DoxyCodeLine{00119     *((\textcolor{keyword}{volatile} uint32\_t *)(nvicDis3\_ + nvicCoreBaseAddresses\_[core])) = registerValue;}
+\DoxyCodeLine{00120 \}}
+\DoxyCodeLine{00121 }
+\DoxyCodeLine{00122 }
+\DoxyCodeLine{00123 \textcolor{comment}{//*****************************************************************************}}
+\DoxyCodeLine{00124 \textcolor{comment}{//}}
+\DoxyCodeLine{00125 \textcolor{comment}{// nvic read/write individual bit fields}}
+\DoxyCodeLine{00126 \textcolor{comment}{//}}
+\DoxyCodeLine{00127 \textcolor{comment}{//*****************************************************************************}}
+\DoxyCodeLine{00128 }
+\DoxyCodeLine{00129 \textcolor{keywordtype}{void} nvicShiWriteSwtrigIntid\_(\textcolor{keyword}{enum} NvicCores\_ \textcolor{keyword}{const} core, uint32\_t \textcolor{keyword}{const} intid) \{}
+\DoxyCodeLine{00130     uint32\_t registerValue = *((\textcolor{keyword}{volatile} uint32\_t *)(nvicSwtrig\_ + nvicCoreBaseAddresses\_[core]));}
+\DoxyCodeLine{00131 }
+\DoxyCodeLine{00132     registerValue \&= \string~(0xff << 0);}
+\DoxyCodeLine{00133     registerValue |= (intid << 0);}
+\DoxyCodeLine{00134 }
+\DoxyCodeLine{00135     *((\textcolor{keyword}{volatile} uint32\_t *)(nvicSwtrig\_ + nvicCoreBaseAddresses\_[core])) = registerValue;}
+\DoxyCodeLine{00136 \}}
+\DoxyCodeLine{00137 }
+\DoxyCodeLine{00138 \textcolor{keywordtype}{void} nvicShiWriteUISwtrigIntid\_(uint32\_t * \textcolor{keyword}{const} registerValue, uint32\_t \textcolor{keyword}{const} intid) \{}
+\DoxyCodeLine{00139     *registerValue \&= \string~(0xff << 0);}
+\DoxyCodeLine{00140     *registerValue |= (intid << 0);}
+\DoxyCodeLine{00141 \}}
+\DoxyCodeLine{00142 }
+\DoxyCodeLine{00143 }
+\DoxyCodeLine{00144 uint32\_t nvicShiReadVtableOffset\_(\textcolor{keyword}{enum} NvicCores\_ \textcolor{keyword}{const} core) \{}
+\DoxyCodeLine{00145     \textcolor{keywordflow}{return} ((*((\textcolor{keyword}{volatile} uint32\_t *)(nvicVtable\_ + nvicCoreBaseAddresses\_[core])) >> 10) \& 0x3fffff);}
+\DoxyCodeLine{00146 \}}
+\DoxyCodeLine{00147 }
+\DoxyCodeLine{00148 uint32\_t nvicShiReadUIVtableOffset\_(uint32\_t \textcolor{keyword}{const} registerValue) \{}
+\DoxyCodeLine{00149     \textcolor{keywordflow}{return} ((registerValue >> 10) \& 0x3fffff);}
+\DoxyCodeLine{00150 \}}
+\DoxyCodeLine{00151 }
+\DoxyCodeLine{00152 }
+\DoxyCodeLine{00153 \textcolor{keywordtype}{void} nvicShiWriteVtableOffset\_(\textcolor{keyword}{enum} NvicCores\_ \textcolor{keyword}{const} core, uint32\_t \textcolor{keyword}{const} offset) \{}
+\DoxyCodeLine{00154     uint32\_t registerValue = *((\textcolor{keyword}{volatile} uint32\_t *)(nvicVtable\_ + nvicCoreBaseAddresses\_[core]));}
+\DoxyCodeLine{00155 }
+\DoxyCodeLine{00156     registerValue \&= \string~(0x3fffff << 10);}
+\DoxyCodeLine{00157     registerValue |= (offset << 10);}
+\DoxyCodeLine{00158 }
+\DoxyCodeLine{00159     *((\textcolor{keyword}{volatile} uint32\_t *)(nvicVtable\_ + nvicCoreBaseAddresses\_[core])) = registerValue;}
+\DoxyCodeLine{00160 \}}
+\DoxyCodeLine{00161 }
+\DoxyCodeLine{00162 \textcolor{keywordtype}{void} nvicShiWriteUIVtableOffset\_(uint32\_t * \textcolor{keyword}{const} registerValue, uint32\_t \textcolor{keyword}{const} offset) \{}
+\DoxyCodeLine{00163     *registerValue \&= \string~(0x3fffff << 10);}
+\DoxyCodeLine{00164     *registerValue |= (offset << 10);}
+\DoxyCodeLine{00165 \}}
+\DoxyCodeLine{00166 }
+\DoxyCodeLine{00167 }
+\DoxyCodeLine{00168 uint32\_t nvicShiReadEn0Enable0\_(\textcolor{keyword}{enum} NvicCores\_ \textcolor{keyword}{const} core) \{}
+\DoxyCodeLine{00169     \textcolor{keywordflow}{return} ((*((\textcolor{keyword}{volatile} uint32\_t *)(nvicEn0\_ + nvicCoreBaseAddresses\_[core])) >> 0) \& 0xffffffff);}
+\DoxyCodeLine{00170 \}}
+\DoxyCodeLine{00171 }
+\DoxyCodeLine{00172 uint32\_t nvicShiReadUIEn0Enable0\_(uint32\_t \textcolor{keyword}{const} registerValue) \{}
+\DoxyCodeLine{00173     \textcolor{keywordflow}{return} ((registerValue >> 0) \& 0xffffffff);}
+\DoxyCodeLine{00174 \}}
+\DoxyCodeLine{00175 }
+\DoxyCodeLine{00176 }
+\DoxyCodeLine{00177 \textcolor{keywordtype}{void} nvicShiWriteEn0Enable0\_(\textcolor{keyword}{enum} NvicCores\_ \textcolor{keyword}{const} core, uint32\_t \textcolor{keyword}{const} enable0) \{}
+\DoxyCodeLine{00178     uint32\_t registerValue = *((\textcolor{keyword}{volatile} uint32\_t *)(nvicEn0\_ + nvicCoreBaseAddresses\_[core]));}
+\DoxyCodeLine{00179 }
+\DoxyCodeLine{00180     registerValue \&= \string~(0xffffffff << 0);}
+\DoxyCodeLine{00181     registerValue |= (enable0 << 0);}
+\DoxyCodeLine{00182 }
+\DoxyCodeLine{00183     *((\textcolor{keyword}{volatile} uint32\_t *)(nvicEn0\_ + nvicCoreBaseAddresses\_[core])) = registerValue;}
+\DoxyCodeLine{00184 \}}
+\DoxyCodeLine{00185 }
+\DoxyCodeLine{00186 \textcolor{keywordtype}{void} nvicShiWriteUIEn0Enable0\_(uint32\_t * \textcolor{keyword}{const} registerValue, uint32\_t \textcolor{keyword}{const} enable0) \{}
+\DoxyCodeLine{00187     *registerValue \&= \string~(0xffffffff << 0);}
+\DoxyCodeLine{00188     *registerValue |= (enable0 << 0);}
+\DoxyCodeLine{00189 \}}
+\DoxyCodeLine{00190 }
+\DoxyCodeLine{00191 }
+\DoxyCodeLine{00192 uint32\_t nvicShiReadEn1Enable1\_(\textcolor{keyword}{enum} NvicCores\_ \textcolor{keyword}{const} core) \{}
+\DoxyCodeLine{00193     \textcolor{keywordflow}{return} ((*((\textcolor{keyword}{volatile} uint32\_t *)(nvicEn1\_ + nvicCoreBaseAddresses\_[core])) >> 0) \& 0xffffffff);}
+\DoxyCodeLine{00194 \}}
+\DoxyCodeLine{00195 }
+\DoxyCodeLine{00196 uint32\_t nvicShiReadUIEn1Enable1\_(uint32\_t \textcolor{keyword}{const} registerValue) \{}
+\DoxyCodeLine{00197     \textcolor{keywordflow}{return} ((registerValue >> 0) \& 0xffffffff);}
+\DoxyCodeLine{00198 \}}
+\DoxyCodeLine{00199 }
+\DoxyCodeLine{00200 }
+\DoxyCodeLine{00201 \textcolor{keywordtype}{void} nvicShiWriteEn1Enable1\_(\textcolor{keyword}{enum} NvicCores\_ \textcolor{keyword}{const} core, uint32\_t \textcolor{keyword}{const} enable1) \{}
+\DoxyCodeLine{00202     uint32\_t registerValue = *((\textcolor{keyword}{volatile} uint32\_t *)(nvicEn1\_ + nvicCoreBaseAddresses\_[core]));}
+\DoxyCodeLine{00203 }
+\DoxyCodeLine{00204     registerValue \&= \string~(0xffffffff << 0);}
+\DoxyCodeLine{00205     registerValue |= (enable1 << 0);}
+\DoxyCodeLine{00206 }
+\DoxyCodeLine{00207     *((\textcolor{keyword}{volatile} uint32\_t *)(nvicEn1\_ + nvicCoreBaseAddresses\_[core])) = registerValue;}
+\DoxyCodeLine{00208 \}}
+\DoxyCodeLine{00209 }
+\DoxyCodeLine{00210 \textcolor{keywordtype}{void} nvicShiWriteUIEn1Enable1\_(uint32\_t * \textcolor{keyword}{const} registerValue, uint32\_t \textcolor{keyword}{const} enable1) \{}
+\DoxyCodeLine{00211     *registerValue \&= \string~(0xffffffff << 0);}
+\DoxyCodeLine{00212     *registerValue |= (enable1 << 0);}
+\DoxyCodeLine{00213 \}}
+\DoxyCodeLine{00214 }
+\DoxyCodeLine{00215 }
+\DoxyCodeLine{00216 uint32\_t nvicShiReadEn2Enable2\_(\textcolor{keyword}{enum} NvicCores\_ \textcolor{keyword}{const} core) \{}
+\DoxyCodeLine{00217     \textcolor{keywordflow}{return} ((*((\textcolor{keyword}{volatile} uint32\_t *)(nvicEn2\_ + nvicCoreBaseAddresses\_[core])) >> 0) \& 0xffffffff);}
+\DoxyCodeLine{00218 \}}
+\DoxyCodeLine{00219 }
+\DoxyCodeLine{00220 uint32\_t nvicShiReadUIEn2Enable2\_(uint32\_t \textcolor{keyword}{const} registerValue) \{}
+\DoxyCodeLine{00221     \textcolor{keywordflow}{return} ((registerValue >> 0) \& 0xffffffff);}
+\DoxyCodeLine{00222 \}}
+\DoxyCodeLine{00223 }
+\DoxyCodeLine{00224 }
+\DoxyCodeLine{00225 \textcolor{keywordtype}{void} nvicShiWriteEn2Enable2\_(\textcolor{keyword}{enum} NvicCores\_ \textcolor{keyword}{const} core, uint32\_t \textcolor{keyword}{const} enable2) \{}
+\DoxyCodeLine{00226     uint32\_t registerValue = *((\textcolor{keyword}{volatile} uint32\_t *)(nvicEn2\_ + nvicCoreBaseAddresses\_[core]));}
+\DoxyCodeLine{00227 }
+\DoxyCodeLine{00228     registerValue \&= \string~(0xffffffff << 0);}
+\DoxyCodeLine{00229     registerValue |= (enable2 << 0);}
+\DoxyCodeLine{00230 }
+\DoxyCodeLine{00231     *((\textcolor{keyword}{volatile} uint32\_t *)(nvicEn2\_ + nvicCoreBaseAddresses\_[core])) = registerValue;}
+\DoxyCodeLine{00232 \}}
+\DoxyCodeLine{00233 }
+\DoxyCodeLine{00234 \textcolor{keywordtype}{void} nvicShiWriteUIEn2Enable2\_(uint32\_t * \textcolor{keyword}{const} registerValue, uint32\_t \textcolor{keyword}{const} enable2) \{}
+\DoxyCodeLine{00235     *registerValue \&= \string~(0xffffffff << 0);}
+\DoxyCodeLine{00236     *registerValue |= (enable2 << 0);}
+\DoxyCodeLine{00237 \}}
+\DoxyCodeLine{00238 }
+\DoxyCodeLine{00239 }
+\DoxyCodeLine{00240 uint32\_t nvicShiReadEn3Enable3\_(\textcolor{keyword}{enum} NvicCores\_ \textcolor{keyword}{const} core) \{}
+\DoxyCodeLine{00241     \textcolor{keywordflow}{return} ((*((\textcolor{keyword}{volatile} uint32\_t *)(nvicEn3\_ + nvicCoreBaseAddresses\_[core])) >> 0) \& 0xffffffff);}
+\DoxyCodeLine{00242 \}}
+\DoxyCodeLine{00243 }
+\DoxyCodeLine{00244 uint32\_t nvicShiReadUIEn3Enable3\_(uint32\_t \textcolor{keyword}{const} registerValue) \{}
+\DoxyCodeLine{00245     \textcolor{keywordflow}{return} ((registerValue >> 0) \& 0xffffffff);}
+\DoxyCodeLine{00246 \}}
+\DoxyCodeLine{00247 }
+\DoxyCodeLine{00248 }
+\DoxyCodeLine{00249 \textcolor{keywordtype}{void} nvicShiWriteEn3Enable3\_(\textcolor{keyword}{enum} NvicCores\_ \textcolor{keyword}{const} core, uint32\_t \textcolor{keyword}{const} enable3) \{}
+\DoxyCodeLine{00250     uint32\_t registerValue = *((\textcolor{keyword}{volatile} uint32\_t *)(nvicEn3\_ + nvicCoreBaseAddresses\_[core]));}
+\DoxyCodeLine{00251 }
+\DoxyCodeLine{00252     registerValue \&= \string~(0xffffffff << 0);}
+\DoxyCodeLine{00253     registerValue |= (enable3 << 0);}
+\DoxyCodeLine{00254 }
+\DoxyCodeLine{00255     *((\textcolor{keyword}{volatile} uint32\_t *)(nvicEn3\_ + nvicCoreBaseAddresses\_[core])) = registerValue;}
+\DoxyCodeLine{00256 \}}
+\DoxyCodeLine{00257 }
+\DoxyCodeLine{00258 \textcolor{keywordtype}{void} nvicShiWriteUIEn3Enable3\_(uint32\_t * \textcolor{keyword}{const} registerValue, uint32\_t \textcolor{keyword}{const} enable3) \{}
+\DoxyCodeLine{00259     *registerValue \&= \string~(0xffffffff << 0);}
+\DoxyCodeLine{00260     *registerValue |= (enable3 << 0);}
+\DoxyCodeLine{00261 \}}
+\DoxyCodeLine{00262 }
+\DoxyCodeLine{00263 }
+\DoxyCodeLine{00264 uint32\_t nvicShiReadDis0Disable0\_(\textcolor{keyword}{enum} NvicCores\_ \textcolor{keyword}{const} core) \{}
+\DoxyCodeLine{00265     \textcolor{keywordflow}{return} ((*((\textcolor{keyword}{volatile} uint32\_t *)(nvicDis0\_ + nvicCoreBaseAddresses\_[core])) >> 0) \& 0xffffffff);}
+\DoxyCodeLine{00266 \}}
+\DoxyCodeLine{00267 }
+\DoxyCodeLine{00268 uint32\_t nvicShiReadUIDis0Disable0\_(uint32\_t \textcolor{keyword}{const} registerValue) \{}
+\DoxyCodeLine{00269     \textcolor{keywordflow}{return} ((registerValue >> 0) \& 0xffffffff);}
+\DoxyCodeLine{00270 \}}
+\DoxyCodeLine{00271 }
+\DoxyCodeLine{00272 }
+\DoxyCodeLine{00273 \textcolor{keywordtype}{void} nvicShiWriteDis0Disable0\_(\textcolor{keyword}{enum} NvicCores\_ \textcolor{keyword}{const} core, uint32\_t \textcolor{keyword}{const} disable0) \{}
+\DoxyCodeLine{00274     uint32\_t registerValue = *((\textcolor{keyword}{volatile} uint32\_t *)(nvicDis0\_ + nvicCoreBaseAddresses\_[core]));}
+\DoxyCodeLine{00275 }
+\DoxyCodeLine{00276     registerValue \&= \string~(0xffffffff << 0);}
+\DoxyCodeLine{00277     registerValue |= (disable0 << 0);}
+\DoxyCodeLine{00278 }
+\DoxyCodeLine{00279     *((\textcolor{keyword}{volatile} uint32\_t *)(nvicDis0\_ + nvicCoreBaseAddresses\_[core])) = registerValue;}
+\DoxyCodeLine{00280 \}}
+\DoxyCodeLine{00281 }
+\DoxyCodeLine{00282 \textcolor{keywordtype}{void} nvicShiWriteUIDis0Disable0\_(uint32\_t * \textcolor{keyword}{const} registerValue, uint32\_t \textcolor{keyword}{const} disable0) \{}
+\DoxyCodeLine{00283     *registerValue \&= \string~(0xffffffff << 0);}
+\DoxyCodeLine{00284     *registerValue |= (disable0 << 0);}
+\DoxyCodeLine{00285 \}}
+\DoxyCodeLine{00286 }
+\DoxyCodeLine{00287 }
+\DoxyCodeLine{00288 uint32\_t nvicShiReadDis1Disable1\_(\textcolor{keyword}{enum} NvicCores\_ \textcolor{keyword}{const} core) \{}
+\DoxyCodeLine{00289     \textcolor{keywordflow}{return} ((*((\textcolor{keyword}{volatile} uint32\_t *)(nvicDis1\_ + nvicCoreBaseAddresses\_[core])) >> 0) \& 0xffffffff);}
+\DoxyCodeLine{00290 \}}
+\DoxyCodeLine{00291 }
+\DoxyCodeLine{00292 uint32\_t nvicShiReadUIDis1Disable1\_(uint32\_t \textcolor{keyword}{const} registerValue) \{}
+\DoxyCodeLine{00293     \textcolor{keywordflow}{return} ((registerValue >> 0) \& 0xffffffff);}
+\DoxyCodeLine{00294 \}}
+\DoxyCodeLine{00295 }
+\DoxyCodeLine{00296 }
+\DoxyCodeLine{00297 \textcolor{keywordtype}{void} nvicShiWriteDis1Disable1\_(\textcolor{keyword}{enum} NvicCores\_ \textcolor{keyword}{const} core, uint32\_t \textcolor{keyword}{const} disable1) \{}
+\DoxyCodeLine{00298     uint32\_t registerValue = *((\textcolor{keyword}{volatile} uint32\_t *)(nvicDis1\_ + nvicCoreBaseAddresses\_[core]));}
+\DoxyCodeLine{00299 }
+\DoxyCodeLine{00300     registerValue \&= \string~(0xffffffff << 0);}
+\DoxyCodeLine{00301     registerValue |= (disable1 << 0);}
+\DoxyCodeLine{00302 }
+\DoxyCodeLine{00303     *((\textcolor{keyword}{volatile} uint32\_t *)(nvicDis1\_ + nvicCoreBaseAddresses\_[core])) = registerValue;}
+\DoxyCodeLine{00304 \}}
+\DoxyCodeLine{00305 }
+\DoxyCodeLine{00306 \textcolor{keywordtype}{void} nvicShiWriteUIDis1Disable1\_(uint32\_t * \textcolor{keyword}{const} registerValue, uint32\_t \textcolor{keyword}{const} disable1) \{}
+\DoxyCodeLine{00307     *registerValue \&= \string~(0xffffffff << 0);}
+\DoxyCodeLine{00308     *registerValue |= (disable1 << 0);}
+\DoxyCodeLine{00309 \}}
+\DoxyCodeLine{00310 }
+\DoxyCodeLine{00311 }
+\DoxyCodeLine{00312 uint32\_t nvicShiReadDis2Disable2\_(\textcolor{keyword}{enum} NvicCores\_ \textcolor{keyword}{const} core) \{}
+\DoxyCodeLine{00313     \textcolor{keywordflow}{return} ((*((\textcolor{keyword}{volatile} uint32\_t *)(nvicDis2\_ + nvicCoreBaseAddresses\_[core])) >> 0) \& 0xffffffff);}
+\DoxyCodeLine{00314 \}}
+\DoxyCodeLine{00315 }
+\DoxyCodeLine{00316 uint32\_t nvicShiReadUIDis2Disable2\_(uint32\_t \textcolor{keyword}{const} registerValue) \{}
+\DoxyCodeLine{00317     \textcolor{keywordflow}{return} ((registerValue >> 0) \& 0xffffffff);}
+\DoxyCodeLine{00318 \}}
+\DoxyCodeLine{00319 }
+\DoxyCodeLine{00320 }
+\DoxyCodeLine{00321 \textcolor{keywordtype}{void} nvicShiWriteDis2Disable2\_(\textcolor{keyword}{enum} NvicCores\_ \textcolor{keyword}{const} core, uint32\_t \textcolor{keyword}{const} disable2) \{}
+\DoxyCodeLine{00322     uint32\_t registerValue = *((\textcolor{keyword}{volatile} uint32\_t *)(nvicDis2\_ + nvicCoreBaseAddresses\_[core]));}
+\DoxyCodeLine{00323 }
+\DoxyCodeLine{00324     registerValue \&= \string~(0xffffffff << 0);}
+\DoxyCodeLine{00325     registerValue |= (disable2 << 0);}
+\DoxyCodeLine{00326 }
+\DoxyCodeLine{00327     *((\textcolor{keyword}{volatile} uint32\_t *)(nvicDis2\_ + nvicCoreBaseAddresses\_[core])) = registerValue;}
+\DoxyCodeLine{00328 \}}
+\DoxyCodeLine{00329 }
+\DoxyCodeLine{00330 \textcolor{keywordtype}{void} nvicShiWriteUIDis2Disable2\_(uint32\_t * \textcolor{keyword}{const} registerValue, uint32\_t \textcolor{keyword}{const} disable2) \{}
+\DoxyCodeLine{00331     *registerValue \&= \string~(0xffffffff << 0);}
+\DoxyCodeLine{00332     *registerValue |= (disable2 << 0);}
+\DoxyCodeLine{00333 \}}
+\DoxyCodeLine{00334 }
+\DoxyCodeLine{00335 }
+\DoxyCodeLine{00336 uint32\_t nvicShiReadDis3Disable3\_(\textcolor{keyword}{enum} NvicCores\_ \textcolor{keyword}{const} core) \{}
+\DoxyCodeLine{00337     \textcolor{keywordflow}{return} ((*((\textcolor{keyword}{volatile} uint32\_t *)(nvicDis3\_ + nvicCoreBaseAddresses\_[core])) >> 0) \& 0xffffffff);}
+\DoxyCodeLine{00338 \}}
+\DoxyCodeLine{00339 }
+\DoxyCodeLine{00340 uint32\_t nvicShiReadUIDis3Disable3\_(uint32\_t \textcolor{keyword}{const} registerValue) \{}
+\DoxyCodeLine{00341     \textcolor{keywordflow}{return} ((registerValue >> 0) \& 0xffffffff);}
+\DoxyCodeLine{00342 \}}
+\DoxyCodeLine{00343 }
+\DoxyCodeLine{00344 }
+\DoxyCodeLine{00345 \textcolor{keywordtype}{void} nvicShiWriteDis3Disable3\_(\textcolor{keyword}{enum} NvicCores\_ \textcolor{keyword}{const} core, uint32\_t \textcolor{keyword}{const} disable3) \{}
+\DoxyCodeLine{00346     uint32\_t registerValue = *((\textcolor{keyword}{volatile} uint32\_t *)(nvicDis3\_ + nvicCoreBaseAddresses\_[core]));}
+\DoxyCodeLine{00347 }
+\DoxyCodeLine{00348     registerValue \&= \string~(0xffffffff << 0);}
+\DoxyCodeLine{00349     registerValue |= (disable3 << 0);}
+\DoxyCodeLine{00350 }
+\DoxyCodeLine{00351     *((\textcolor{keyword}{volatile} uint32\_t *)(nvicDis3\_ + nvicCoreBaseAddresses\_[core])) = registerValue;}
+\DoxyCodeLine{00352 \}}
+\DoxyCodeLine{00353 }
+\DoxyCodeLine{00354 \textcolor{keywordtype}{void} nvicShiWriteUIDis3Disable3\_(uint32\_t * \textcolor{keyword}{const} registerValue, uint32\_t \textcolor{keyword}{const} disable3) \{}
+\DoxyCodeLine{00355     *registerValue \&= \string~(0xffffffff << 0);}
+\DoxyCodeLine{00356     *registerValue |= (disable3 << 0);}
+\DoxyCodeLine{00357 \}}
+\DoxyCodeLine{00358 }
+\DoxyCodeLine{00359 }
+
+\end{DoxyCode}

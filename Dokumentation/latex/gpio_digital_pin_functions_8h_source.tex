@@ -1,0 +1,108 @@
+\doxysection{gpio\+Digital\+Pin\+Functions.\+h}
+\label{gpio_digital_pin_functions_8h_source}\index{hal/gpio/include/gpioDigitalPinFunctions.h@{hal/gpio/include/gpioDigitalPinFunctions.h}}
+
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00001 \textcolor{preprocessor}{\#ifndef HAL\_GPIO\_INCLUDE\_GPIODIGITALPINFUNCTIONS\_H\_}}
+\DoxyCodeLine{00002 \textcolor{preprocessor}{\#define HAL\_GPIO\_INCLUDE\_GPIODIGITALPINFUNCTIONS\_H\_}}
+\DoxyCodeLine{00003 }
+\DoxyCodeLine{00004 \textcolor{preprocessor}{\#include "{}hal/gpio/halGpioShiCores.h"{}}}
+\DoxyCodeLine{00005 }
+\DoxyCodeLine{00006 \textcolor{keyword}{enum} GpioDigitalPinCount\_ \{}
+\DoxyCodeLine{00007     gpioDigitalPinCount\_ = 9}
+\DoxyCodeLine{00008 \};}
+\DoxyCodeLine{00009 }
+\DoxyCodeLine{00010 \textcolor{keyword}{enum} GpioPctlValues\_ \{}
+\DoxyCodeLine{00011     gpioPctlUart\_ = 0x1,}
+\DoxyCodeLine{00012     gpioPctlI2c\_ = 0x2}
+\DoxyCodeLine{00013 \};}
+\DoxyCodeLine{00014 }
+\DoxyCodeLine{00015 \textcolor{keyword}{enum} OpenDrain\_ \{}
+\DoxyCodeLine{00016     open = 0x1,}
+\DoxyCodeLine{00017     closed = 0x0}
+\DoxyCodeLine{00018 \};}
+\DoxyCodeLine{00019 }
+\DoxyCodeLine{00020 }
+\DoxyCodeLine{00021 \textcolor{keyword}{struct }gpioDigitalPinSetup\_ \{}
+\DoxyCodeLine{00022 }
+\DoxyCodeLine{00023     \textcolor{keyword}{enum} HalGpioCores port\_;}
+\DoxyCodeLine{00024     \textcolor{keyword}{enum} HalGpioPin pin\_;}
+\DoxyCodeLine{00025     \textcolor{keyword}{enum} HalGpioPinDirection direction\_;}
+\DoxyCodeLine{00026     \textcolor{keyword}{enum} GpioPctlValues\_ pctlVal\_;}
+\DoxyCodeLine{00027     \textcolor{keyword}{enum} OpenDrain\_ drain\_;}
+\DoxyCodeLine{00028 }
+\DoxyCodeLine{00029 \};}
+\DoxyCodeLine{00030 }
+\DoxyCodeLine{00031 }
+\DoxyCodeLine{00032 \textcolor{keyword}{const} \textcolor{keyword}{struct }gpioDigitalPinSetup\_ gpioDigitalPinSetups\_[gpioDigitalPinCount\_] =}
+\DoxyCodeLine{00033 \{}
+\DoxyCodeLine{00034  \textcolor{comment}{//halGpioU2RxPA6 [0]}}
+\DoxyCodeLine{00035  \{}
+\DoxyCodeLine{00036   .port\_ = halGpioPortACore,}
+\DoxyCodeLine{00037   .pin\_ = halGpioPin6,}
+\DoxyCodeLine{00038   .direction\_ = halGpioPinInput,}
+\DoxyCodeLine{00039   .pctlVal\_ = gpioPctlUart\_,}
+\DoxyCodeLine{00040   .drain\_ = closed}
+\DoxyCodeLine{00041  \},}
+\DoxyCodeLine{00042  \textcolor{comment}{//halGpioU2TxPA7 [1]}}
+\DoxyCodeLine{00043  \{}
+\DoxyCodeLine{00044   .port\_ = halGpioPortACore,}
+\DoxyCodeLine{00045   .pin\_ = halGpioPin7,}
+\DoxyCodeLine{00046   .direction\_ = halGpioPinOutput,}
+\DoxyCodeLine{00047   .pctlVal\_ = gpioPctlUart\_,}
+\DoxyCodeLine{00048   .drain\_ = closed}
+\DoxyCodeLine{00049  \},}
+\DoxyCodeLine{00050  \textcolor{comment}{//halGpioU2RxPD4 [2]}}
+\DoxyCodeLine{00051  \{}
+\DoxyCodeLine{00052   .port\_ = halGpioPortDCore,}
+\DoxyCodeLine{00053   .pin\_ = halGpioPin4,}
+\DoxyCodeLine{00054   .direction\_ = halGpioPinInput,}
+\DoxyCodeLine{00055   .pctlVal\_ = gpioPctlUart\_,}
+\DoxyCodeLine{00056   .drain\_ = closed}
+\DoxyCodeLine{00057  \},}
+\DoxyCodeLine{00058  \textcolor{comment}{//halGpioU2TxPD5 [3]}}
+\DoxyCodeLine{00059  \{}
+\DoxyCodeLine{00060   .port\_ = halGpioPortDCore,}
+\DoxyCodeLine{00061   .pin\_ = halGpioPin5,}
+\DoxyCodeLine{00062   .direction\_ = halGpioPinOutput,}
+\DoxyCodeLine{00063   .pctlVal\_ = gpioPctlUart\_,}
+\DoxyCodeLine{00064   .drain\_ = closed}
+\DoxyCodeLine{00065  \},}
+\DoxyCodeLine{00066  \textcolor{comment}{//halGPIOI2C0SCLPB2}}
+\DoxyCodeLine{00067  \{}
+\DoxyCodeLine{00068    .port\_ = halGpioPortACore,}
+\DoxyCodeLine{00069    .pin\_ = halGpioPin2,}
+\DoxyCodeLine{00070    .direction\_ = halGpioPinOutput,}
+\DoxyCodeLine{00071    .pctlVal\_ = gpioPctlI2c\_,}
+\DoxyCodeLine{00072    .drain\_ = closed}
+\DoxyCodeLine{00073   \},}
+\DoxyCodeLine{00074 }
+\DoxyCodeLine{00075  \textcolor{comment}{//halGPIOI2C0SDAPB3}}
+\DoxyCodeLine{00076   \{}
+\DoxyCodeLine{00077     .port\_ = halGpioPortBCore,}
+\DoxyCodeLine{00078     .pin\_ = halGpioPin3,}
+\DoxyCodeLine{00079     .direction\_ = halGpioPinOutput,}
+\DoxyCodeLine{00080     .pctlVal\_ = gpioPctlI2c\_,}
+\DoxyCodeLine{00081     .drain\_ = open}
+\DoxyCodeLine{00082    \},}
+\DoxyCodeLine{00083  \textcolor{comment}{//halGPIOI2C3SCLPK4}}
+\DoxyCodeLine{00084    \{}
+\DoxyCodeLine{00085      .port\_ = halGpioPortKCore,}
+\DoxyCodeLine{00086      .pin\_ = halGpioPin4,}
+\DoxyCodeLine{00087      .direction\_ = halGpioPinInput,}
+\DoxyCodeLine{00088      .pctlVal\_ = gpioPctlI2c\_,}
+\DoxyCodeLine{00089      .drain\_ = closed}
+\DoxyCodeLine{00090     \},}
+\DoxyCodeLine{00091  \textcolor{comment}{//halGPIOI2C3SCLPK5}}
+\DoxyCodeLine{00092     \{}
+\DoxyCodeLine{00093       .port\_ = halGpioPortKCore,}
+\DoxyCodeLine{00094       .pin\_ = halGpioPin5,}
+\DoxyCodeLine{00095       .direction\_ = halGpioPinInput,}
+\DoxyCodeLine{00096       .pctlVal\_ = gpioPctlI2c\_,}
+\DoxyCodeLine{00097       .drain\_ = open}
+\DoxyCodeLine{00098      \},}
+\DoxyCodeLine{00099 }
+\DoxyCodeLine{00100 \};}
+\DoxyCodeLine{00101 }
+\DoxyCodeLine{00102 \textcolor{preprocessor}{\#endif }\textcolor{comment}{/* HAL\_GPIO\_INCLUDE\_GPIODIGITALPINFUNCTIONS\_H\_ */}\textcolor{preprocessor}{}}
+
+\end{DoxyCode}

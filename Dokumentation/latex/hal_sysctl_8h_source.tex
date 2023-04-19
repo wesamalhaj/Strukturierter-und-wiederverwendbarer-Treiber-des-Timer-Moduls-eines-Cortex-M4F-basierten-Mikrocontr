@@ -1,0 +1,29 @@
+\doxysection{hal\+Sysctl.\+h}
+\label{hal_sysctl_8h_source}\index{hal/sysctl/include/public/hal/sysctl/halSysctl.h@{hal/sysctl/include/public/hal/sysctl/halSysctl.h}}
+
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00001 \textcolor{preprocessor}{\#ifndef HAL\_SYSCTL\_INCLUDE\_HAL\_SYSCTL\_HALSYSCTL\_H\_}}
+\DoxyCodeLine{00002 \textcolor{preprocessor}{\#define HAL\_SYSCTL\_INCLUDE\_HAL\_SYSCTL\_HALSYSCTL\_H\_}}
+\DoxyCodeLine{00003 }
+\DoxyCodeLine{00004 }
+\DoxyCodeLine{00005 \textcolor{keyword}{enum} HalSysCtlCpuFreq \{}
+\DoxyCodeLine{00006     halSysCtlCpuFreq16MHz = 0,}
+\DoxyCodeLine{00007     halSysCtlCpuFreq25MHz = 1,}
+\DoxyCodeLine{00008     halSysCtlCpuFreq30MHz = 2,}
+\DoxyCodeLine{00009     halSysCtlCpuFreq40MHz = 3,}
+\DoxyCodeLine{00010     halSysCtlCpuFreq48MHz = 4,}
+\DoxyCodeLine{00011     halSysCtlCpuFreq60MHz = 5,}
+\DoxyCodeLine{00012     halSysCtlCpuFreq80MHz = 6,}
+\DoxyCodeLine{00013     halSysCtlCpuFreq96MHz = 7,}
+\DoxyCodeLine{00014     halSysCtlCpuFreq120MHz = 8,}
+\DoxyCodeLine{00015 \};}
+\DoxyCodeLine{00016 }
+\DoxyCodeLine{00017 \textcolor{comment}{//*****************************************************************************}}
+\DoxyCodeLine{00018 \textcolor{comment}{// public prototypes}}
+\DoxyCodeLine{00019 \textcolor{keywordtype}{unsigned} \textcolor{keywordtype}{int} halSysCtlGetCpuFreq(\textcolor{keywordtype}{void});}
+\DoxyCodeLine{00020 \textcolor{keywordtype}{void} halSysCtlSetCpuFreq(\textcolor{keyword}{enum} HalSysCtlCpuFreq);}
+\DoxyCodeLine{00021 }
+\DoxyCodeLine{00022 }
+\DoxyCodeLine{00023 \textcolor{preprocessor}{\#endif }\textcolor{comment}{/* HAL\_SYSCTL\_INCLUDE\_HAL\_SYSCTL\_HALSYSCTL\_H\_ */}\textcolor{preprocessor}{}}
+
+\end{DoxyCode}

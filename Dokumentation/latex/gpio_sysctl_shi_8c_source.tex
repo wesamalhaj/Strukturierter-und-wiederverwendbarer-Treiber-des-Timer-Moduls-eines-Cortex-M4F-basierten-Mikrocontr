@@ -1,0 +1,422 @@
+\doxysection{gpio\+Sysctl\+Shi.\+c}
+\label{gpio_sysctl_shi_8c_source}\index{hal/gpio/src/gpioSysctlShi.c@{hal/gpio/src/gpioSysctlShi.c}}
+
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00001 \textcolor{comment}{//*****************************************************************************}}
+\DoxyCodeLine{00002 \textcolor{comment}{// Name        : gpioSysctlShi.c}}
+\DoxyCodeLine{00003 \textcolor{comment}{// Author      : Ole Rönna }}
+\DoxyCodeLine{00004 \textcolor{comment}{// Maintainer  : Prof. Dr. Paweł Buczek }}
+\DoxyCodeLine{00005 \textcolor{comment}{// Version     : 0.4 }}
+\DoxyCodeLine{00006 \textcolor{comment}{// Copyright   : All rights reserved }}
+\DoxyCodeLine{00007 \textcolor{comment}{// Description : }}
+\DoxyCodeLine{00008 \textcolor{comment}{// This code was generated from a template. Manual changes to this file will }}
+\DoxyCodeLine{00009 \textcolor{comment}{// be overwritten if the code is regenerated. }}
+\DoxyCodeLine{00010 \textcolor{comment}{//}}
+\DoxyCodeLine{00011 \textcolor{comment}{//*****************************************************************************}}
+\DoxyCodeLine{00012 }
+\DoxyCodeLine{00013 \textcolor{preprocessor}{\#include "{}gpioSysctlShiCores.h"{}}}
+\DoxyCodeLine{00014 \textcolor{preprocessor}{\#include "{}gpioSysctlShi.h"{}}}
+\DoxyCodeLine{00015 \textcolor{preprocessor}{\#include "{}stdint.h"{}}}
+\DoxyCodeLine{00016 }
+\DoxyCodeLine{00017 \textcolor{comment}{//*****************************************************************************}}
+\DoxyCodeLine{00018 \textcolor{comment}{//}}
+\DoxyCodeLine{00019 \textcolor{comment}{// sysctl base addresses}}
+\DoxyCodeLine{00020 \textcolor{comment}{//}}
+\DoxyCodeLine{00021 \textcolor{comment}{//*****************************************************************************}}
+\DoxyCodeLine{00022 }
+\DoxyCodeLine{00023 \textcolor{keyword}{static} \textcolor{keyword}{const} uint32\_t sysctlCoreBaseAddresses\_[sysctlCoreCount\_] = \{}
+\DoxyCodeLine{00024     0x400FE000}
+\DoxyCodeLine{00025 \};}
+\DoxyCodeLine{00026 }
+\DoxyCodeLine{00027 \textcolor{comment}{//*****************************************************************************}}
+\DoxyCodeLine{00028 \textcolor{comment}{//}}
+\DoxyCodeLine{00029 \textcolor{comment}{// sysctl functions for reading/writing of the whole register}}
+\DoxyCodeLine{00030 \textcolor{comment}{//}}
+\DoxyCodeLine{00031 \textcolor{comment}{//*****************************************************************************}}
+\DoxyCodeLine{00032 }
+\DoxyCodeLine{00033 uint32\_t sysctlShiReadRcgcgpio\_(\textcolor{keyword}{enum} SysctlCores\_ \textcolor{keyword}{const} core) \{}
+\DoxyCodeLine{00034     \textcolor{keywordflow}{return} *((\textcolor{keyword}{volatile} uint32\_t *)(sysctlRcgcgpio\_ + sysctlCoreBaseAddresses\_[core]));}
+\DoxyCodeLine{00035 \}}
+\DoxyCodeLine{00036 }
+\DoxyCodeLine{00037 \textcolor{keywordtype}{void} sysctlShiWriteRcgcgpio\_(\textcolor{keyword}{enum} SysctlCores\_ \textcolor{keyword}{const} core, uint32\_t \textcolor{keyword}{const} registerValue) \{}
+\DoxyCodeLine{00038     *((\textcolor{keyword}{volatile} uint32\_t *)(sysctlRcgcgpio\_ + sysctlCoreBaseAddresses\_[core])) = registerValue;}
+\DoxyCodeLine{00039 \}}
+\DoxyCodeLine{00040 }
+\DoxyCodeLine{00041 }
+\DoxyCodeLine{00042 uint32\_t sysctlShiReadPrgpio\_(\textcolor{keyword}{enum} SysctlCores\_ \textcolor{keyword}{const} core) \{}
+\DoxyCodeLine{00043     \textcolor{keywordflow}{return} *((\textcolor{keyword}{volatile} uint32\_t *)(sysctlPrgpio\_ + sysctlCoreBaseAddresses\_[core]));}
+\DoxyCodeLine{00044 \}}
+\DoxyCodeLine{00045 }
+\DoxyCodeLine{00046 \textcolor{keywordtype}{void} sysctlShiWritePrgpio\_(\textcolor{keyword}{enum} SysctlCores\_ \textcolor{keyword}{const} core, uint32\_t \textcolor{keyword}{const} registerValue) \{}
+\DoxyCodeLine{00047     *((\textcolor{keyword}{volatile} uint32\_t *)(sysctlPrgpio\_ + sysctlCoreBaseAddresses\_[core])) = registerValue;}
+\DoxyCodeLine{00048 \}}
+\DoxyCodeLine{00049 }
+\DoxyCodeLine{00050 }
+\DoxyCodeLine{00051 \textcolor{comment}{//*****************************************************************************}}
+\DoxyCodeLine{00052 \textcolor{comment}{//}}
+\DoxyCodeLine{00053 \textcolor{comment}{// sysctl read/write individual bit fields}}
+\DoxyCodeLine{00054 \textcolor{comment}{//}}
+\DoxyCodeLine{00055 \textcolor{comment}{//*****************************************************************************}}
+\DoxyCodeLine{00056 }
+\DoxyCodeLine{00057 \textcolor{keywordtype}{void} sysctlShiWriteRcgcgpioPortA\_(\textcolor{keyword}{enum} SysctlCores\_ \textcolor{keyword}{const} core, \textcolor{keyword}{enum} SysctlRcgcgpioPortAValues\_ \textcolor{keyword}{const} portA) \{}
+\DoxyCodeLine{00058     uint32\_t registerValue = *((\textcolor{keyword}{volatile} uint32\_t *)(sysctlRcgcgpio\_ + sysctlCoreBaseAddresses\_[core]));}
+\DoxyCodeLine{00059 }
+\DoxyCodeLine{00060     registerValue \&= \string~(0x1 << 0);}
+\DoxyCodeLine{00061     registerValue |= (portA << 0);}
+\DoxyCodeLine{00062 }
+\DoxyCodeLine{00063     *((\textcolor{keyword}{volatile} uint32\_t *)(sysctlRcgcgpio\_ + sysctlCoreBaseAddresses\_[core])) = registerValue;}
+\DoxyCodeLine{00064 \}}
+\DoxyCodeLine{00065 }
+\DoxyCodeLine{00066 \textcolor{keywordtype}{void} sysctlShiWriteUIRcgcgpioPortA\_(uint32\_t * \textcolor{keyword}{const} registerValue, \textcolor{keyword}{enum} SysctlRcgcgpioPortAValues\_ \textcolor{keyword}{const} portA) \{}
+\DoxyCodeLine{00067     *registerValue \&= \string~(0x1 << 0);}
+\DoxyCodeLine{00068     *registerValue |= (portA << 0);}
+\DoxyCodeLine{00069 \}}
+\DoxyCodeLine{00070 }
+\DoxyCodeLine{00071 }
+\DoxyCodeLine{00072 \textcolor{keywordtype}{void} sysctlShiWriteRcgcgpioPortB\_(\textcolor{keyword}{enum} SysctlCores\_ \textcolor{keyword}{const} core, \textcolor{keyword}{enum} SysctlRcgcgpioPortBValues\_ \textcolor{keyword}{const} portB) \{}
+\DoxyCodeLine{00073     uint32\_t registerValue = *((\textcolor{keyword}{volatile} uint32\_t *)(sysctlRcgcgpio\_ + sysctlCoreBaseAddresses\_[core]));}
+\DoxyCodeLine{00074 }
+\DoxyCodeLine{00075     registerValue \&= \string~(0x1 << 1);}
+\DoxyCodeLine{00076     registerValue |= (portB << 1);}
+\DoxyCodeLine{00077 }
+\DoxyCodeLine{00078     *((\textcolor{keyword}{volatile} uint32\_t *)(sysctlRcgcgpio\_ + sysctlCoreBaseAddresses\_[core])) = registerValue;}
+\DoxyCodeLine{00079 \}}
+\DoxyCodeLine{00080 }
+\DoxyCodeLine{00081 \textcolor{keywordtype}{void} sysctlShiWriteUIRcgcgpioPortB\_(uint32\_t * \textcolor{keyword}{const} registerValue, \textcolor{keyword}{enum} SysctlRcgcgpioPortBValues\_ \textcolor{keyword}{const} portB) \{}
+\DoxyCodeLine{00082     *registerValue \&= \string~(0x1 << 1);}
+\DoxyCodeLine{00083     *registerValue |= (portB << 1);}
+\DoxyCodeLine{00084 \}}
+\DoxyCodeLine{00085 }
+\DoxyCodeLine{00086 }
+\DoxyCodeLine{00087 \textcolor{keywordtype}{void} sysctlShiWriteRcgcgpioPortC\_(\textcolor{keyword}{enum} SysctlCores\_ \textcolor{keyword}{const} core, \textcolor{keyword}{enum} SysctlRcgcgpioPortCValues\_ \textcolor{keyword}{const} portC) \{}
+\DoxyCodeLine{00088     uint32\_t registerValue = *((\textcolor{keyword}{volatile} uint32\_t *)(sysctlRcgcgpio\_ + sysctlCoreBaseAddresses\_[core]));}
+\DoxyCodeLine{00089 }
+\DoxyCodeLine{00090     registerValue \&= \string~(0x1 << 2);}
+\DoxyCodeLine{00091     registerValue |= (portC << 2);}
+\DoxyCodeLine{00092 }
+\DoxyCodeLine{00093     *((\textcolor{keyword}{volatile} uint32\_t *)(sysctlRcgcgpio\_ + sysctlCoreBaseAddresses\_[core])) = registerValue;}
+\DoxyCodeLine{00094 \}}
+\DoxyCodeLine{00095 }
+\DoxyCodeLine{00096 \textcolor{keywordtype}{void} sysctlShiWriteUIRcgcgpioPortC\_(uint32\_t * \textcolor{keyword}{const} registerValue, \textcolor{keyword}{enum} SysctlRcgcgpioPortCValues\_ \textcolor{keyword}{const} portC) \{}
+\DoxyCodeLine{00097     *registerValue \&= \string~(0x1 << 2);}
+\DoxyCodeLine{00098     *registerValue |= (portC << 2);}
+\DoxyCodeLine{00099 \}}
+\DoxyCodeLine{00100 }
+\DoxyCodeLine{00101 }
+\DoxyCodeLine{00102 \textcolor{keywordtype}{void} sysctlShiWriteRcgcgpioPortD\_(\textcolor{keyword}{enum} SysctlCores\_ \textcolor{keyword}{const} core, \textcolor{keyword}{enum} SysctlRcgcgpioPortDValues\_ \textcolor{keyword}{const} portD) \{}
+\DoxyCodeLine{00103     uint32\_t registerValue = *((\textcolor{keyword}{volatile} uint32\_t *)(sysctlRcgcgpio\_ + sysctlCoreBaseAddresses\_[core]));}
+\DoxyCodeLine{00104 }
+\DoxyCodeLine{00105     registerValue \&= \string~(0x1 << 3);}
+\DoxyCodeLine{00106     registerValue |= (portD << 3);}
+\DoxyCodeLine{00107 }
+\DoxyCodeLine{00108     *((\textcolor{keyword}{volatile} uint32\_t *)(sysctlRcgcgpio\_ + sysctlCoreBaseAddresses\_[core])) = registerValue;}
+\DoxyCodeLine{00109 \}}
+\DoxyCodeLine{00110 }
+\DoxyCodeLine{00111 \textcolor{keywordtype}{void} sysctlShiWriteUIRcgcgpioPortD\_(uint32\_t * \textcolor{keyword}{const} registerValue, \textcolor{keyword}{enum} SysctlRcgcgpioPortDValues\_ \textcolor{keyword}{const} portD) \{}
+\DoxyCodeLine{00112     *registerValue \&= \string~(0x1 << 3);}
+\DoxyCodeLine{00113     *registerValue |= (portD << 3);}
+\DoxyCodeLine{00114 \}}
+\DoxyCodeLine{00115 }
+\DoxyCodeLine{00116 }
+\DoxyCodeLine{00117 \textcolor{keywordtype}{void} sysctlShiWriteRcgcgpioPortE\_(\textcolor{keyword}{enum} SysctlCores\_ \textcolor{keyword}{const} core, \textcolor{keyword}{enum} SysctlRcgcgpioPortEValues\_ \textcolor{keyword}{const} portE) \{}
+\DoxyCodeLine{00118     uint32\_t registerValue = *((\textcolor{keyword}{volatile} uint32\_t *)(sysctlRcgcgpio\_ + sysctlCoreBaseAddresses\_[core]));}
+\DoxyCodeLine{00119 }
+\DoxyCodeLine{00120     registerValue \&= \string~(0x1 << 4);}
+\DoxyCodeLine{00121     registerValue |= (portE << 4);}
+\DoxyCodeLine{00122 }
+\DoxyCodeLine{00123     *((\textcolor{keyword}{volatile} uint32\_t *)(sysctlRcgcgpio\_ + sysctlCoreBaseAddresses\_[core])) = registerValue;}
+\DoxyCodeLine{00124 \}}
+\DoxyCodeLine{00125 }
+\DoxyCodeLine{00126 \textcolor{keywordtype}{void} sysctlShiWriteUIRcgcgpioPortE\_(uint32\_t * \textcolor{keyword}{const} registerValue, \textcolor{keyword}{enum} SysctlRcgcgpioPortEValues\_ \textcolor{keyword}{const} portE) \{}
+\DoxyCodeLine{00127     *registerValue \&= \string~(0x1 << 4);}
+\DoxyCodeLine{00128     *registerValue |= (portE << 4);}
+\DoxyCodeLine{00129 \}}
+\DoxyCodeLine{00130 }
+\DoxyCodeLine{00131 }
+\DoxyCodeLine{00132 \textcolor{keywordtype}{void} sysctlShiWriteRcgcgpioPortF\_(\textcolor{keyword}{enum} SysctlCores\_ \textcolor{keyword}{const} core, \textcolor{keyword}{enum} SysctlRcgcgpioPortFValues\_ \textcolor{keyword}{const} portF) \{}
+\DoxyCodeLine{00133     uint32\_t registerValue = *((\textcolor{keyword}{volatile} uint32\_t *)(sysctlRcgcgpio\_ + sysctlCoreBaseAddresses\_[core]));}
+\DoxyCodeLine{00134 }
+\DoxyCodeLine{00135     registerValue \&= \string~(0x1 << 5);}
+\DoxyCodeLine{00136     registerValue |= (portF << 5);}
+\DoxyCodeLine{00137 }
+\DoxyCodeLine{00138     *((\textcolor{keyword}{volatile} uint32\_t *)(sysctlRcgcgpio\_ + sysctlCoreBaseAddresses\_[core])) = registerValue;}
+\DoxyCodeLine{00139 \}}
+\DoxyCodeLine{00140 }
+\DoxyCodeLine{00141 \textcolor{keywordtype}{void} sysctlShiWriteUIRcgcgpioPortF\_(uint32\_t * \textcolor{keyword}{const} registerValue, \textcolor{keyword}{enum} SysctlRcgcgpioPortFValues\_ \textcolor{keyword}{const} portF) \{}
+\DoxyCodeLine{00142     *registerValue \&= \string~(0x1 << 5);}
+\DoxyCodeLine{00143     *registerValue |= (portF << 5);}
+\DoxyCodeLine{00144 \}}
+\DoxyCodeLine{00145 }
+\DoxyCodeLine{00146 }
+\DoxyCodeLine{00147 \textcolor{keywordtype}{void} sysctlShiWriteRcgcgpioPortG\_(\textcolor{keyword}{enum} SysctlCores\_ \textcolor{keyword}{const} core, \textcolor{keyword}{enum} SysctlRcgcgpioPortGValues\_ \textcolor{keyword}{const} portG) \{}
+\DoxyCodeLine{00148     uint32\_t registerValue = *((\textcolor{keyword}{volatile} uint32\_t *)(sysctlRcgcgpio\_ + sysctlCoreBaseAddresses\_[core]));}
+\DoxyCodeLine{00149 }
+\DoxyCodeLine{00150     registerValue \&= \string~(0x1 << 6);}
+\DoxyCodeLine{00151     registerValue |= (portG << 6);}
+\DoxyCodeLine{00152 }
+\DoxyCodeLine{00153     *((\textcolor{keyword}{volatile} uint32\_t *)(sysctlRcgcgpio\_ + sysctlCoreBaseAddresses\_[core])) = registerValue;}
+\DoxyCodeLine{00154 \}}
+\DoxyCodeLine{00155 }
+\DoxyCodeLine{00156 \textcolor{keywordtype}{void} sysctlShiWriteUIRcgcgpioPortG\_(uint32\_t * \textcolor{keyword}{const} registerValue, \textcolor{keyword}{enum} SysctlRcgcgpioPortGValues\_ \textcolor{keyword}{const} portG) \{}
+\DoxyCodeLine{00157     *registerValue \&= \string~(0x1 << 6);}
+\DoxyCodeLine{00158     *registerValue |= (portG << 6);}
+\DoxyCodeLine{00159 \}}
+\DoxyCodeLine{00160 }
+\DoxyCodeLine{00161 }
+\DoxyCodeLine{00162 \textcolor{keywordtype}{void} sysctlShiWriteRcgcgpioPortH\_(\textcolor{keyword}{enum} SysctlCores\_ \textcolor{keyword}{const} core, \textcolor{keyword}{enum} SysctlRcgcgpioPortHValues\_ \textcolor{keyword}{const} portH) \{}
+\DoxyCodeLine{00163     uint32\_t registerValue = *((\textcolor{keyword}{volatile} uint32\_t *)(sysctlRcgcgpio\_ + sysctlCoreBaseAddresses\_[core]));}
+\DoxyCodeLine{00164 }
+\DoxyCodeLine{00165     registerValue \&= \string~(0x1 << 7);}
+\DoxyCodeLine{00166     registerValue |= (portH << 7);}
+\DoxyCodeLine{00167 }
+\DoxyCodeLine{00168     *((\textcolor{keyword}{volatile} uint32\_t *)(sysctlRcgcgpio\_ + sysctlCoreBaseAddresses\_[core])) = registerValue;}
+\DoxyCodeLine{00169 \}}
+\DoxyCodeLine{00170 }
+\DoxyCodeLine{00171 \textcolor{keywordtype}{void} sysctlShiWriteUIRcgcgpioPortH\_(uint32\_t * \textcolor{keyword}{const} registerValue, \textcolor{keyword}{enum} SysctlRcgcgpioPortHValues\_ \textcolor{keyword}{const} portH) \{}
+\DoxyCodeLine{00172     *registerValue \&= \string~(0x1 << 7);}
+\DoxyCodeLine{00173     *registerValue |= (portH << 7);}
+\DoxyCodeLine{00174 \}}
+\DoxyCodeLine{00175 }
+\DoxyCodeLine{00176 }
+\DoxyCodeLine{00177 \textcolor{keywordtype}{void} sysctlShiWriteRcgcgpioPortJ\_(\textcolor{keyword}{enum} SysctlCores\_ \textcolor{keyword}{const} core, \textcolor{keyword}{enum} SysctlRcgcgpioPortJValues\_ \textcolor{keyword}{const} portJ) \{}
+\DoxyCodeLine{00178     uint32\_t registerValue = *((\textcolor{keyword}{volatile} uint32\_t *)(sysctlRcgcgpio\_ + sysctlCoreBaseAddresses\_[core]));}
+\DoxyCodeLine{00179 }
+\DoxyCodeLine{00180     registerValue \&= \string~(0x1 << 8);}
+\DoxyCodeLine{00181     registerValue |= (portJ << 8);}
+\DoxyCodeLine{00182 }
+\DoxyCodeLine{00183     *((\textcolor{keyword}{volatile} uint32\_t *)(sysctlRcgcgpio\_ + sysctlCoreBaseAddresses\_[core])) = registerValue;}
+\DoxyCodeLine{00184 \}}
+\DoxyCodeLine{00185 }
+\DoxyCodeLine{00186 \textcolor{keywordtype}{void} sysctlShiWriteUIRcgcgpioPortJ\_(uint32\_t * \textcolor{keyword}{const} registerValue, \textcolor{keyword}{enum} SysctlRcgcgpioPortJValues\_ \textcolor{keyword}{const} portJ) \{}
+\DoxyCodeLine{00187     *registerValue \&= \string~(0x1 << 8);}
+\DoxyCodeLine{00188     *registerValue |= (portJ << 8);}
+\DoxyCodeLine{00189 \}}
+\DoxyCodeLine{00190 }
+\DoxyCodeLine{00191 }
+\DoxyCodeLine{00192 \textcolor{keywordtype}{void} sysctlShiWriteRcgcgpioPortK\_(\textcolor{keyword}{enum} SysctlCores\_ \textcolor{keyword}{const} core, \textcolor{keyword}{enum} SysctlRcgcgpioPortKValues\_ \textcolor{keyword}{const} portK) \{}
+\DoxyCodeLine{00193     uint32\_t registerValue = *((\textcolor{keyword}{volatile} uint32\_t *)(sysctlRcgcgpio\_ + sysctlCoreBaseAddresses\_[core]));}
+\DoxyCodeLine{00194 }
+\DoxyCodeLine{00195     registerValue \&= \string~(0x1 << 9);}
+\DoxyCodeLine{00196     registerValue |= (portK << 9);}
+\DoxyCodeLine{00197 }
+\DoxyCodeLine{00198     *((\textcolor{keyword}{volatile} uint32\_t *)(sysctlRcgcgpio\_ + sysctlCoreBaseAddresses\_[core])) = registerValue;}
+\DoxyCodeLine{00199 \}}
+\DoxyCodeLine{00200 }
+\DoxyCodeLine{00201 \textcolor{keywordtype}{void} sysctlShiWriteUIRcgcgpioPortK\_(uint32\_t * \textcolor{keyword}{const} registerValue, \textcolor{keyword}{enum} SysctlRcgcgpioPortKValues\_ \textcolor{keyword}{const} portK) \{}
+\DoxyCodeLine{00202     *registerValue \&= \string~(0x1 << 9);}
+\DoxyCodeLine{00203     *registerValue |= (portK << 9);}
+\DoxyCodeLine{00204 \}}
+\DoxyCodeLine{00205 }
+\DoxyCodeLine{00206 }
+\DoxyCodeLine{00207 \textcolor{keywordtype}{void} sysctlShiWriteRcgcgpioPortL\_(\textcolor{keyword}{enum} SysctlCores\_ \textcolor{keyword}{const} core, \textcolor{keyword}{enum} SysctlRcgcgpioPortLValues\_ \textcolor{keyword}{const} portL) \{}
+\DoxyCodeLine{00208     uint32\_t registerValue = *((\textcolor{keyword}{volatile} uint32\_t *)(sysctlRcgcgpio\_ + sysctlCoreBaseAddresses\_[core]));}
+\DoxyCodeLine{00209 }
+\DoxyCodeLine{00210     registerValue \&= \string~(0x1 << 10);}
+\DoxyCodeLine{00211     registerValue |= (portL << 10);}
+\DoxyCodeLine{00212 }
+\DoxyCodeLine{00213     *((\textcolor{keyword}{volatile} uint32\_t *)(sysctlRcgcgpio\_ + sysctlCoreBaseAddresses\_[core])) = registerValue;}
+\DoxyCodeLine{00214 \}}
+\DoxyCodeLine{00215 }
+\DoxyCodeLine{00216 \textcolor{keywordtype}{void} sysctlShiWriteUIRcgcgpioPortL\_(uint32\_t * \textcolor{keyword}{const} registerValue, \textcolor{keyword}{enum} SysctlRcgcgpioPortLValues\_ \textcolor{keyword}{const} portL) \{}
+\DoxyCodeLine{00217     *registerValue \&= \string~(0x1 << 10);}
+\DoxyCodeLine{00218     *registerValue |= (portL << 10);}
+\DoxyCodeLine{00219 \}}
+\DoxyCodeLine{00220 }
+\DoxyCodeLine{00221 }
+\DoxyCodeLine{00222 \textcolor{keywordtype}{void} sysctlShiWriteRcgcgpioPortM\_(\textcolor{keyword}{enum} SysctlCores\_ \textcolor{keyword}{const} core, \textcolor{keyword}{enum} SysctlRcgcgpioPortMValues\_ \textcolor{keyword}{const} portM) \{}
+\DoxyCodeLine{00223     uint32\_t registerValue = *((\textcolor{keyword}{volatile} uint32\_t *)(sysctlRcgcgpio\_ + sysctlCoreBaseAddresses\_[core]));}
+\DoxyCodeLine{00224 }
+\DoxyCodeLine{00225     registerValue \&= \string~(0x1 << 11);}
+\DoxyCodeLine{00226     registerValue |= (portM << 11);}
+\DoxyCodeLine{00227 }
+\DoxyCodeLine{00228     *((\textcolor{keyword}{volatile} uint32\_t *)(sysctlRcgcgpio\_ + sysctlCoreBaseAddresses\_[core])) = registerValue;}
+\DoxyCodeLine{00229 \}}
+\DoxyCodeLine{00230 }
+\DoxyCodeLine{00231 \textcolor{keywordtype}{void} sysctlShiWriteUIRcgcgpioPortM\_(uint32\_t * \textcolor{keyword}{const} registerValue, \textcolor{keyword}{enum} SysctlRcgcgpioPortMValues\_ \textcolor{keyword}{const} portM) \{}
+\DoxyCodeLine{00232     *registerValue \&= \string~(0x1 << 11);}
+\DoxyCodeLine{00233     *registerValue |= (portM << 11);}
+\DoxyCodeLine{00234 \}}
+\DoxyCodeLine{00235 }
+\DoxyCodeLine{00236 }
+\DoxyCodeLine{00237 \textcolor{keywordtype}{void} sysctlShiWriteRcgcgpioPortN\_(\textcolor{keyword}{enum} SysctlCores\_ \textcolor{keyword}{const} core, \textcolor{keyword}{enum} SysctlRcgcgpioPortNValues\_ \textcolor{keyword}{const} portN) \{}
+\DoxyCodeLine{00238     uint32\_t registerValue = *((\textcolor{keyword}{volatile} uint32\_t *)(sysctlRcgcgpio\_ + sysctlCoreBaseAddresses\_[core]));}
+\DoxyCodeLine{00239 }
+\DoxyCodeLine{00240     registerValue \&= \string~(0x1 << 12);}
+\DoxyCodeLine{00241     registerValue |= (portN << 12);}
+\DoxyCodeLine{00242 }
+\DoxyCodeLine{00243     *((\textcolor{keyword}{volatile} uint32\_t *)(sysctlRcgcgpio\_ + sysctlCoreBaseAddresses\_[core])) = registerValue;}
+\DoxyCodeLine{00244 \}}
+\DoxyCodeLine{00245 }
+\DoxyCodeLine{00246 \textcolor{keywordtype}{void} sysctlShiWriteUIRcgcgpioPortN\_(uint32\_t * \textcolor{keyword}{const} registerValue, \textcolor{keyword}{enum} SysctlRcgcgpioPortNValues\_ \textcolor{keyword}{const} portN) \{}
+\DoxyCodeLine{00247     *registerValue \&= \string~(0x1 << 12);}
+\DoxyCodeLine{00248     *registerValue |= (portN << 12);}
+\DoxyCodeLine{00249 \}}
+\DoxyCodeLine{00250 }
+\DoxyCodeLine{00251 }
+\DoxyCodeLine{00252 \textcolor{keywordtype}{void} sysctlShiWriteRcgcgpioPortP\_(\textcolor{keyword}{enum} SysctlCores\_ \textcolor{keyword}{const} core, \textcolor{keyword}{enum} SysctlRcgcgpioPortPValues\_ \textcolor{keyword}{const} portP) \{}
+\DoxyCodeLine{00253     uint32\_t registerValue = *((\textcolor{keyword}{volatile} uint32\_t *)(sysctlRcgcgpio\_ + sysctlCoreBaseAddresses\_[core]));}
+\DoxyCodeLine{00254 }
+\DoxyCodeLine{00255     registerValue \&= \string~(0x1 << 13);}
+\DoxyCodeLine{00256     registerValue |= (portP << 13);}
+\DoxyCodeLine{00257 }
+\DoxyCodeLine{00258     *((\textcolor{keyword}{volatile} uint32\_t *)(sysctlRcgcgpio\_ + sysctlCoreBaseAddresses\_[core])) = registerValue;}
+\DoxyCodeLine{00259 \}}
+\DoxyCodeLine{00260 }
+\DoxyCodeLine{00261 \textcolor{keywordtype}{void} sysctlShiWriteUIRcgcgpioPortP\_(uint32\_t * \textcolor{keyword}{const} registerValue, \textcolor{keyword}{enum} SysctlRcgcgpioPortPValues\_ \textcolor{keyword}{const} portP) \{}
+\DoxyCodeLine{00262     *registerValue \&= \string~(0x1 << 13);}
+\DoxyCodeLine{00263     *registerValue |= (portP << 13);}
+\DoxyCodeLine{00264 \}}
+\DoxyCodeLine{00265 }
+\DoxyCodeLine{00266 }
+\DoxyCodeLine{00267 \textcolor{keywordtype}{void} sysctlShiWriteRcgcgpioPortQ\_(\textcolor{keyword}{enum} SysctlCores\_ \textcolor{keyword}{const} core, \textcolor{keyword}{enum} SysctlRcgcgpioPortQValues\_ \textcolor{keyword}{const} portQ) \{}
+\DoxyCodeLine{00268     uint32\_t registerValue = *((\textcolor{keyword}{volatile} uint32\_t *)(sysctlRcgcgpio\_ + sysctlCoreBaseAddresses\_[core]));}
+\DoxyCodeLine{00269 }
+\DoxyCodeLine{00270     registerValue \&= \string~(0x1 << 14);}
+\DoxyCodeLine{00271     registerValue |= (portQ << 14);}
+\DoxyCodeLine{00272 }
+\DoxyCodeLine{00273     *((\textcolor{keyword}{volatile} uint32\_t *)(sysctlRcgcgpio\_ + sysctlCoreBaseAddresses\_[core])) = registerValue;}
+\DoxyCodeLine{00274 \}}
+\DoxyCodeLine{00275 }
+\DoxyCodeLine{00276 \textcolor{keywordtype}{void} sysctlShiWriteUIRcgcgpioPortQ\_(uint32\_t * \textcolor{keyword}{const} registerValue, \textcolor{keyword}{enum} SysctlRcgcgpioPortQValues\_ \textcolor{keyword}{const} portQ) \{}
+\DoxyCodeLine{00277     *registerValue \&= \string~(0x1 << 14);}
+\DoxyCodeLine{00278     *registerValue |= (portQ << 14);}
+\DoxyCodeLine{00279 \}}
+\DoxyCodeLine{00280 }
+\DoxyCodeLine{00281 }
+\DoxyCodeLine{00282 uint32\_t sysctlShiReadPrgpioPortA\_(\textcolor{keyword}{enum} SysctlCores\_ \textcolor{keyword}{const} core) \{}
+\DoxyCodeLine{00283     \textcolor{keywordflow}{return} ((*((\textcolor{keyword}{volatile} uint32\_t *)(sysctlPrgpio\_ + sysctlCoreBaseAddresses\_[core])) >> 0) \& 0x1);}
+\DoxyCodeLine{00284 \}}
+\DoxyCodeLine{00285 }
+\DoxyCodeLine{00286 uint32\_t sysctlShiReadUIPrgpioPortA\_(uint32\_t \textcolor{keyword}{const} registerValue) \{}
+\DoxyCodeLine{00287     \textcolor{keywordflow}{return} ((registerValue >> 0) \& 0x1);}
+\DoxyCodeLine{00288 \}}
+\DoxyCodeLine{00289 }
+\DoxyCodeLine{00290 }
+\DoxyCodeLine{00291 uint32\_t sysctlShiReadPrgpioPortB\_(\textcolor{keyword}{enum} SysctlCores\_ \textcolor{keyword}{const} core) \{}
+\DoxyCodeLine{00292     \textcolor{keywordflow}{return} ((*((\textcolor{keyword}{volatile} uint32\_t *)(sysctlPrgpio\_ + sysctlCoreBaseAddresses\_[core])) >> 1) \& 0x1);}
+\DoxyCodeLine{00293 \}}
+\DoxyCodeLine{00294 }
+\DoxyCodeLine{00295 uint32\_t sysctlShiReadUIPrgpioPortB\_(uint32\_t \textcolor{keyword}{const} registerValue) \{}
+\DoxyCodeLine{00296     \textcolor{keywordflow}{return} ((registerValue >> 1) \& 0x1);}
+\DoxyCodeLine{00297 \}}
+\DoxyCodeLine{00298 }
+\DoxyCodeLine{00299 }
+\DoxyCodeLine{00300 uint32\_t sysctlShiReadPrgpioPortC\_(\textcolor{keyword}{enum} SysctlCores\_ \textcolor{keyword}{const} core) \{}
+\DoxyCodeLine{00301     \textcolor{keywordflow}{return} ((*((\textcolor{keyword}{volatile} uint32\_t *)(sysctlPrgpio\_ + sysctlCoreBaseAddresses\_[core])) >> 2) \& 0x1);}
+\DoxyCodeLine{00302 \}}
+\DoxyCodeLine{00303 }
+\DoxyCodeLine{00304 uint32\_t sysctlShiReadUIPrgpioPortC\_(uint32\_t \textcolor{keyword}{const} registerValue) \{}
+\DoxyCodeLine{00305     \textcolor{keywordflow}{return} ((registerValue >> 2) \& 0x1);}
+\DoxyCodeLine{00306 \}}
+\DoxyCodeLine{00307 }
+\DoxyCodeLine{00308 }
+\DoxyCodeLine{00309 uint32\_t sysctlShiReadPrgpioPortD\_(\textcolor{keyword}{enum} SysctlCores\_ \textcolor{keyword}{const} core) \{}
+\DoxyCodeLine{00310     \textcolor{keywordflow}{return} ((*((\textcolor{keyword}{volatile} uint32\_t *)(sysctlPrgpio\_ + sysctlCoreBaseAddresses\_[core])) >> 3) \& 0x1);}
+\DoxyCodeLine{00311 \}}
+\DoxyCodeLine{00312 }
+\DoxyCodeLine{00313 uint32\_t sysctlShiReadUIPrgpioPortD\_(uint32\_t \textcolor{keyword}{const} registerValue) \{}
+\DoxyCodeLine{00314     \textcolor{keywordflow}{return} ((registerValue >> 3) \& 0x1);}
+\DoxyCodeLine{00315 \}}
+\DoxyCodeLine{00316 }
+\DoxyCodeLine{00317 }
+\DoxyCodeLine{00318 uint32\_t sysctlShiReadPrgpioPortE\_(\textcolor{keyword}{enum} SysctlCores\_ \textcolor{keyword}{const} core) \{}
+\DoxyCodeLine{00319     \textcolor{keywordflow}{return} ((*((\textcolor{keyword}{volatile} uint32\_t *)(sysctlPrgpio\_ + sysctlCoreBaseAddresses\_[core])) >> 4) \& 0x1);}
+\DoxyCodeLine{00320 \}}
+\DoxyCodeLine{00321 }
+\DoxyCodeLine{00322 uint32\_t sysctlShiReadUIPrgpioPortE\_(uint32\_t \textcolor{keyword}{const} registerValue) \{}
+\DoxyCodeLine{00323     \textcolor{keywordflow}{return} ((registerValue >> 4) \& 0x1);}
+\DoxyCodeLine{00324 \}}
+\DoxyCodeLine{00325 }
+\DoxyCodeLine{00326 }
+\DoxyCodeLine{00327 uint32\_t sysctlShiReadPrgpioPortF\_(\textcolor{keyword}{enum} SysctlCores\_ \textcolor{keyword}{const} core) \{}
+\DoxyCodeLine{00328     \textcolor{keywordflow}{return} ((*((\textcolor{keyword}{volatile} uint32\_t *)(sysctlPrgpio\_ + sysctlCoreBaseAddresses\_[core])) >> 5) \& 0x1);}
+\DoxyCodeLine{00329 \}}
+\DoxyCodeLine{00330 }
+\DoxyCodeLine{00331 uint32\_t sysctlShiReadUIPrgpioPortF\_(uint32\_t \textcolor{keyword}{const} registerValue) \{}
+\DoxyCodeLine{00332     \textcolor{keywordflow}{return} ((registerValue >> 5) \& 0x1);}
+\DoxyCodeLine{00333 \}}
+\DoxyCodeLine{00334 }
+\DoxyCodeLine{00335 }
+\DoxyCodeLine{00336 uint32\_t sysctlShiReadPrgpioPortG\_(\textcolor{keyword}{enum} SysctlCores\_ \textcolor{keyword}{const} core) \{}
+\DoxyCodeLine{00337     \textcolor{keywordflow}{return} ((*((\textcolor{keyword}{volatile} uint32\_t *)(sysctlPrgpio\_ + sysctlCoreBaseAddresses\_[core])) >> 6) \& 0x1);}
+\DoxyCodeLine{00338 \}}
+\DoxyCodeLine{00339 }
+\DoxyCodeLine{00340 uint32\_t sysctlShiReadUIPrgpioPortG\_(uint32\_t \textcolor{keyword}{const} registerValue) \{}
+\DoxyCodeLine{00341     \textcolor{keywordflow}{return} ((registerValue >> 6) \& 0x1);}
+\DoxyCodeLine{00342 \}}
+\DoxyCodeLine{00343 }
+\DoxyCodeLine{00344 }
+\DoxyCodeLine{00345 uint32\_t sysctlShiReadPrgpioPortH\_(\textcolor{keyword}{enum} SysctlCores\_ \textcolor{keyword}{const} core) \{}
+\DoxyCodeLine{00346     \textcolor{keywordflow}{return} ((*((\textcolor{keyword}{volatile} uint32\_t *)(sysctlPrgpio\_ + sysctlCoreBaseAddresses\_[core])) >> 7) \& 0x1);}
+\DoxyCodeLine{00347 \}}
+\DoxyCodeLine{00348 }
+\DoxyCodeLine{00349 uint32\_t sysctlShiReadUIPrgpioPortH\_(uint32\_t \textcolor{keyword}{const} registerValue) \{}
+\DoxyCodeLine{00350     \textcolor{keywordflow}{return} ((registerValue >> 7) \& 0x1);}
+\DoxyCodeLine{00351 \}}
+\DoxyCodeLine{00352 }
+\DoxyCodeLine{00353 }
+\DoxyCodeLine{00354 uint32\_t sysctlShiReadPrgpioPortJ\_(\textcolor{keyword}{enum} SysctlCores\_ \textcolor{keyword}{const} core) \{}
+\DoxyCodeLine{00355     \textcolor{keywordflow}{return} ((*((\textcolor{keyword}{volatile} uint32\_t *)(sysctlPrgpio\_ + sysctlCoreBaseAddresses\_[core])) >> 8) \& 0x1);}
+\DoxyCodeLine{00356 \}}
+\DoxyCodeLine{00357 }
+\DoxyCodeLine{00358 uint32\_t sysctlShiReadUIPrgpioPortJ\_(uint32\_t \textcolor{keyword}{const} registerValue) \{}
+\DoxyCodeLine{00359     \textcolor{keywordflow}{return} ((registerValue >> 8) \& 0x1);}
+\DoxyCodeLine{00360 \}}
+\DoxyCodeLine{00361 }
+\DoxyCodeLine{00362 }
+\DoxyCodeLine{00363 uint32\_t sysctlShiReadPrgpioPortK\_(\textcolor{keyword}{enum} SysctlCores\_ \textcolor{keyword}{const} core) \{}
+\DoxyCodeLine{00364     \textcolor{keywordflow}{return} ((*((\textcolor{keyword}{volatile} uint32\_t *)(sysctlPrgpio\_ + sysctlCoreBaseAddresses\_[core])) >> 9) \& 0x1);}
+\DoxyCodeLine{00365 \}}
+\DoxyCodeLine{00366 }
+\DoxyCodeLine{00367 uint32\_t sysctlShiReadUIPrgpioPortK\_(uint32\_t \textcolor{keyword}{const} registerValue) \{}
+\DoxyCodeLine{00368     \textcolor{keywordflow}{return} ((registerValue >> 9) \& 0x1);}
+\DoxyCodeLine{00369 \}}
+\DoxyCodeLine{00370 }
+\DoxyCodeLine{00371 }
+\DoxyCodeLine{00372 uint32\_t sysctlShiReadPrgpioPortL\_(\textcolor{keyword}{enum} SysctlCores\_ \textcolor{keyword}{const} core) \{}
+\DoxyCodeLine{00373     \textcolor{keywordflow}{return} ((*((\textcolor{keyword}{volatile} uint32\_t *)(sysctlPrgpio\_ + sysctlCoreBaseAddresses\_[core])) >> 10) \& 0x1);}
+\DoxyCodeLine{00374 \}}
+\DoxyCodeLine{00375 }
+\DoxyCodeLine{00376 uint32\_t sysctlShiReadUIPrgpioPortL\_(uint32\_t \textcolor{keyword}{const} registerValue) \{}
+\DoxyCodeLine{00377     \textcolor{keywordflow}{return} ((registerValue >> 10) \& 0x1);}
+\DoxyCodeLine{00378 \}}
+\DoxyCodeLine{00379 }
+\DoxyCodeLine{00380 }
+\DoxyCodeLine{00381 uint32\_t sysctlShiReadPrgpioPortM\_(\textcolor{keyword}{enum} SysctlCores\_ \textcolor{keyword}{const} core) \{}
+\DoxyCodeLine{00382     \textcolor{keywordflow}{return} ((*((\textcolor{keyword}{volatile} uint32\_t *)(sysctlPrgpio\_ + sysctlCoreBaseAddresses\_[core])) >> 11) \& 0x1);}
+\DoxyCodeLine{00383 \}}
+\DoxyCodeLine{00384 }
+\DoxyCodeLine{00385 uint32\_t sysctlShiReadUIPrgpioPortM\_(uint32\_t \textcolor{keyword}{const} registerValue) \{}
+\DoxyCodeLine{00386     \textcolor{keywordflow}{return} ((registerValue >> 11) \& 0x1);}
+\DoxyCodeLine{00387 \}}
+\DoxyCodeLine{00388 }
+\DoxyCodeLine{00389 }
+\DoxyCodeLine{00390 uint32\_t sysctlShiReadPrgpioPortN\_(\textcolor{keyword}{enum} SysctlCores\_ \textcolor{keyword}{const} core) \{}
+\DoxyCodeLine{00391     \textcolor{keywordflow}{return} ((*((\textcolor{keyword}{volatile} uint32\_t *)(sysctlPrgpio\_ + sysctlCoreBaseAddresses\_[core])) >> 12) \& 0x1);}
+\DoxyCodeLine{00392 \}}
+\DoxyCodeLine{00393 }
+\DoxyCodeLine{00394 uint32\_t sysctlShiReadUIPrgpioPortN\_(uint32\_t \textcolor{keyword}{const} registerValue) \{}
+\DoxyCodeLine{00395     \textcolor{keywordflow}{return} ((registerValue >> 12) \& 0x1);}
+\DoxyCodeLine{00396 \}}
+\DoxyCodeLine{00397 }
+\DoxyCodeLine{00398 }
+\DoxyCodeLine{00399 uint32\_t sysctlShiReadPrgpioPortP\_(\textcolor{keyword}{enum} SysctlCores\_ \textcolor{keyword}{const} core) \{}
+\DoxyCodeLine{00400     \textcolor{keywordflow}{return} ((*((\textcolor{keyword}{volatile} uint32\_t *)(sysctlPrgpio\_ + sysctlCoreBaseAddresses\_[core])) >> 13) \& 0x1);}
+\DoxyCodeLine{00401 \}}
+\DoxyCodeLine{00402 }
+\DoxyCodeLine{00403 uint32\_t sysctlShiReadUIPrgpioPortP\_(uint32\_t \textcolor{keyword}{const} registerValue) \{}
+\DoxyCodeLine{00404     \textcolor{keywordflow}{return} ((registerValue >> 13) \& 0x1);}
+\DoxyCodeLine{00405 \}}
+\DoxyCodeLine{00406 }
+\DoxyCodeLine{00407 }
+\DoxyCodeLine{00408 uint32\_t sysctlShiReadPrgpioPortQ\_(\textcolor{keyword}{enum} SysctlCores\_ \textcolor{keyword}{const} core) \{}
+\DoxyCodeLine{00409     \textcolor{keywordflow}{return} ((*((\textcolor{keyword}{volatile} uint32\_t *)(sysctlPrgpio\_ + sysctlCoreBaseAddresses\_[core])) >> 14) \& 0x1);}
+\DoxyCodeLine{00410 \}}
+\DoxyCodeLine{00411 }
+\DoxyCodeLine{00412 uint32\_t sysctlShiReadUIPrgpioPortQ\_(uint32\_t \textcolor{keyword}{const} registerValue) \{}
+\DoxyCodeLine{00413     \textcolor{keywordflow}{return} ((registerValue >> 14) \& 0x1);}
+\DoxyCodeLine{00414 \}}
+\DoxyCodeLine{00415 }
+\DoxyCodeLine{00416 }
+
+\end{DoxyCode}

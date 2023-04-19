@@ -1,0 +1,272 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xmlns:ashig="https://gitlab.tphys.jku.at/haw-hamburg/codegen/ashig.git"
+           targetNamespace="https://gitlab.tphys.jku.at/haw-hamburg/codegen/ashig.git"
+           elementFormDefault="qualified">
+  <xs:element name="hardwareInterface"
+              type="ashig:hardwareInterface"/>
+  <xs:complexType name="hardwareInterface">
+    <xs:sequence minOccurs="1"
+                 maxOccurs="1">
+      <xs:element name="platform"
+                  maxOccurs="1"
+                  minOccurs="1">
+        <xs:simpleType>
+          <xs:restriction base="xs:string">
+            <xs:minLength value="1"/>
+            <xs:whiteSpace value="collapse"/>
+          </xs:restriction>
+        </xs:simpleType>
+      </xs:element>
+      <xs:element name="manufacturer"
+                  maxOccurs="1"
+                  minOccurs="1">
+        <xs:simpleType>
+        	<xs:restriction base="xs:string">
+        		<xs:minLength value="1" />
+        		<xs:whiteSpace value="collapse"></xs:whiteSpace>
+        	</xs:restriction>
+        </xs:simpleType>
+      </xs:element>
+      <xs:element name="targetPeripheralModule"
+                  type="ashig:peripheralModule"
+                  maxOccurs="1"
+                  minOccurs="1">
+			</xs:element>
+      <xs:element name="supportingPeripheralModules"
+                  type="ashig:peripheralModules"
+                  maxOccurs="1"
+                  minOccurs="0">
+			</xs:element>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="peripheralModules">
+    <xs:sequence minOccurs="1"
+                 maxOccurs="1">
+      <xs:element name="peripheralModule"
+                  type="ashig:peripheralModule"
+                  maxOccurs="unbounded"
+                  minOccurs="1">
+			</xs:element>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="peripheralModule">
+    <xs:sequence minOccurs="1"
+                 maxOccurs="1">
+      <xs:element name="moduleName"
+                  maxOccurs="1"
+                  minOccurs="1">
+        <xs:simpleType>
+        	<xs:restriction base="xs:string">
+        		<xs:minLength value="1" />
+        		<xs:whiteSpace value="collapse" />
+        		<xs:pattern value="[a-zA-Z][_0-9a-zA-Z]*"></xs:pattern>
+        	</xs:restriction>
+        </xs:simpleType>
+      </xs:element>
+      <xs:element name="coreDefinition"
+                  minOccurs="1"
+                  maxOccurs="1">
+        <xs:simpleType>
+          <xs:restriction base="xs:string">
+            <xs:enumeration value="public"/>
+            <xs:enumeration value="private"/>
+          </xs:restriction>
+        </xs:simpleType>
+      </xs:element>
+      <xs:element name="cores"
+                  type="ashig:cores"
+                  maxOccurs="1"
+                  minOccurs="1">
+			</xs:element>
+      <xs:element name="registers"
+                  type="ashig:registers"
+                  maxOccurs="1"
+                  minOccurs="1">
+			</xs:element>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="cores">
+    <xs:sequence>
+      <xs:element name="core"
+                  type="ashig:core"
+                  maxOccurs="unbounded"
+                  minOccurs="1">
+			</xs:element>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="registers">
+    <xs:sequence minOccurs="1"
+                 maxOccurs="1">
+      <xs:element name="register"
+                  type="ashig:register"
+                  maxOccurs="unbounded"
+                  minOccurs="0"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="core">
+    <xs:sequence>
+      <xs:element name="coreName" maxOccurs="1" minOccurs="1">
+
+      	<xs:simpleType>
+      		<xs:restriction base="xs:string">
+      			<xs:minLength value="1"></xs:minLength>
+      			<xs:whiteSpace value="collapse"></xs:whiteSpace>
+      			<xs:pattern value='[a-zA-Z][_0-9a-zA-Z]*'></xs:pattern>
+      		</xs:restriction>
+      	</xs:simpleType>
+      </xs:element>
+      <xs:element name="baseAddress"
+                  maxOccurs="1"
+                  minOccurs="1">
+        <xs:simpleType>
+          <xs:restriction base="xs:string">
+            <xs:pattern value="[0][x][A-F0-9]{8}"/>
+          </xs:restriction>
+        </xs:simpleType>
+      </xs:element>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="register">
+    <xs:sequence minOccurs="1"
+                 maxOccurs="1">
+      <xs:element name="registerName" maxOccurs="1" minOccurs="1">
+      	<xs:simpleType>
+      		<xs:restriction base="xs:string">
+      			<xs:minLength value="1"></xs:minLength>
+      			<xs:whiteSpace value="collapse"></xs:whiteSpace>
+      			<xs:pattern value="[a-zA-Z][_0-9a-zA-Z]*"></xs:pattern>
+      		</xs:restriction>
+      	</xs:simpleType>
+      </xs:element>
+      <xs:element name="offset"
+                  maxOccurs="1"
+                  minOccurs="1">
+        <xs:simpleType>
+          <xs:restriction base="xs:string">
+            <xs:pattern value="[0][x][A-F0-9]{8}"/>
+          </xs:restriction>
+        </xs:simpleType>
+      </xs:element>
+      <xs:element name="length"
+                  maxOccurs="1"
+                  minOccurs="1">
+        <xs:simpleType>
+          <xs:restriction base="xs:nonNegativeInteger">
+            <xs:enumeration value="32"/>
+            <xs:enumeration value="16"/>
+          </xs:restriction>
+        </xs:simpleType>
+      </xs:element>
+      <xs:element name="fields"
+                  type="ashig:fields"
+                  maxOccurs="1"
+                  minOccurs="1">
+			</xs:element>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="fields">
+    <xs:sequence>
+      <xs:element name="field"
+                  type="ashig:field"
+                  maxOccurs="unbounded"
+                  minOccurs="0"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="field">
+    <xs:sequence>
+      <xs:element name="fieldName" maxOccurs="1" minOccurs="1">
+      	<xs:simpleType>
+      		<xs:restriction base="xs:string">
+      			<xs:minLength value="1"></xs:minLength>
+      			<xs:pattern value="[a-zA-Z][_0-9a-zA-Z]*"></xs:pattern>
+      		</xs:restriction>
+      	</xs:simpleType>
+      </xs:element>
+      <xs:element name="fieldOffset"
+                  maxOccurs="1"
+                  minOccurs="1">
+        <xs:simpleType>
+        	<xs:restriction base="xs:unsignedByte">
+        		<xs:minInclusive value="0" />
+        		<xs:maxInclusive value="31"></xs:maxInclusive>
+        		<xs:whiteSpace value="collapse"></xs:whiteSpace>
+        	</xs:restriction>
+        </xs:simpleType>
+      </xs:element>
+      <xs:element name="fieldLength"
+                  maxOccurs="1"
+                  minOccurs="1">
+        <xs:simpleType>
+        	<xs:restriction base="xs:unsignedByte">
+        		<xs:minInclusive value="1" />
+        		<xs:maxInclusive value="32" />
+        		<xs:whiteSpace value="collapse"></xs:whiteSpace>
+        	</xs:restriction>
+        </xs:simpleType>
+      </xs:element>
+      <xs:element name="fieldType"
+                  maxOccurs="1"
+                  minOccurs="1">
+        <xs:simpleType>
+        	<xs:restriction base="xs:string">
+        		<xs:enumeration value="RO" />
+        		<xs:enumeration value="RW" />
+        		<xs:enumeration value="WO" />
+        		<xs:enumeration value="W1C" />
+        		<xs:enumeration value="RW1C" />
+        		<xs:enumeration value="-" />
+        		<xs:whiteSpace value="collapse"></xs:whiteSpace>
+        	</xs:restriction>
+        </xs:simpleType>
+      </xs:element>
+      <xs:element name="fieldValues"
+                  type="ashig:fieldValues"
+                  maxOccurs="unbounded"
+                  minOccurs="0">
+			</xs:element>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="fieldValues">
+    <xs:sequence>
+      <xs:element name="fieldValue"
+                  type="ashig:fieldValue"
+                  maxOccurs="unbounded"
+                  minOccurs="1">
+			</xs:element>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="fieldValue">
+    <xs:sequence>
+      <xs:element name="name" maxOccurs="1" minOccurs="1">
+      	<xs:simpleType>
+      		<xs:restriction base="xs:string">
+      			<xs:minLength value="1"></xs:minLength>
+      			<xs:pattern value="[a-zA-Z][_0-9a-zA-Z]*"></xs:pattern>
+      			<xs:whiteSpace value="collapse"></xs:whiteSpace>
+      		</xs:restriction>
+      	</xs:simpleType>
+      </xs:element>
+      <xs:element name="value" maxOccurs="1" minOccurs="1">
+      	<xs:simpleType>
+      		<xs:restriction base="xs:string">
+      			<xs:pattern value="[0][x][A-F0-9]{8}"></xs:pattern>
+      			<xs:minLength value="1"></xs:minLength>
+      			<xs:whiteSpace value="collapse"></xs:whiteSpace>
+      		</xs:restriction>
+      	</xs:simpleType>
+      </xs:element>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="targetPeripheralModule">
+    <xs:sequence minOccurs="1"
+                 maxOccurs="1">
+      <xs:element name="peripheralModule"
+                  type="ashig:peripheralModule"
+                  maxOccurs="unbounded"
+                  minOccurs="1">
+			</xs:element>
+    </xs:sequence>
+  </xs:complexType>
+</xs:schema>

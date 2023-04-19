@@ -1,0 +1,125 @@
+\doxysection{main.\+c}
+\label{main_8c_source}\index{application/main.c@{application/main.c}}
+
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00001 \textcolor{comment}{/*}}
+\DoxyCodeLine{00002 \textcolor{comment}{ * main.c}}
+\DoxyCodeLine{00003 \textcolor{comment}{ *}}
+\DoxyCodeLine{00004 \textcolor{comment}{ */}}
+\DoxyCodeLine{00005 }
+\DoxyCodeLine{00006 \textcolor{comment}{//FreeRTOS headers}}
+\DoxyCodeLine{00007 \textcolor{preprocessor}{\#include <FreeRTOS.h>}}
+\DoxyCodeLine{00008 \textcolor{preprocessor}{\#include <task.h>}}
+\DoxyCodeLine{00009 }
+\DoxyCodeLine{00010 \textcolor{comment}{// HAL libraries}}
+\DoxyCodeLine{00011 \textcolor{preprocessor}{\#include "{}hal/sysctl/halSysctl.h"{}}}
+\DoxyCodeLine{00012 \textcolor{preprocessor}{\#include "{}hal/gpio/halGpio.h"{}}}
+\DoxyCodeLine{00013 \textcolor{preprocessor}{\#include "{}hal/gptm/halGptm.h"{}}}
+\DoxyCodeLine{00014 }
+\DoxyCodeLine{00015 \textcolor{preprocessor}{\#include "{}params/gptm/paramsGptmPinoutsNames.h"{}}}
+\DoxyCodeLine{00016 \textcolor{preprocessor}{\#include "{}params/gptm/paramsGptm.h"{}}}
+\DoxyCodeLine{00017 }
+\DoxyCodeLine{00018 \textcolor{preprocessor}{\#include <string.h>}}
+\DoxyCodeLine{00019 \textcolor{preprocessor}{\#include <stdio.h>}}
+\DoxyCodeLine{00020 \textcolor{preprocessor}{\#include <stdlib.h>}}
+\DoxyCodeLine{00021 }
+\DoxyCodeLine{00022 \textcolor{comment}{// echo task function}}
+\DoxyCodeLine{00023 \textcolor{keyword}{static} \textcolor{keywordtype}{void} controlTask\_(\textcolor{keywordtype}{void} * taskParameters);}
+\DoxyCodeLine{00024 }
+\DoxyCodeLine{00025 \textcolor{comment}{// error handler, used as callback function for errors}}
+\DoxyCodeLine{00026 \textcolor{keyword}{static} \textcolor{keywordtype}{void} defaultApplicationErrorHandler\_(\textcolor{keywordtype}{void});}
+\DoxyCodeLine{00027 }
+\DoxyCodeLine{00028 \textcolor{comment}{// GPTM callback functions}}
+\DoxyCodeLine{00029 \textcolor{keyword}{static} \textcolor{keywordtype}{void} matchCallbackFunction\_(\textcolor{keywordtype}{void});}
+\DoxyCodeLine{00030 \textcolor{keyword}{static} \textcolor{keywordtype}{void} timeoutCallbackFunction\_(\textcolor{keywordtype}{void});}
+\DoxyCodeLine{00031 }
+\DoxyCodeLine{00032 \textcolor{keyword}{enum} gpioPort \textcolor{keyword}{const} port = halGpioPortC;}
+\DoxyCodeLine{00033 \textcolor{keyword}{enum} HalGpioPin \textcolor{keyword}{const} pin = halGpioPin0;}
+\DoxyCodeLine{00034 }
+\DoxyCodeLine{00035 \textcolor{comment}{// structure containing parameters passed to Task function}}
+\DoxyCodeLine{00036 \textcolor{keyword}{struct }ControlTaskParameters\_ \{}
+\DoxyCodeLine{00037     HalGptmCompare16BitModeHandle gptmHandle\_;}
+\DoxyCodeLine{00038 \};}
+\DoxyCodeLine{00039 }
+\DoxyCodeLine{00040 \textcolor{comment}{// echo task handle}}
+\DoxyCodeLine{00041 \textcolor{keyword}{static} TaskHandle\_t controlTaskHandle\_ = NULL;}
+\DoxyCodeLine{00042 }
+\DoxyCodeLine{00043 \textcolor{keywordtype}{int} main(\textcolor{keywordtype}{void}) \{}
+\DoxyCodeLine{00044 }
+\DoxyCodeLine{00045     \textcolor{comment}{// set cpu-\/clock frequency}}
+\DoxyCodeLine{00046     halSysCtlSetCpuFreq(halSysCtlCpuFreq16MHz);}
+\DoxyCodeLine{00047 }
+\DoxyCodeLine{00048     \textcolor{comment}{// GPTM driver initialization}}
+\DoxyCodeLine{00049     halGptmDriverInit();}
+\DoxyCodeLine{00050 }
+\DoxyCodeLine{00051     \textcolor{comment}{// configure a GPTM in compare mode}}
+\DoxyCodeLine{00052     \textcolor{keyword}{enum} HalGptmCores gptmCore = halGptmTimer0Core;}
+\DoxyCodeLine{00053     \textcolor{keyword}{enum} HalGptmSubtimerCores gptmSubtimer = halGptmSubtimerBCore;}
+\DoxyCodeLine{00054     \textcolor{keywordtype}{long} \textcolor{keywordtype}{double} matchInNs = 3e5;}
+\DoxyCodeLine{00055     \textcolor{keywordtype}{long} \textcolor{keywordtype}{double} timeoutInNs = 1e6;}
+\DoxyCodeLine{00056 }
+\DoxyCodeLine{00057     HalGptmCompare16BitModeHandle gptmCompare16BitModeHandle = halGptmConfigure16BitCompareMode(}
+\DoxyCodeLine{00058             gptmCore,}
+\DoxyCodeLine{00059             gptmSubtimer,}
+\DoxyCodeLine{00060             matchInNs,}
+\DoxyCodeLine{00061             timeoutInNs,}
+\DoxyCodeLine{00062             matchCallbackFunction\_,}
+\DoxyCodeLine{00063             timeoutCallbackFunction\_}
+\DoxyCodeLine{00064             );}
+\DoxyCodeLine{00065 }
+\DoxyCodeLine{00066     \textcolor{comment}{// GPIO configuration, choose different pin if easier to connect}}
+\DoxyCodeLine{00067     halGpioPinSetAsSimpleDigitalIO(halGpioPortCCore, halGpioPin0, halGpioPinOutput);}
+\DoxyCodeLine{00068 }
+\DoxyCodeLine{00069     \textcolor{comment}{// FreeRTOS task configuration}}
+\DoxyCodeLine{00070     \textcolor{keyword}{struct }ControlTaskParameters\_ controlTaskParamters = \{ .gptmHandle\_ = gptmCompare16BitModeHandle \};}
+\DoxyCodeLine{00071     xTaskCreate(controlTask\_, \textcolor{stringliteral}{"{}controlTask"{}}, 200, (\textcolor{keywordtype}{void} *) \&controlTaskParamters, tskIDLE\_PRIORITY + 3, \&controlTaskHandle\_);}
+\DoxyCodeLine{00072 }
+\DoxyCodeLine{00073     \textcolor{comment}{// Start FreeRTOS scheduler.}}
+\DoxyCodeLine{00074     vTaskStartScheduler();}
+\DoxyCodeLine{00075 }
+\DoxyCodeLine{00076     \textcolor{comment}{// This statements should never be reached.}}
+\DoxyCodeLine{00077     defaultApplicationErrorHandler\_();}
+\DoxyCodeLine{00078 }
+\DoxyCodeLine{00079 \}}
+\DoxyCodeLine{00080 }
+\DoxyCodeLine{00081 }
+\DoxyCodeLine{00082 \textcolor{comment}{/*}}
+\DoxyCodeLine{00083 \textcolor{comment}{ * Task for echo functionality}}
+\DoxyCodeLine{00084 \textcolor{comment}{ */}}
+\DoxyCodeLine{00085 \textcolor{keyword}{static} \textcolor{keywordtype}{void} controlTask\_(\textcolor{keywordtype}{void} * taskParameters) \{}
+\DoxyCodeLine{00086 }
+\DoxyCodeLine{00087     \textcolor{keyword}{struct }ControlTaskParameters\_ const * \textcolor{keyword}{const} taskParametersCast = (\textcolor{keyword}{struct }ControlTaskParameters\_ *) taskParameters;}
+\DoxyCodeLine{00088     HalGptmCompare16BitModeHandle gptmHandle\_ = taskParametersCast-\/>gptmHandle\_;}
+\DoxyCodeLine{00089 }
+\DoxyCodeLine{00090     \textcolor{comment}{// start the timer}}
+\DoxyCodeLine{00091     \textcolor{keywordtype}{bool} activate = \textcolor{keyword}{true};}
+\DoxyCodeLine{00092     \textcolor{keywordtype}{bool} oneShot = \textcolor{keyword}{false};}
+\DoxyCodeLine{00093     halGptmCompareModeActivate(gptmHandle\_, activate, oneShot);}
+\DoxyCodeLine{00094 }
+\DoxyCodeLine{00099     \textcolor{keywordflow}{while}(1)}
+\DoxyCodeLine{00100     \{}
+\DoxyCodeLine{00101 }
+\DoxyCodeLine{00102         vTaskDelay(pdMS\_TO\_TICKS(1000));}
+\DoxyCodeLine{00103 }
+\DoxyCodeLine{00104     \}}
+\DoxyCodeLine{00105 }
+\DoxyCodeLine{00106 \}}
+\DoxyCodeLine{00107 }
+\DoxyCodeLine{00108 \textcolor{keyword}{static} \textcolor{keywordtype}{void} matchCallbackFunction\_(\textcolor{keywordtype}{void}) \{}
+\DoxyCodeLine{00109     halGpioPinWrite(port, pin, 0x1);}
+\DoxyCodeLine{00110 \}}
+\DoxyCodeLine{00111 }
+\DoxyCodeLine{00112 \textcolor{keyword}{static} \textcolor{keywordtype}{void} timeoutCallbackFunction\_(\textcolor{keywordtype}{void}) \{}
+\DoxyCodeLine{00113     halGpioPinWrite(port, pin, 0x0);}
+\DoxyCodeLine{00114 \}}
+\DoxyCodeLine{00115 }
+\DoxyCodeLine{00116 }
+\DoxyCodeLine{00123 \textcolor{keyword}{static} \textcolor{keywordtype}{void} defaultApplicationErrorHandler\_(\textcolor{keywordtype}{void}) \{}
+\DoxyCodeLine{00124 }
+\DoxyCodeLine{00125     \textcolor{keywordflow}{while}(1) \{}
+\DoxyCodeLine{00126       \textcolor{keyword}{asm}(\textcolor{stringliteral}{"{} nop "{}});}
+\DoxyCodeLine{00127     \}}
+\DoxyCodeLine{00128 }
+\DoxyCodeLine{00129 \}}
+
+\end{DoxyCode}

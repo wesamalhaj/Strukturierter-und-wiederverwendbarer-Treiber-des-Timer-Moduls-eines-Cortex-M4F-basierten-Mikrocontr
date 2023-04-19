@@ -1,0 +1,221 @@
+\doxysection{sysctl.\+h}
+\label{sysctl_8h_source}\index{hal/sysctl/include/sysctl.h@{hal/sysctl/include/sysctl.h}}
+
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00001 \textcolor{preprocessor}{\#ifndef HAL\_SYSCTL\_INCLUDE\_SYSCTL\_SYSCTL\_H\_}}
+\DoxyCodeLine{00002 \textcolor{preprocessor}{\#define HAL\_SYSCTL\_INCLUDE\_SYSCTL\_SYSCTL\_H\_}}
+\DoxyCodeLine{00003 }
+\DoxyCodeLine{00004 \textcolor{preprocessor}{\#include "{}stdint.h"{}}}
+\DoxyCodeLine{00005 }
+\DoxyCodeLine{00006 \textcolor{comment}{//*****************************************************************************}}
+\DoxyCodeLine{00007 \textcolor{comment}{// lookup table prototype:}}
+\DoxyCodeLine{00008 \textcolor{keyword}{struct }SysctlCpuFreqSetup\_}
+\DoxyCodeLine{00009 \{}
+\DoxyCodeLine{00010     uint32\_t cpuFreq;}
+\DoxyCodeLine{00011     uint32\_t pSysDiv;}
+\DoxyCodeLine{00012     \textcolor{keyword}{enum} SysctlRsclkcfgOscsrcValues\_ oscSource;}
+\DoxyCodeLine{00013     \textcolor{keyword}{enum} SysctlRsclkcfgPllsrcValues\_ pllSource;}
+\DoxyCodeLine{00014     \textcolor{keyword}{enum} SysctlRsclkcfgUsepllValues\_ usePll;}
+\DoxyCodeLine{00015     \textcolor{keyword}{enum} SysctlMoscctlNoxtalValues\_ noXtal;}
+\DoxyCodeLine{00016     \textcolor{keyword}{enum} SysctlMoscctlPwrdnValues\_ moscPwr;}
+\DoxyCodeLine{00017     \textcolor{keyword}{enum} SysctlMoscctlOscrngValues\_ oscRng;}
+\DoxyCodeLine{00018     uint32\_t  fws;}
+\DoxyCodeLine{00019     \textcolor{keyword}{enum} SysctlMemtim0FbceValues\_ fbce;}
+\DoxyCodeLine{00020     uint32\_t  fbcht;}
+\DoxyCodeLine{00021     uint32\_t  ews;}
+\DoxyCodeLine{00022     \textcolor{keyword}{enum} SysctlMemtim0EbceValues\_ ebce;}
+\DoxyCodeLine{00023     uint32\_t  ebcht;}
+\DoxyCodeLine{00024     uint32\_t  pllMint;}
+\DoxyCodeLine{00025     \textcolor{keyword}{enum} SysctlPllfreq0PllpwrValues\_ pllPwr;}
+\DoxyCodeLine{00026     uint32\_t  pllN;}
+\DoxyCodeLine{00027     uint32\_t  pllQ;}
+\DoxyCodeLine{00028 \};}
+\DoxyCodeLine{00029 \textcolor{comment}{//*****************************************************************************}}
+\DoxyCodeLine{00030 \textcolor{keyword}{const} \textcolor{keyword}{struct }SysctlCpuFreqSetup\_ SysctlCpuFreqSetups[9] =}
+\DoxyCodeLine{00031 \{}
+\DoxyCodeLine{00032  \{}
+\DoxyCodeLine{00033     .cpuFreq = 16000000,}
+\DoxyCodeLine{00034     .pSysDiv = 0,}
+\DoxyCodeLine{00035     .oscSource = sysctlRsclkcfgOscsrcPiosc\_,}
+\DoxyCodeLine{00036     .pllSource = sysctlRsclkcfgPllsrcPiosc\_,}
+\DoxyCodeLine{00037     .usePll = sysctlRsclkcfgUsepllNo\_,}
+\DoxyCodeLine{00038     .noXtal = sysctlMoscctlNoxtalDisconnect\_,}
+\DoxyCodeLine{00039     .moscPwr = sysctlMoscctlPwrdnPowerdown\_,}
+\DoxyCodeLine{00040     .oscRng = sysctlMoscctlOscrngLow\_,}
+\DoxyCodeLine{00041     .fws = 0,}
+\DoxyCodeLine{00042     .fbce = sysctlMemtim0FbceFalling\_,}
+\DoxyCodeLine{00043     .fbcht = 0,}
+\DoxyCodeLine{00044     .ews = 0,}
+\DoxyCodeLine{00045     .ebce = sysctlMemtim0EbceFalling\_,}
+\DoxyCodeLine{00046     .ebcht = 0,}
+\DoxyCodeLine{00047     .pllMint = 96,}
+\DoxyCodeLine{00048     .pllPwr = sysctlPllfreq0PllpwrOff\_,}
+\DoxyCodeLine{00049     .pllN = 4,}
+\DoxyCodeLine{00050     .pllQ = 0,}
+\DoxyCodeLine{00051  \},}
+\DoxyCodeLine{00052  \{}
+\DoxyCodeLine{00053     .cpuFreq = 25000000,}
+\DoxyCodeLine{00054     .pSysDiv = 0,}
+\DoxyCodeLine{00055     .oscSource = sysctlRsclkcfgOscsrcMosc\_,}
+\DoxyCodeLine{00056     .pllSource = sysctlRsclkcfgPllsrcPiosc\_,}
+\DoxyCodeLine{00057     .usePll = sysctlRsclkcfgUsepllNo\_,}
+\DoxyCodeLine{00058     .noXtal = sysctlMoscctlNoxtalConnect\_,}
+\DoxyCodeLine{00059     .moscPwr = sysctlMoscctlPwrdnPowerup\_,}
+\DoxyCodeLine{00060     .oscRng = sysctlMoscctlOscrngHigh\_,}
+\DoxyCodeLine{00061     .fws = 1,}
+\DoxyCodeLine{00062     .fbce = sysctlMemtim0FbceRising\_,}
+\DoxyCodeLine{00063     .fbcht = 2,}
+\DoxyCodeLine{00064     .ews = 1,}
+\DoxyCodeLine{00065     .ebce = sysctlMemtim0EbceRising\_,}
+\DoxyCodeLine{00066     .ebcht = 2,}
+\DoxyCodeLine{00067     .pllMint = 96,}
+\DoxyCodeLine{00068     .pllPwr = sysctlPllfreq0PllpwrOff\_,}
+\DoxyCodeLine{00069     .pllN = 4,}
+\DoxyCodeLine{00070     .pllQ = 0,}
+\DoxyCodeLine{00071  \},}
+\DoxyCodeLine{00072  \{}
+\DoxyCodeLine{00073     .cpuFreq = 30000000,}
+\DoxyCodeLine{00074     .pSysDiv = 15,}
+\DoxyCodeLine{00075     .oscSource = sysctlRsclkcfgOscsrcPiosc\_,}
+\DoxyCodeLine{00076     .pllSource = sysctlRsclkcfgPllsrcMosc\_,}
+\DoxyCodeLine{00077     .usePll = sysctlRsclkcfgUsepllYes\_,}
+\DoxyCodeLine{00078     .noXtal = sysctlMoscctlNoxtalConnect\_,}
+\DoxyCodeLine{00079     .moscPwr = sysctlMoscctlPwrdnPowerup\_,}
+\DoxyCodeLine{00080     .oscRng = sysctlMoscctlOscrngHigh\_,}
+\DoxyCodeLine{00081     .fws = 1,}
+\DoxyCodeLine{00082     .fbce = sysctlMemtim0FbceRising\_,}
+\DoxyCodeLine{00083     .fbcht = 2,}
+\DoxyCodeLine{00084     .ews = 1,}
+\DoxyCodeLine{00085     .ebce = sysctlMemtim0EbceRising\_,}
+\DoxyCodeLine{00086     .ebcht = 2,}
+\DoxyCodeLine{00087     .pllMint = 96,}
+\DoxyCodeLine{00088     .pllPwr = sysctlPllfreq0PllpwrOn\_,}
+\DoxyCodeLine{00089     .pllN = 4,}
+\DoxyCodeLine{00090     .pllQ = 0,}
+\DoxyCodeLine{00091  \},}
+\DoxyCodeLine{00092  \{}
+\DoxyCodeLine{00093     .cpuFreq = 40000000,}
+\DoxyCodeLine{00094     .pSysDiv = 11,}
+\DoxyCodeLine{00095     .oscSource = sysctlRsclkcfgOscsrcPiosc\_,}
+\DoxyCodeLine{00096     .pllSource = sysctlRsclkcfgPllsrcMosc\_,}
+\DoxyCodeLine{00097     .usePll = sysctlRsclkcfgUsepllYes\_,}
+\DoxyCodeLine{00098     .noXtal = sysctlMoscctlNoxtalConnect\_,}
+\DoxyCodeLine{00099     .moscPwr = sysctlMoscctlPwrdnPowerup\_,}
+\DoxyCodeLine{00100     .oscRng = sysctlMoscctlOscrngHigh\_,}
+\DoxyCodeLine{00101     .fws = 1,}
+\DoxyCodeLine{00102     .fbce = sysctlMemtim0FbceRising\_,}
+\DoxyCodeLine{00103     .fbcht = 2,}
+\DoxyCodeLine{00104     .ews = 1,}
+\DoxyCodeLine{00105     .ebce = sysctlMemtim0EbceRising\_,}
+\DoxyCodeLine{00106     .ebcht = 2,}
+\DoxyCodeLine{00107     .pllMint = 96,}
+\DoxyCodeLine{00108     .pllPwr = sysctlPllfreq0PllpwrOn\_,}
+\DoxyCodeLine{00109     .pllN = 4,}
+\DoxyCodeLine{00110     .pllQ = 0,}
+\DoxyCodeLine{00111  \},}
+\DoxyCodeLine{00112  \{}
+\DoxyCodeLine{00113     .cpuFreq = 48000000,}
+\DoxyCodeLine{00114     .pSysDiv = 9,}
+\DoxyCodeLine{00115     .oscSource = sysctlRsclkcfgOscsrcPiosc\_,}
+\DoxyCodeLine{00116     .pllSource = sysctlRsclkcfgPllsrcMosc\_,}
+\DoxyCodeLine{00117     .usePll = sysctlRsclkcfgUsepllYes\_,}
+\DoxyCodeLine{00118     .noXtal = sysctlMoscctlNoxtalConnect\_,}
+\DoxyCodeLine{00119     .moscPwr = sysctlMoscctlPwrdnPowerup\_,}
+\DoxyCodeLine{00120     .oscRng = sysctlMoscctlOscrngHigh\_,}
+\DoxyCodeLine{00121     .fws = 2,}
+\DoxyCodeLine{00122     .fbce = sysctlMemtim0FbceRising\_,}
+\DoxyCodeLine{00123     .fbcht = 3,}
+\DoxyCodeLine{00124     .ews = 2,}
+\DoxyCodeLine{00125     .ebce = sysctlMemtim0EbceRising\_,}
+\DoxyCodeLine{00126     .ebcht = 3,}
+\DoxyCodeLine{00127     .pllMint = 96,}
+\DoxyCodeLine{00128     .pllPwr = sysctlPllfreq0PllpwrOn\_,}
+\DoxyCodeLine{00129     .pllN = 4,}
+\DoxyCodeLine{00130     .pllQ = 0,}
+\DoxyCodeLine{00131  \},}
+\DoxyCodeLine{00132  \{}
+\DoxyCodeLine{00133     .cpuFreq = 60000000,}
+\DoxyCodeLine{00134     .pSysDiv = 7,}
+\DoxyCodeLine{00135     .oscSource = sysctlRsclkcfgOscsrcPiosc\_,}
+\DoxyCodeLine{00136     .pllSource = sysctlRsclkcfgPllsrcMosc\_,}
+\DoxyCodeLine{00137     .usePll = sysctlRsclkcfgUsepllYes\_,}
+\DoxyCodeLine{00138     .noXtal = sysctlMoscctlNoxtalConnect\_,}
+\DoxyCodeLine{00139     .moscPwr = sysctlMoscctlPwrdnPowerup\_,}
+\DoxyCodeLine{00140     .oscRng = sysctlMoscctlOscrngHigh\_,}
+\DoxyCodeLine{00141     .fws = 2,}
+\DoxyCodeLine{00142     .fbce = sysctlMemtim0FbceRising\_,}
+\DoxyCodeLine{00143     .fbcht = 3,}
+\DoxyCodeLine{00144     .ews = 2,}
+\DoxyCodeLine{00145     .ebce = sysctlMemtim0EbceRising\_,}
+\DoxyCodeLine{00146     .ebcht = 3,}
+\DoxyCodeLine{00147     .pllMint = 96,}
+\DoxyCodeLine{00148     .pllPwr = sysctlPllfreq0PllpwrOn\_,}
+\DoxyCodeLine{00149     .pllN = 4,}
+\DoxyCodeLine{00150     .pllQ = 0,}
+\DoxyCodeLine{00151  \},}
+\DoxyCodeLine{00152  \{}
+\DoxyCodeLine{00153     .cpuFreq = 80000000,}
+\DoxyCodeLine{00154     .pSysDiv = 5,}
+\DoxyCodeLine{00155     .oscSource = sysctlRsclkcfgOscsrcPiosc\_,}
+\DoxyCodeLine{00156     .pllSource = sysctlRsclkcfgPllsrcMosc\_,}
+\DoxyCodeLine{00157     .usePll = sysctlRsclkcfgUsepllYes\_,}
+\DoxyCodeLine{00158     .noXtal = sysctlMoscctlNoxtalConnect\_,}
+\DoxyCodeLine{00159     .moscPwr = sysctlMoscctlPwrdnPowerup\_,}
+\DoxyCodeLine{00160     .oscRng = sysctlMoscctlOscrngHigh\_,}
+\DoxyCodeLine{00161     .fws = 3,}
+\DoxyCodeLine{00162     .fbce = sysctlMemtim0FbceRising\_,}
+\DoxyCodeLine{00163     .fbcht = 4,}
+\DoxyCodeLine{00164     .ews = 3,}
+\DoxyCodeLine{00165     .ebce = sysctlMemtim0EbceRising\_,}
+\DoxyCodeLine{00166     .ebcht = 4,}
+\DoxyCodeLine{00167     .pllMint = 96,}
+\DoxyCodeLine{00168     .pllPwr = sysctlPllfreq0PllpwrOn\_,}
+\DoxyCodeLine{00169     .pllN = 4,}
+\DoxyCodeLine{00170     .pllQ = 0,}
+\DoxyCodeLine{00171  \},}
+\DoxyCodeLine{00172  \{}
+\DoxyCodeLine{00173     .cpuFreq = 96000000,}
+\DoxyCodeLine{00174     .pSysDiv = 4,}
+\DoxyCodeLine{00175     .oscSource = sysctlRsclkcfgOscsrcPiosc\_,}
+\DoxyCodeLine{00176     .pllSource = sysctlRsclkcfgPllsrcMosc\_,}
+\DoxyCodeLine{00177     .usePll = sysctlRsclkcfgUsepllYes\_,}
+\DoxyCodeLine{00178     .noXtal = sysctlMoscctlNoxtalConnect\_,}
+\DoxyCodeLine{00179     .moscPwr = sysctlMoscctlPwrdnPowerup\_,}
+\DoxyCodeLine{00180     .oscRng = sysctlMoscctlOscrngHigh\_,}
+\DoxyCodeLine{00181     .fws = 4,}
+\DoxyCodeLine{00182     .fbce = sysctlMemtim0FbceRising\_,}
+\DoxyCodeLine{00183     .fbcht = 5,}
+\DoxyCodeLine{00184     .ews = 4,}
+\DoxyCodeLine{00185     .ebce = sysctlMemtim0EbceRising\_,}
+\DoxyCodeLine{00186     .ebcht = 5,}
+\DoxyCodeLine{00187     .pllMint = 96,}
+\DoxyCodeLine{00188     .pllPwr = sysctlPllfreq0PllpwrOn\_,}
+\DoxyCodeLine{00189     .pllN = 4,}
+\DoxyCodeLine{00190     .pllQ = 0,}
+\DoxyCodeLine{00191  \},}
+\DoxyCodeLine{00192  \{}
+\DoxyCodeLine{00193     .cpuFreq = 120000000,}
+\DoxyCodeLine{00194     .pSysDiv = 3,}
+\DoxyCodeLine{00195     .oscSource = sysctlRsclkcfgOscsrcPiosc\_,}
+\DoxyCodeLine{00196     .pllSource = sysctlRsclkcfgPllsrcMosc\_,}
+\DoxyCodeLine{00197     .usePll = sysctlRsclkcfgUsepllYes\_,}
+\DoxyCodeLine{00198     .noXtal = sysctlMoscctlNoxtalConnect\_,}
+\DoxyCodeLine{00199     .moscPwr = sysctlMoscctlPwrdnPowerup\_,}
+\DoxyCodeLine{00200     .oscRng = sysctlMoscctlOscrngHigh\_,}
+\DoxyCodeLine{00201     .fws = 5,}
+\DoxyCodeLine{00202     .fbce = sysctlMemtim0FbceRising\_,}
+\DoxyCodeLine{00203     .fbcht = 6,}
+\DoxyCodeLine{00204     .ews = 5,}
+\DoxyCodeLine{00205     .ebce = sysctlMemtim0EbceRising\_,}
+\DoxyCodeLine{00206     .ebcht = 6,}
+\DoxyCodeLine{00207     .pllMint = 96,}
+\DoxyCodeLine{00208     .pllPwr = sysctlPllfreq0PllpwrOn\_,}
+\DoxyCodeLine{00209     .pllN = 4,}
+\DoxyCodeLine{00210     .pllQ = 0,}
+\DoxyCodeLine{00211  \},}
+\DoxyCodeLine{00212 \};}
+\DoxyCodeLine{00213 }
+\DoxyCodeLine{00214 }
+\DoxyCodeLine{00215 \textcolor{preprocessor}{\#endif }\textcolor{comment}{/* HAL\_SYSCTL\_INCLUDE\_SYSCTL\_SYSCTL\_H\_ */}\textcolor{preprocessor}{}}
+
+\end{DoxyCode}

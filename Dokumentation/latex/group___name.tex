@@ -1,0 +1,117 @@
+\doxysection{of Group}
+\label{group___name}\index{of Group@{of Group}}
+\doxysubsection*{Files}
+\begin{DoxyCompactItemize}
+\item 
+file \textbf{ sysctl.\+c}
+\end{DoxyCompactItemize}
+\doxysubsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+unsigned int \textbf{ hal\+Sys\+Ctl\+Get\+Cpu\+Freq} (void)
+\item 
+void \textbf{ hal\+Sys\+Ctl\+Set\+Cpu\+Freq} (enum Hal\+Sys\+Ctl\+Cpu\+Freq cpu\+Freq\+\_\+)
+\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+
+
+\doxysubsection{Function Documentation}
+\mbox{\label{group___name_gadb7dcb6d46af8a677d7f85c8666d05cf}} 
+\index{of Group@{of Group}!halSysCtlGetCpuFreq@{halSysCtlGetCpuFreq}}
+\index{halSysCtlGetCpuFreq@{halSysCtlGetCpuFreq}!of Group@{of Group}}
+\doxysubsubsection{halSysCtlGetCpuFreq()}
+{\footnotesize\ttfamily unsigned int hal\+Sys\+Ctl\+Get\+Cpu\+Freq (\begin{DoxyParamCaption}\item[{void}]{ }\end{DoxyParamCaption})}
+
+
+
+Definition at line \textbf{ 33} of file \textbf{ sysctl.\+c}.
+
+
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00034 \{}
+\DoxyCodeLine{00035     \textcolor{keywordflow}{return} sysctlCpuFreq\_;}
+\DoxyCodeLine{00036 \}}
+
+\end{DoxyCode}
+\mbox{\label{group___name_gac2e84f948bc2e53065b6436ae47a89ea}} 
+\index{of Group@{of Group}!halSysCtlSetCpuFreq@{halSysCtlSetCpuFreq}}
+\index{halSysCtlSetCpuFreq@{halSysCtlSetCpuFreq}!of Group@{of Group}}
+\doxysubsubsection{halSysCtlSetCpuFreq()}
+{\footnotesize\ttfamily void hal\+Sys\+Ctl\+Set\+Cpu\+Freq (\begin{DoxyParamCaption}\item[{enum Hal\+Sys\+Ctl\+Cpu\+Freq}]{cpu\+Freq\+\_\+ }\end{DoxyParamCaption})}
+
+
+
+Definition at line \textbf{ 39} of file \textbf{ sysctl.\+c}.
+
+
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00040 \{}
+\DoxyCodeLine{00041     \textcolor{comment}{// reset cpu frequency to default: 16MHz PIOSC, no PLL}}
+\DoxyCodeLine{00042     sysctlShiWriteRsclkcfgOscsrc\_(sysctlSysctlCore\_, sysctlRsclkcfgOscsrcPiosc\_);}
+\DoxyCodeLine{00043     sysctlShiWriteRsclkcfgUsepll\_(sysctlSysctlCore\_, sysctlRsclkcfgUsepllNo\_);}
+\DoxyCodeLine{00044     sysctlShiWritePllfreq0Pllpwr\_(sysctlSysctlCore\_, sysctlPllfreq0PllpwrOff\_);}
+\DoxyCodeLine{00045 }
+\DoxyCodeLine{00046     \textcolor{comment}{// power up MAINOSC if used}}
+\DoxyCodeLine{00047     sysctlShiWriteMoscctlOscrng\_(sysctlSysctlCore\_, SysctlCpuFreqSetups[cpuFreq\_].oscRng);}
+\DoxyCodeLine{00048     sysctlShiWriteMoscctlNoxtal\_(sysctlSysctlCore\_, SysctlCpuFreqSetups[cpuFreq\_].noXtal);}
+\DoxyCodeLine{00049     sysctlShiWriteMoscctlPwrdn\_(sysctlSysctlCore\_, SysctlCpuFreqSetups[cpuFreq\_].moscPwr);}
+\DoxyCodeLine{00050 }
+\DoxyCodeLine{00051     \textcolor{keywordflow}{if}(sysctlMoscctlPwrdnPowerup\_ == SysctlCpuFreqSetups[cpuFreq\_].moscPwr)}
+\DoxyCodeLine{00052     \{}
+\DoxyCodeLine{00053         \textcolor{comment}{// Wait for the MAINOSC to power up}}
+\DoxyCodeLine{00054         \textcolor{keywordflow}{while} (sysctlRisMoscpuprisLocked\_ != sysctlShiReadRisMoscpupris\_(sysctlSysctlCore\_));}
+\DoxyCodeLine{00055     \}}
+\DoxyCodeLine{00056     \textcolor{keywordflow}{else}}
+\DoxyCodeLine{00057     \{}
+\DoxyCodeLine{00058         \textcolor{comment}{// reset a MAINOSC 'power up ready' interrupt (if it was set before)}}
+\DoxyCodeLine{00059         sysctlShiWriteMiscMoscpupmis\_(sysctlSysctlCore\_, sysctlMiscMoscpupmisClear\_);}
+\DoxyCodeLine{00060     \}}
+\DoxyCodeLine{00061 }
+\DoxyCodeLine{00062     \textcolor{comment}{// Set PIOSC or MOSC as OSCSRC source}}
+\DoxyCodeLine{00063     sysctlShiWriteRsclkcfgOscsrc\_(sysctlSysctlCore\_, SysctlCpuFreqSetups[cpuFreq\_].oscSource);}
+\DoxyCodeLine{00064 }
+\DoxyCodeLine{00065     \textcolor{comment}{// set PIOSC or MOSC as clock source to the PLL}}
+\DoxyCodeLine{00066     sysctlShiWriteRsclkcfgPllsrc\_(sysctlSysctlCore\_, SysctlCpuFreqSetups[cpuFreq\_].pllSource);}
+\DoxyCodeLine{00067 }
+\DoxyCodeLine{00068     \textcolor{comment}{// for higher frequencies power on PLL with f\_vco set to 480 MHz. PLL parameters see datasheet section 5.2.5.5 PLL.}}
+\DoxyCodeLine{00069     \textcolor{comment}{// f\_in = f\_xtal / ((Q+1)(N+1)) = 25 MHz / 5 = 5 MHZ   ;  with f\_xtal = 25 MHz, Q = 0 and N = 4}}
+\DoxyCodeLine{00070     \textcolor{comment}{// MDIV = MINT + (MFRAC / 1024) = MINT + (0 / 1024) = 96     with MINT = 96, MFRAC = 0 (should always be 0 to avoid jitter)}}
+\DoxyCodeLine{00071     \textcolor{comment}{//}}
+\DoxyCodeLine{00072     \textcolor{comment}{// => f\_vco = f\_in * MDIV = 5 MHz * 96 = 480 MHz}}
+\DoxyCodeLine{00073     sysctlShiWritePllfreq1N\_(sysctlSysctlCore\_, SysctlCpuFreqSetups[cpuFreq\_].pllN);}
+\DoxyCodeLine{00074     sysctlShiWritePllfreq1Q\_(sysctlSysctlCore\_, SysctlCpuFreqSetups[cpuFreq\_].pllQ);}
+\DoxyCodeLine{00075 }
+\DoxyCodeLine{00076     \textcolor{comment}{// Set MINT = 96 => f\_vco = 5 MHz * 96 = 480 MHz}}
+\DoxyCodeLine{00077     sysctlShiWritePllfreq0Mint\_(sysctlSysctlCore\_, SysctlCpuFreqSetups[cpuFreq\_].pllMint);}
+\DoxyCodeLine{00078 }
+\DoxyCodeLine{00079     \textcolor{comment}{// Power up the PLL}}
+\DoxyCodeLine{00080     sysctlShiWritePllfreq0Pllpwr\_(sysctlSysctlCore\_, SysctlCpuFreqSetups[cpuFreq\_].pllPwr);}
+\DoxyCodeLine{00081     \textcolor{keywordflow}{if}(sysctlPllfreq0PllpwrOn\_ == SysctlCpuFreqSetups[cpuFreq\_].pllPwr)}
+\DoxyCodeLine{00082     \{}
+\DoxyCodeLine{00083         \textcolor{comment}{// Wait until the PLL is powered and locked}}
+\DoxyCodeLine{00084         \textcolor{keywordflow}{while} (sysctlRisPlllrisLocked\_ != sysctlShiReadRisPlllris\_(sysctlSysctlCore\_));}
+\DoxyCodeLine{00085         sysctlShiWriteMiscPlllmis\_(sysctlSysctlCore\_, sysctlMiscPlllmisClear\_);}
+\DoxyCodeLine{00086     \}}
+\DoxyCodeLine{00087 }
+\DoxyCodeLine{00088     \textcolor{comment}{// Apply PSYSDIV [ SysClk = f\_vco / (PSYSDIV + 1) ]}}
+\DoxyCodeLine{00089     sysctlShiWriteRsclkcfgPsysdiv\_(sysctlSysctlCore\_, SysctlCpuFreqSetups[cpuFreq\_].pSysDiv);}
+\DoxyCodeLine{00090 }
+\DoxyCodeLine{00091     \textcolor{comment}{// set SysClk and the timing parameters for the main Flash and EEPROM memories for selected clock frequency}}
+\DoxyCodeLine{00092     sysctlShiWriteMemtim0Fws\_(sysctlSysctlCore\_, SysctlCpuFreqSetups[cpuFreq\_].fws);}
+\DoxyCodeLine{00093     sysctlShiWriteMemtim0Fbce\_(sysctlSysctlCore\_, SysctlCpuFreqSetups[cpuFreq\_].fbce);}
+\DoxyCodeLine{00094     sysctlShiWriteMemtim0Fbcht\_(sysctlSysctlCore\_, SysctlCpuFreqSetups[cpuFreq\_].fbcht);}
+\DoxyCodeLine{00095     sysctlShiWriteMemtim0Ews\_(sysctlSysctlCore\_, SysctlCpuFreqSetups[cpuFreq\_].ews);}
+\DoxyCodeLine{00096     sysctlShiWriteMemtim0Ebce\_(sysctlSysctlCore\_, SysctlCpuFreqSetups[cpuFreq\_].ebce);}
+\DoxyCodeLine{00097     sysctlShiWriteMemtim0Ebcht\_(sysctlSysctlCore\_, SysctlCpuFreqSetups[cpuFreq\_].ebcht);}
+\DoxyCodeLine{00098 }
+\DoxyCodeLine{00099     \textcolor{comment}{// set PLL or OSCCLK as the system clock source and apply new MEMTIM0 register value by setting the MEMTIMU bit}}
+\DoxyCodeLine{00100     sysctlShiWriteRsclkcfgMemtimu\_(sysctlSysctlCore\_, sysctlRsclkcfgMemtimuUpdate\_);}
+\DoxyCodeLine{00101     sysctlShiWriteRsclkcfgUsepll\_(sysctlSysctlCore\_, SysctlCpuFreqSetups[cpuFreq\_].usePll);}
+\DoxyCodeLine{00102 }
+\DoxyCodeLine{00103     \textcolor{comment}{// save CPU clock frequency in global variable to be later used again elsewhere}}
+\DoxyCodeLine{00104     sysctlCpuFreq\_ = SysctlCpuFreqSetups[cpuFreq\_].cpuFreq;}
+\DoxyCodeLine{00105 \}}
+
+\end{DoxyCode}

@@ -1,0 +1,204 @@
+\doxysection{list.\+c}
+\label{list_8c_source}\index{rtos/FreeRTOS/source/list.c@{rtos/FreeRTOS/source/list.c}}
+
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00001 \textcolor{comment}{/*}}
+\DoxyCodeLine{00002 \textcolor{comment}{ * FreeRTOS Kernel V10.2.1}}
+\DoxyCodeLine{00003 \textcolor{comment}{ * Copyright (C) 2019 Amazon.com, Inc. or its affiliates.  All Rights Reserved.}}
+\DoxyCodeLine{00004 \textcolor{comment}{ *}}
+\DoxyCodeLine{00005 \textcolor{comment}{ * Permission is hereby granted, free of charge, to any person obtaining a copy of}}
+\DoxyCodeLine{00006 \textcolor{comment}{ * this software and associated documentation files (the "{}Software"{}), to deal in}}
+\DoxyCodeLine{00007 \textcolor{comment}{ * the Software without restriction, including without limitation the rights to}}
+\DoxyCodeLine{00008 \textcolor{comment}{ * use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of}}
+\DoxyCodeLine{00009 \textcolor{comment}{ * the Software, and to permit persons to whom the Software is furnished to do so,}}
+\DoxyCodeLine{00010 \textcolor{comment}{ * subject to the following conditions:}}
+\DoxyCodeLine{00011 \textcolor{comment}{ *}}
+\DoxyCodeLine{00012 \textcolor{comment}{ * The above copyright notice and this permission notice shall be included in all}}
+\DoxyCodeLine{00013 \textcolor{comment}{ * copies or substantial portions of the Software.}}
+\DoxyCodeLine{00014 \textcolor{comment}{ *}}
+\DoxyCodeLine{00015 \textcolor{comment}{ * THE SOFTWARE IS PROVIDED "{}AS IS"{}, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR}}
+\DoxyCodeLine{00016 \textcolor{comment}{ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS}}
+\DoxyCodeLine{00017 \textcolor{comment}{ * FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR}}
+\DoxyCodeLine{00018 \textcolor{comment}{ * COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER}}
+\DoxyCodeLine{00019 \textcolor{comment}{ * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN}}
+\DoxyCodeLine{00020 \textcolor{comment}{ * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.}}
+\DoxyCodeLine{00021 \textcolor{comment}{ *}}
+\DoxyCodeLine{00022 \textcolor{comment}{ * http://www.FreeRTOS.org}}
+\DoxyCodeLine{00023 \textcolor{comment}{ * http://aws.amazon.com/freertos}}
+\DoxyCodeLine{00024 \textcolor{comment}{ *}}
+\DoxyCodeLine{00025 \textcolor{comment}{ * 1 tab == 4 spaces!}}
+\DoxyCodeLine{00026 \textcolor{comment}{ */}}
+\DoxyCodeLine{00027 }
+\DoxyCodeLine{00028 }
+\DoxyCodeLine{00029 \textcolor{preprocessor}{\#include <stdlib.h>}}
+\DoxyCodeLine{00030 \textcolor{preprocessor}{\#include "{}FreeRTOS.h"{}}}
+\DoxyCodeLine{00031 \textcolor{preprocessor}{\#include "{}list.h"{}}}
+\DoxyCodeLine{00032 }
+\DoxyCodeLine{00033 \textcolor{comment}{/*-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/}}
+\DoxyCodeLine{00034 \textcolor{comment}{ * PUBLIC LIST API documented in list.h}}
+\DoxyCodeLine{00035 \textcolor{comment}{ *-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/*/}}
+\DoxyCodeLine{00036 }
+\DoxyCodeLine{00037 \textcolor{keywordtype}{void} vListInitialise( List\_t * \textcolor{keyword}{const} pxList )}
+\DoxyCodeLine{00038 \{}
+\DoxyCodeLine{00039     \textcolor{comment}{/* The list structure contains a list item which is used to mark the}}
+\DoxyCodeLine{00040 \textcolor{comment}{    end of the list.  To initialise the list the list end is inserted}}
+\DoxyCodeLine{00041 \textcolor{comment}{    as the only list entry. */}}
+\DoxyCodeLine{00042     pxList-\/>pxIndex = ( ListItem\_t * ) \&( pxList-\/>xListEnd );         \textcolor{comment}{/*lint !e826 !e740 !e9087 The mini list structure is used as the list end to save RAM.  This is checked and valid. */}}
+\DoxyCodeLine{00043 }
+\DoxyCodeLine{00044     \textcolor{comment}{/* The list end value is the highest possible value in the list to}}
+\DoxyCodeLine{00045 \textcolor{comment}{    ensure it remains at the end of the list. */}}
+\DoxyCodeLine{00046     pxList-\/>xListEnd.xItemValue = portMAX\_DELAY;}
+\DoxyCodeLine{00047 }
+\DoxyCodeLine{00048     \textcolor{comment}{/* The list end next and previous pointers point to itself so we know}}
+\DoxyCodeLine{00049 \textcolor{comment}{    when the list is empty. */}}
+\DoxyCodeLine{00050     pxList-\/>xListEnd.pxNext = ( ListItem\_t * ) \&( pxList-\/>xListEnd ); \textcolor{comment}{/*lint !e826 !e740 !e9087 The mini list structure is used as the list end to save RAM.  This is checked and valid. */}}
+\DoxyCodeLine{00051     pxList-\/>xListEnd.pxPrevious = ( ListItem\_t * ) \&( pxList-\/>xListEnd );\textcolor{comment}{/*lint !e826 !e740 !e9087 The mini list structure is used as the list end to save RAM.  This is checked and valid. */}}
+\DoxyCodeLine{00052 }
+\DoxyCodeLine{00053     pxList-\/>uxNumberOfItems = ( UBaseType\_t ) 0U;}
+\DoxyCodeLine{00054 }
+\DoxyCodeLine{00055     \textcolor{comment}{/* Write known values into the list if}}
+\DoxyCodeLine{00056 \textcolor{comment}{    configUSE\_LIST\_DATA\_INTEGRITY\_CHECK\_BYTES is set to 1. */}}
+\DoxyCodeLine{00057     listSET\_LIST\_INTEGRITY\_CHECK\_1\_VALUE( pxList );}
+\DoxyCodeLine{00058     listSET\_LIST\_INTEGRITY\_CHECK\_2\_VALUE( pxList );}
+\DoxyCodeLine{00059 \}}
+\DoxyCodeLine{00060 \textcolor{comment}{/*-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/*/}}
+\DoxyCodeLine{00061 }
+\DoxyCodeLine{00062 \textcolor{keywordtype}{void} vListInitialiseItem( ListItem\_t * \textcolor{keyword}{const} pxItem )}
+\DoxyCodeLine{00063 \{}
+\DoxyCodeLine{00064     \textcolor{comment}{/* Make sure the list item is not recorded as being on a list. */}}
+\DoxyCodeLine{00065     pxItem-\/>pxContainer = NULL;}
+\DoxyCodeLine{00066 }
+\DoxyCodeLine{00067     \textcolor{comment}{/* Write known values into the list item if}}
+\DoxyCodeLine{00068 \textcolor{comment}{    configUSE\_LIST\_DATA\_INTEGRITY\_CHECK\_BYTES is set to 1. */}}
+\DoxyCodeLine{00069     listSET\_FIRST\_LIST\_ITEM\_INTEGRITY\_CHECK\_VALUE( pxItem );}
+\DoxyCodeLine{00070     listSET\_SECOND\_LIST\_ITEM\_INTEGRITY\_CHECK\_VALUE( pxItem );}
+\DoxyCodeLine{00071 \}}
+\DoxyCodeLine{00072 \textcolor{comment}{/*-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/*/}}
+\DoxyCodeLine{00073 }
+\DoxyCodeLine{00074 \textcolor{keywordtype}{void} vListInsertEnd( List\_t * \textcolor{keyword}{const} pxList, ListItem\_t * \textcolor{keyword}{const} pxNewListItem )}
+\DoxyCodeLine{00075 \{}
+\DoxyCodeLine{00076 ListItem\_t * \textcolor{keyword}{const} pxIndex = pxList-\/>pxIndex;}
+\DoxyCodeLine{00077 }
+\DoxyCodeLine{00078     \textcolor{comment}{/* Only effective when configASSERT() is also defined, these tests may catch}}
+\DoxyCodeLine{00079 \textcolor{comment}{    the list data structures being overwritten in memory.  They will not catch}}
+\DoxyCodeLine{00080 \textcolor{comment}{    data errors caused by incorrect configuration or use of FreeRTOS. */}}
+\DoxyCodeLine{00081     listTEST\_LIST\_INTEGRITY( pxList );}
+\DoxyCodeLine{00082     listTEST\_LIST\_ITEM\_INTEGRITY( pxNewListItem );}
+\DoxyCodeLine{00083 }
+\DoxyCodeLine{00084     \textcolor{comment}{/* Insert a new list item into pxList, but rather than sort the list,}}
+\DoxyCodeLine{00085 \textcolor{comment}{    makes the new list item the last item to be removed by a call to}}
+\DoxyCodeLine{00086 \textcolor{comment}{    listGET\_OWNER\_OF\_NEXT\_ENTRY(). */}}
+\DoxyCodeLine{00087     pxNewListItem-\/>pxNext = pxIndex;}
+\DoxyCodeLine{00088     pxNewListItem-\/>pxPrevious = pxIndex-\/>pxPrevious;}
+\DoxyCodeLine{00089 }
+\DoxyCodeLine{00090     \textcolor{comment}{/* Only used during decision coverage testing. */}}
+\DoxyCodeLine{00091     mtCOVERAGE\_TEST\_DELAY();}
+\DoxyCodeLine{00092 }
+\DoxyCodeLine{00093     pxIndex-\/>pxPrevious-\/>pxNext = pxNewListItem;}
+\DoxyCodeLine{00094     pxIndex-\/>pxPrevious = pxNewListItem;}
+\DoxyCodeLine{00095 }
+\DoxyCodeLine{00096     \textcolor{comment}{/* Remember which list the item is in. */}}
+\DoxyCodeLine{00097     pxNewListItem-\/>pxContainer = pxList;}
+\DoxyCodeLine{00098 }
+\DoxyCodeLine{00099     ( pxList-\/>uxNumberOfItems )++;}
+\DoxyCodeLine{00100 \}}
+\DoxyCodeLine{00101 \textcolor{comment}{/*-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/*/}}
+\DoxyCodeLine{00102 }
+\DoxyCodeLine{00103 \textcolor{keywordtype}{void} vListInsert( List\_t * \textcolor{keyword}{const} pxList, ListItem\_t * \textcolor{keyword}{const} pxNewListItem )}
+\DoxyCodeLine{00104 \{}
+\DoxyCodeLine{00105 ListItem\_t *pxIterator;}
+\DoxyCodeLine{00106 \textcolor{keyword}{const} TickType\_t xValueOfInsertion = pxNewListItem-\/>xItemValue;}
+\DoxyCodeLine{00107 }
+\DoxyCodeLine{00108     \textcolor{comment}{/* Only effective when configASSERT() is also defined, these tests may catch}}
+\DoxyCodeLine{00109 \textcolor{comment}{    the list data structures being overwritten in memory.  They will not catch}}
+\DoxyCodeLine{00110 \textcolor{comment}{    data errors caused by incorrect configuration or use of FreeRTOS. */}}
+\DoxyCodeLine{00111     listTEST\_LIST\_INTEGRITY( pxList );}
+\DoxyCodeLine{00112     listTEST\_LIST\_ITEM\_INTEGRITY( pxNewListItem );}
+\DoxyCodeLine{00113 }
+\DoxyCodeLine{00114     \textcolor{comment}{/* Insert the new list item into the list, sorted in xItemValue order.}}
+\DoxyCodeLine{00115 \textcolor{comment}{}}
+\DoxyCodeLine{00116 \textcolor{comment}{    If the list already contains a list item with the same item value then the}}
+\DoxyCodeLine{00117 \textcolor{comment}{    new list item should be placed after it.  This ensures that TCBs which are}}
+\DoxyCodeLine{00118 \textcolor{comment}{    stored in ready lists (all of which have the same xItemValue value) get a}}
+\DoxyCodeLine{00119 \textcolor{comment}{    share of the CPU.  However, if the xItemValue is the same as the back marker}}
+\DoxyCodeLine{00120 \textcolor{comment}{    the iteration loop below will not end.  Therefore the value is checked}}
+\DoxyCodeLine{00121 \textcolor{comment}{    first, and the algorithm slightly modified if necessary. */}}
+\DoxyCodeLine{00122     \textcolor{keywordflow}{if}( xValueOfInsertion == portMAX\_DELAY )}
+\DoxyCodeLine{00123     \{}
+\DoxyCodeLine{00124         pxIterator = pxList-\/>xListEnd.pxPrevious;}
+\DoxyCodeLine{00125     \}}
+\DoxyCodeLine{00126     \textcolor{keywordflow}{else}}
+\DoxyCodeLine{00127     \{}
+\DoxyCodeLine{00128         \textcolor{comment}{/* *** NOTE ***********************************************************}}
+\DoxyCodeLine{00129 \textcolor{comment}{        If you find your application is crashing here then likely causes are}}
+\DoxyCodeLine{00130 \textcolor{comment}{        listed below.  In addition see https://www.freertos.org/FAQHelp.html for}}
+\DoxyCodeLine{00131 \textcolor{comment}{        more tips, and ensure configASSERT() is defined!}}
+\DoxyCodeLine{00132 \textcolor{comment}{        https://www.freertos.org/a00110.html\#configASSERT}}
+\DoxyCodeLine{00133 \textcolor{comment}{}}
+\DoxyCodeLine{00134 \textcolor{comment}{            1) Stack overflow -\/}}
+\DoxyCodeLine{00135 \textcolor{comment}{               see https://www.freertos.org/Stacks-\/and-\/stack-\/overflow-\/checking.html}}
+\DoxyCodeLine{00136 \textcolor{comment}{            2) Incorrect interrupt priority assignment, especially on Cortex-\/M}}
+\DoxyCodeLine{00137 \textcolor{comment}{               parts where numerically high priority values denote low actual}}
+\DoxyCodeLine{00138 \textcolor{comment}{               interrupt priorities, which can seem counter intuitive.  See}}
+\DoxyCodeLine{00139 \textcolor{comment}{               https://www.freertos.org/RTOS-\/Cortex-\/M3-\/M4.html and the definition}}
+\DoxyCodeLine{00140 \textcolor{comment}{               of configMAX\_SYSCALL\_INTERRUPT\_PRIORITY on}}
+\DoxyCodeLine{00141 \textcolor{comment}{               https://www.freertos.org/a00110.html}}
+\DoxyCodeLine{00142 \textcolor{comment}{            3) Calling an API function from within a critical section or when}}
+\DoxyCodeLine{00143 \textcolor{comment}{               the scheduler is suspended, or calling an API function that does}}
+\DoxyCodeLine{00144 \textcolor{comment}{               not end in "{}FromISR"{} from an interrupt.}}
+\DoxyCodeLine{00145 \textcolor{comment}{            4) Using a queue or semaphore before it has been initialised or}}
+\DoxyCodeLine{00146 \textcolor{comment}{               before the scheduler has been started (are interrupts firing}}
+\DoxyCodeLine{00147 \textcolor{comment}{               before vTaskStartScheduler() has been called?).}}
+\DoxyCodeLine{00148 \textcolor{comment}{        **********************************************************************/}}
+\DoxyCodeLine{00149 }
+\DoxyCodeLine{00150         \textcolor{keywordflow}{for}( pxIterator = ( ListItem\_t * ) \&( pxList-\/>xListEnd ); pxIterator-\/>pxNext-\/>xItemValue <= xValueOfInsertion; pxIterator = pxIterator-\/>pxNext ) \textcolor{comment}{/*lint !e826 !e740 !e9087 The mini list structure is used as the list end to save RAM.  This is checked and valid. */}\textcolor{comment}{/*lint !e440 The iterator moves to a different value, not xValueOfInsertion. */}}
+\DoxyCodeLine{00151         \{}
+\DoxyCodeLine{00152             \textcolor{comment}{/* There is nothing to do here, just iterating to the wanted}}
+\DoxyCodeLine{00153 \textcolor{comment}{            insertion position. */}}
+\DoxyCodeLine{00154         \}}
+\DoxyCodeLine{00155     \}}
+\DoxyCodeLine{00156 }
+\DoxyCodeLine{00157     pxNewListItem-\/>pxNext = pxIterator-\/>pxNext;}
+\DoxyCodeLine{00158     pxNewListItem-\/>pxNext-\/>pxPrevious = pxNewListItem;}
+\DoxyCodeLine{00159     pxNewListItem-\/>pxPrevious = pxIterator;}
+\DoxyCodeLine{00160     pxIterator-\/>pxNext = pxNewListItem;}
+\DoxyCodeLine{00161 }
+\DoxyCodeLine{00162     \textcolor{comment}{/* Remember which list the item is in.  This allows fast removal of the}}
+\DoxyCodeLine{00163 \textcolor{comment}{    item later. */}}
+\DoxyCodeLine{00164     pxNewListItem-\/>pxContainer = pxList;}
+\DoxyCodeLine{00165 }
+\DoxyCodeLine{00166     ( pxList-\/>uxNumberOfItems )++;}
+\DoxyCodeLine{00167 \}}
+\DoxyCodeLine{00168 \textcolor{comment}{/*-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/*/}}
+\DoxyCodeLine{00169 }
+\DoxyCodeLine{00170 UBaseType\_t uxListRemove( ListItem\_t * \textcolor{keyword}{const} pxItemToRemove )}
+\DoxyCodeLine{00171 \{}
+\DoxyCodeLine{00172 \textcolor{comment}{/* The list item knows which list it is in.  Obtain the list from the list}}
+\DoxyCodeLine{00173 \textcolor{comment}{item. */}}
+\DoxyCodeLine{00174 List\_t * \textcolor{keyword}{const} pxList = pxItemToRemove-\/>pxContainer;}
+\DoxyCodeLine{00175 }
+\DoxyCodeLine{00176     pxItemToRemove-\/>pxNext-\/>pxPrevious = pxItemToRemove-\/>pxPrevious;}
+\DoxyCodeLine{00177     pxItemToRemove-\/>pxPrevious-\/>pxNext = pxItemToRemove-\/>pxNext;}
+\DoxyCodeLine{00178 }
+\DoxyCodeLine{00179     \textcolor{comment}{/* Only used during decision coverage testing. */}}
+\DoxyCodeLine{00180     mtCOVERAGE\_TEST\_DELAY();}
+\DoxyCodeLine{00181 }
+\DoxyCodeLine{00182     \textcolor{comment}{/* Make sure the index is left pointing to a valid item. */}}
+\DoxyCodeLine{00183     \textcolor{keywordflow}{if}( pxList-\/>pxIndex == pxItemToRemove )}
+\DoxyCodeLine{00184     \{}
+\DoxyCodeLine{00185         pxList-\/>pxIndex = pxItemToRemove-\/>pxPrevious;}
+\DoxyCodeLine{00186     \}}
+\DoxyCodeLine{00187     \textcolor{keywordflow}{else}}
+\DoxyCodeLine{00188     \{}
+\DoxyCodeLine{00189         mtCOVERAGE\_TEST\_MARKER();}
+\DoxyCodeLine{00190     \}}
+\DoxyCodeLine{00191 }
+\DoxyCodeLine{00192     pxItemToRemove-\/>pxContainer = NULL;}
+\DoxyCodeLine{00193     ( pxList-\/>uxNumberOfItems )-\/-\/;}
+\DoxyCodeLine{00194 }
+\DoxyCodeLine{00195     \textcolor{keywordflow}{return} pxList-\/>uxNumberOfItems;}
+\DoxyCodeLine{00196 \}}
+\DoxyCodeLine{00197 \textcolor{comment}{/*-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/*/}}
+\DoxyCodeLine{00198 }
+
+\end{DoxyCode}

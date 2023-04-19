@@ -1,0 +1,425 @@
+\doxysection{sysctl\+Shi.\+c}
+\label{sysctl_shi_8c_source}\index{hal/sysctl/src/sysctlShi.c@{hal/sysctl/src/sysctlShi.c}}
+
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00001 \textcolor{comment}{//*****************************************************************************}}
+\DoxyCodeLine{00002 \textcolor{comment}{// Name        : sysctlShi.c}}
+\DoxyCodeLine{00003 \textcolor{comment}{// Author      : Ole Rönna }}
+\DoxyCodeLine{00004 \textcolor{comment}{// Maintainer  : Prof. Dr. Paweł Buczek }}
+\DoxyCodeLine{00005 \textcolor{comment}{// Version     : 0.4 }}
+\DoxyCodeLine{00006 \textcolor{comment}{// Copyright   : All rights reserved }}
+\DoxyCodeLine{00007 \textcolor{comment}{// Description : }}
+\DoxyCodeLine{00008 \textcolor{comment}{// This code was generated from a template. Manual changes to this file will }}
+\DoxyCodeLine{00009 \textcolor{comment}{// be overwritten if the code is regenerated. }}
+\DoxyCodeLine{00010 \textcolor{comment}{//}}
+\DoxyCodeLine{00011 \textcolor{comment}{//*****************************************************************************}}
+\DoxyCodeLine{00012 }
+\DoxyCodeLine{00013 \textcolor{preprocessor}{\#include "{}sysctlShiCores.h"{}}}
+\DoxyCodeLine{00014 \textcolor{preprocessor}{\#include "{}sysctlShi.h"{}}}
+\DoxyCodeLine{00015 \textcolor{preprocessor}{\#include "{}stdint.h"{}}}
+\DoxyCodeLine{00016 }
+\DoxyCodeLine{00017 \textcolor{comment}{//*****************************************************************************}}
+\DoxyCodeLine{00018 \textcolor{comment}{//}}
+\DoxyCodeLine{00019 \textcolor{comment}{// sysctl base addresses}}
+\DoxyCodeLine{00020 \textcolor{comment}{//}}
+\DoxyCodeLine{00021 \textcolor{comment}{//*****************************************************************************}}
+\DoxyCodeLine{00022 }
+\DoxyCodeLine{00023 \textcolor{keyword}{static} \textcolor{keyword}{const} uint32\_t sysctlCoreBaseAddresses\_[sysctlCoreCount\_] = \{}
+\DoxyCodeLine{00024     0x400FE000}
+\DoxyCodeLine{00025 \};}
+\DoxyCodeLine{00026 }
+\DoxyCodeLine{00027 \textcolor{comment}{//*****************************************************************************}}
+\DoxyCodeLine{00028 \textcolor{comment}{//}}
+\DoxyCodeLine{00029 \textcolor{comment}{// sysctl functions for reading/writing of the whole register}}
+\DoxyCodeLine{00030 \textcolor{comment}{//}}
+\DoxyCodeLine{00031 \textcolor{comment}{//*****************************************************************************}}
+\DoxyCodeLine{00032 }
+\DoxyCodeLine{00033 uint32\_t sysctlShiReadRis\_(\textcolor{keyword}{enum} SysctlCores\_ \textcolor{keyword}{const} core) \{}
+\DoxyCodeLine{00034     \textcolor{keywordflow}{return} *((\textcolor{keyword}{volatile} uint32\_t *)(sysctlRis\_ + sysctlCoreBaseAddresses\_[core]));}
+\DoxyCodeLine{00035 \}}
+\DoxyCodeLine{00036 }
+\DoxyCodeLine{00037 \textcolor{keywordtype}{void} sysctlShiWriteRis\_(\textcolor{keyword}{enum} SysctlCores\_ \textcolor{keyword}{const} core, uint32\_t \textcolor{keyword}{const} registerValue) \{}
+\DoxyCodeLine{00038     *((\textcolor{keyword}{volatile} uint32\_t *)(sysctlRis\_ + sysctlCoreBaseAddresses\_[core])) = registerValue;}
+\DoxyCodeLine{00039 \}}
+\DoxyCodeLine{00040 }
+\DoxyCodeLine{00041 }
+\DoxyCodeLine{00042 uint32\_t sysctlShiReadMisc\_(\textcolor{keyword}{enum} SysctlCores\_ \textcolor{keyword}{const} core) \{}
+\DoxyCodeLine{00043     \textcolor{keywordflow}{return} *((\textcolor{keyword}{volatile} uint32\_t *)(sysctlMisc\_ + sysctlCoreBaseAddresses\_[core]));}
+\DoxyCodeLine{00044 \}}
+\DoxyCodeLine{00045 }
+\DoxyCodeLine{00046 \textcolor{keywordtype}{void} sysctlShiWriteMisc\_(\textcolor{keyword}{enum} SysctlCores\_ \textcolor{keyword}{const} core, uint32\_t \textcolor{keyword}{const} registerValue) \{}
+\DoxyCodeLine{00047     *((\textcolor{keyword}{volatile} uint32\_t *)(sysctlMisc\_ + sysctlCoreBaseAddresses\_[core])) = registerValue;}
+\DoxyCodeLine{00048 \}}
+\DoxyCodeLine{00049 }
+\DoxyCodeLine{00050 }
+\DoxyCodeLine{00051 uint32\_t sysctlShiReadMoscctl\_(\textcolor{keyword}{enum} SysctlCores\_ \textcolor{keyword}{const} core) \{}
+\DoxyCodeLine{00052     \textcolor{keywordflow}{return} *((\textcolor{keyword}{volatile} uint32\_t *)(sysctlMoscctl\_ + sysctlCoreBaseAddresses\_[core]));}
+\DoxyCodeLine{00053 \}}
+\DoxyCodeLine{00054 }
+\DoxyCodeLine{00055 \textcolor{keywordtype}{void} sysctlShiWriteMoscctl\_(\textcolor{keyword}{enum} SysctlCores\_ \textcolor{keyword}{const} core, uint32\_t \textcolor{keyword}{const} registerValue) \{}
+\DoxyCodeLine{00056     *((\textcolor{keyword}{volatile} uint32\_t *)(sysctlMoscctl\_ + sysctlCoreBaseAddresses\_[core])) = registerValue;}
+\DoxyCodeLine{00057 \}}
+\DoxyCodeLine{00058 }
+\DoxyCodeLine{00059 }
+\DoxyCodeLine{00060 uint32\_t sysctlShiReadRsclkcfg\_(\textcolor{keyword}{enum} SysctlCores\_ \textcolor{keyword}{const} core) \{}
+\DoxyCodeLine{00061     \textcolor{keywordflow}{return} *((\textcolor{keyword}{volatile} uint32\_t *)(sysctlRsclkcfg\_ + sysctlCoreBaseAddresses\_[core]));}
+\DoxyCodeLine{00062 \}}
+\DoxyCodeLine{00063 }
+\DoxyCodeLine{00064 \textcolor{keywordtype}{void} sysctlShiWriteRsclkcfg\_(\textcolor{keyword}{enum} SysctlCores\_ \textcolor{keyword}{const} core, uint32\_t \textcolor{keyword}{const} registerValue) \{}
+\DoxyCodeLine{00065     *((\textcolor{keyword}{volatile} uint32\_t *)(sysctlRsclkcfg\_ + sysctlCoreBaseAddresses\_[core])) = registerValue;}
+\DoxyCodeLine{00066 \}}
+\DoxyCodeLine{00067 }
+\DoxyCodeLine{00068 }
+\DoxyCodeLine{00069 uint32\_t sysctlShiReadMemtim0\_(\textcolor{keyword}{enum} SysctlCores\_ \textcolor{keyword}{const} core) \{}
+\DoxyCodeLine{00070     \textcolor{keywordflow}{return} *((\textcolor{keyword}{volatile} uint32\_t *)(sysctlMemtim0\_ + sysctlCoreBaseAddresses\_[core]));}
+\DoxyCodeLine{00071 \}}
+\DoxyCodeLine{00072 }
+\DoxyCodeLine{00073 \textcolor{keywordtype}{void} sysctlShiWriteMemtim0\_(\textcolor{keyword}{enum} SysctlCores\_ \textcolor{keyword}{const} core, uint32\_t \textcolor{keyword}{const} registerValue) \{}
+\DoxyCodeLine{00074     *((\textcolor{keyword}{volatile} uint32\_t *)(sysctlMemtim0\_ + sysctlCoreBaseAddresses\_[core])) = registerValue;}
+\DoxyCodeLine{00075 \}}
+\DoxyCodeLine{00076 }
+\DoxyCodeLine{00077 }
+\DoxyCodeLine{00078 uint32\_t sysctlShiReadPllfreq0\_(\textcolor{keyword}{enum} SysctlCores\_ \textcolor{keyword}{const} core) \{}
+\DoxyCodeLine{00079     \textcolor{keywordflow}{return} *((\textcolor{keyword}{volatile} uint32\_t *)(sysctlPllfreq0\_ + sysctlCoreBaseAddresses\_[core]));}
+\DoxyCodeLine{00080 \}}
+\DoxyCodeLine{00081 }
+\DoxyCodeLine{00082 \textcolor{keywordtype}{void} sysctlShiWritePllfreq0\_(\textcolor{keyword}{enum} SysctlCores\_ \textcolor{keyword}{const} core, uint32\_t \textcolor{keyword}{const} registerValue) \{}
+\DoxyCodeLine{00083     *((\textcolor{keyword}{volatile} uint32\_t *)(sysctlPllfreq0\_ + sysctlCoreBaseAddresses\_[core])) = registerValue;}
+\DoxyCodeLine{00084 \}}
+\DoxyCodeLine{00085 }
+\DoxyCodeLine{00086 }
+\DoxyCodeLine{00087 uint32\_t sysctlShiReadPllfreq1\_(\textcolor{keyword}{enum} SysctlCores\_ \textcolor{keyword}{const} core) \{}
+\DoxyCodeLine{00088     \textcolor{keywordflow}{return} *((\textcolor{keyword}{volatile} uint32\_t *)(sysctlPllfreq1\_ + sysctlCoreBaseAddresses\_[core]));}
+\DoxyCodeLine{00089 \}}
+\DoxyCodeLine{00090 }
+\DoxyCodeLine{00091 \textcolor{keywordtype}{void} sysctlShiWritePllfreq1\_(\textcolor{keyword}{enum} SysctlCores\_ \textcolor{keyword}{const} core, uint32\_t \textcolor{keyword}{const} registerValue) \{}
+\DoxyCodeLine{00092     *((\textcolor{keyword}{volatile} uint32\_t *)(sysctlPllfreq1\_ + sysctlCoreBaseAddresses\_[core])) = registerValue;}
+\DoxyCodeLine{00093 \}}
+\DoxyCodeLine{00094 }
+\DoxyCodeLine{00095 }
+\DoxyCodeLine{00096 \textcolor{comment}{//*****************************************************************************}}
+\DoxyCodeLine{00097 \textcolor{comment}{//}}
+\DoxyCodeLine{00098 \textcolor{comment}{// sysctl read/write individual bit fields}}
+\DoxyCodeLine{00099 \textcolor{comment}{//}}
+\DoxyCodeLine{00100 \textcolor{comment}{//*****************************************************************************}}
+\DoxyCodeLine{00101 }
+\DoxyCodeLine{00102 uint32\_t sysctlShiReadRisPlllris\_(\textcolor{keyword}{enum} SysctlCores\_ \textcolor{keyword}{const} core) \{}
+\DoxyCodeLine{00103     \textcolor{keywordflow}{return} ((*((\textcolor{keyword}{volatile} uint32\_t *)(sysctlRis\_ + sysctlCoreBaseAddresses\_[core])) >> 6) \& 0x1);}
+\DoxyCodeLine{00104 \}}
+\DoxyCodeLine{00105 }
+\DoxyCodeLine{00106 uint32\_t sysctlShiReadUIRisPlllris\_(uint32\_t \textcolor{keyword}{const} registerValue) \{}
+\DoxyCodeLine{00107     \textcolor{keywordflow}{return} ((registerValue >> 6) \& 0x1);}
+\DoxyCodeLine{00108 \}}
+\DoxyCodeLine{00109 }
+\DoxyCodeLine{00110 }
+\DoxyCodeLine{00111 uint32\_t sysctlShiReadRisMoscpupris\_(\textcolor{keyword}{enum} SysctlCores\_ \textcolor{keyword}{const} core) \{}
+\DoxyCodeLine{00112     \textcolor{keywordflow}{return} ((*((\textcolor{keyword}{volatile} uint32\_t *)(sysctlRis\_ + sysctlCoreBaseAddresses\_[core])) >> 8) \& 0x1);}
+\DoxyCodeLine{00113 \}}
+\DoxyCodeLine{00114 }
+\DoxyCodeLine{00115 uint32\_t sysctlShiReadUIRisMoscpupris\_(uint32\_t \textcolor{keyword}{const} registerValue) \{}
+\DoxyCodeLine{00116     \textcolor{keywordflow}{return} ((registerValue >> 8) \& 0x1);}
+\DoxyCodeLine{00117 \}}
+\DoxyCodeLine{00118 }
+\DoxyCodeLine{00119 }
+\DoxyCodeLine{00120 \textcolor{keywordtype}{void} sysctlShiWriteMiscPlllmis\_(\textcolor{keyword}{enum} SysctlCores\_ \textcolor{keyword}{const} core, \textcolor{keyword}{enum} SysctlMiscPlllmisValues\_ \textcolor{keyword}{const} plllmis) \{}
+\DoxyCodeLine{00121     uint32\_t registerValue = *((\textcolor{keyword}{volatile} uint32\_t *)(sysctlMisc\_ + sysctlCoreBaseAddresses\_[core]));}
+\DoxyCodeLine{00122 }
+\DoxyCodeLine{00123     registerValue \&= \string~(0x1 << 6);}
+\DoxyCodeLine{00124     registerValue |= (plllmis << 6);}
+\DoxyCodeLine{00125 }
+\DoxyCodeLine{00126     *((\textcolor{keyword}{volatile} uint32\_t *)(sysctlMisc\_ + sysctlCoreBaseAddresses\_[core])) = registerValue;}
+\DoxyCodeLine{00127 \}}
+\DoxyCodeLine{00128 }
+\DoxyCodeLine{00129 \textcolor{keywordtype}{void} sysctlShiWriteUIMiscPlllmis\_(uint32\_t * \textcolor{keyword}{const} registerValue, \textcolor{keyword}{enum} SysctlMiscPlllmisValues\_ \textcolor{keyword}{const} plllmis) \{}
+\DoxyCodeLine{00130     *registerValue \&= \string~(0x1 << 6);}
+\DoxyCodeLine{00131     *registerValue |= (plllmis << 6);}
+\DoxyCodeLine{00132 \}}
+\DoxyCodeLine{00133 }
+\DoxyCodeLine{00134 }
+\DoxyCodeLine{00135 \textcolor{keywordtype}{void} sysctlShiWriteMiscMoscpupmis\_(\textcolor{keyword}{enum} SysctlCores\_ \textcolor{keyword}{const} core, \textcolor{keyword}{enum} SysctlMiscMoscpupmisValues\_ \textcolor{keyword}{const} moscpupmis) \{}
+\DoxyCodeLine{00136     uint32\_t registerValue = *((\textcolor{keyword}{volatile} uint32\_t *)(sysctlMisc\_ + sysctlCoreBaseAddresses\_[core]));}
+\DoxyCodeLine{00137 }
+\DoxyCodeLine{00138     registerValue \&= \string~(0x1 << 8);}
+\DoxyCodeLine{00139     registerValue |= (moscpupmis << 8);}
+\DoxyCodeLine{00140 }
+\DoxyCodeLine{00141     *((\textcolor{keyword}{volatile} uint32\_t *)(sysctlMisc\_ + sysctlCoreBaseAddresses\_[core])) = registerValue;}
+\DoxyCodeLine{00142 \}}
+\DoxyCodeLine{00143 }
+\DoxyCodeLine{00144 \textcolor{keywordtype}{void} sysctlShiWriteUIMiscMoscpupmis\_(uint32\_t * \textcolor{keyword}{const} registerValue, \textcolor{keyword}{enum} SysctlMiscMoscpupmisValues\_ \textcolor{keyword}{const} moscpupmis) \{}
+\DoxyCodeLine{00145     *registerValue \&= \string~(0x1 << 8);}
+\DoxyCodeLine{00146     *registerValue |= (moscpupmis << 8);}
+\DoxyCodeLine{00147 \}}
+\DoxyCodeLine{00148 }
+\DoxyCodeLine{00149 }
+\DoxyCodeLine{00150 \textcolor{keywordtype}{void} sysctlShiWriteMoscctlNoxtal\_(\textcolor{keyword}{enum} SysctlCores\_ \textcolor{keyword}{const} core, \textcolor{keyword}{enum} SysctlMoscctlNoxtalValues\_ \textcolor{keyword}{const} noxtal) \{}
+\DoxyCodeLine{00151     uint32\_t registerValue = *((\textcolor{keyword}{volatile} uint32\_t *)(sysctlMoscctl\_ + sysctlCoreBaseAddresses\_[core]));}
+\DoxyCodeLine{00152 }
+\DoxyCodeLine{00153     registerValue \&= \string~(0x1 << 2);}
+\DoxyCodeLine{00154     registerValue |= (noxtal << 2);}
+\DoxyCodeLine{00155 }
+\DoxyCodeLine{00156     *((\textcolor{keyword}{volatile} uint32\_t *)(sysctlMoscctl\_ + sysctlCoreBaseAddresses\_[core])) = registerValue;}
+\DoxyCodeLine{00157 \}}
+\DoxyCodeLine{00158 }
+\DoxyCodeLine{00159 \textcolor{keywordtype}{void} sysctlShiWriteUIMoscctlNoxtal\_(uint32\_t * \textcolor{keyword}{const} registerValue, \textcolor{keyword}{enum} SysctlMoscctlNoxtalValues\_ \textcolor{keyword}{const} noxtal) \{}
+\DoxyCodeLine{00160     *registerValue \&= \string~(0x1 << 2);}
+\DoxyCodeLine{00161     *registerValue |= (noxtal << 2);}
+\DoxyCodeLine{00162 \}}
+\DoxyCodeLine{00163 }
+\DoxyCodeLine{00164 }
+\DoxyCodeLine{00165 \textcolor{keywordtype}{void} sysctlShiWriteMoscctlPwrdn\_(\textcolor{keyword}{enum} SysctlCores\_ \textcolor{keyword}{const} core, \textcolor{keyword}{enum} SysctlMoscctlPwrdnValues\_ \textcolor{keyword}{const} pwrdn) \{}
+\DoxyCodeLine{00166     uint32\_t registerValue = *((\textcolor{keyword}{volatile} uint32\_t *)(sysctlMoscctl\_ + sysctlCoreBaseAddresses\_[core]));}
+\DoxyCodeLine{00167 }
+\DoxyCodeLine{00168     registerValue \&= \string~(0x1 << 3);}
+\DoxyCodeLine{00169     registerValue |= (pwrdn << 3);}
+\DoxyCodeLine{00170 }
+\DoxyCodeLine{00171     *((\textcolor{keyword}{volatile} uint32\_t *)(sysctlMoscctl\_ + sysctlCoreBaseAddresses\_[core])) = registerValue;}
+\DoxyCodeLine{00172 \}}
+\DoxyCodeLine{00173 }
+\DoxyCodeLine{00174 \textcolor{keywordtype}{void} sysctlShiWriteUIMoscctlPwrdn\_(uint32\_t * \textcolor{keyword}{const} registerValue, \textcolor{keyword}{enum} SysctlMoscctlPwrdnValues\_ \textcolor{keyword}{const} pwrdn) \{}
+\DoxyCodeLine{00175     *registerValue \&= \string~(0x1 << 3);}
+\DoxyCodeLine{00176     *registerValue |= (pwrdn << 3);}
+\DoxyCodeLine{00177 \}}
+\DoxyCodeLine{00178 }
+\DoxyCodeLine{00179 }
+\DoxyCodeLine{00180 \textcolor{keywordtype}{void} sysctlShiWriteMoscctlOscrng\_(\textcolor{keyword}{enum} SysctlCores\_ \textcolor{keyword}{const} core, \textcolor{keyword}{enum} SysctlMoscctlOscrngValues\_ \textcolor{keyword}{const} oscrng) \{}
+\DoxyCodeLine{00181     uint32\_t registerValue = *((\textcolor{keyword}{volatile} uint32\_t *)(sysctlMoscctl\_ + sysctlCoreBaseAddresses\_[core]));}
+\DoxyCodeLine{00182 }
+\DoxyCodeLine{00183     registerValue \&= \string~(0x1 << 4);}
+\DoxyCodeLine{00184     registerValue |= (oscrng << 4);}
+\DoxyCodeLine{00185 }
+\DoxyCodeLine{00186     *((\textcolor{keyword}{volatile} uint32\_t *)(sysctlMoscctl\_ + sysctlCoreBaseAddresses\_[core])) = registerValue;}
+\DoxyCodeLine{00187 \}}
+\DoxyCodeLine{00188 }
+\DoxyCodeLine{00189 \textcolor{keywordtype}{void} sysctlShiWriteUIMoscctlOscrng\_(uint32\_t * \textcolor{keyword}{const} registerValue, \textcolor{keyword}{enum} SysctlMoscctlOscrngValues\_ \textcolor{keyword}{const} oscrng) \{}
+\DoxyCodeLine{00190     *registerValue \&= \string~(0x1 << 4);}
+\DoxyCodeLine{00191     *registerValue |= (oscrng << 4);}
+\DoxyCodeLine{00192 \}}
+\DoxyCodeLine{00193 }
+\DoxyCodeLine{00194 }
+\DoxyCodeLine{00195 \textcolor{keywordtype}{void} sysctlShiWriteRsclkcfgPsysdiv\_(\textcolor{keyword}{enum} SysctlCores\_ \textcolor{keyword}{const} core, uint32\_t \textcolor{keyword}{const} psysdiv) \{}
+\DoxyCodeLine{00196     uint32\_t registerValue = *((\textcolor{keyword}{volatile} uint32\_t *)(sysctlRsclkcfg\_ + sysctlCoreBaseAddresses\_[core]));}
+\DoxyCodeLine{00197 }
+\DoxyCodeLine{00198     registerValue \&= \string~(0x3ff << 0);}
+\DoxyCodeLine{00199     registerValue |= (psysdiv << 0);}
+\DoxyCodeLine{00200 }
+\DoxyCodeLine{00201     *((\textcolor{keyword}{volatile} uint32\_t *)(sysctlRsclkcfg\_ + sysctlCoreBaseAddresses\_[core])) = registerValue;}
+\DoxyCodeLine{00202 \}}
+\DoxyCodeLine{00203 }
+\DoxyCodeLine{00204 \textcolor{keywordtype}{void} sysctlShiWriteUIRsclkcfgPsysdiv\_(uint32\_t * \textcolor{keyword}{const} registerValue, uint32\_t \textcolor{keyword}{const} psysdiv) \{}
+\DoxyCodeLine{00205     *registerValue \&= \string~(0x3ff << 0);}
+\DoxyCodeLine{00206     *registerValue |= (psysdiv << 0);}
+\DoxyCodeLine{00207 \}}
+\DoxyCodeLine{00208 }
+\DoxyCodeLine{00209 }
+\DoxyCodeLine{00210 \textcolor{keywordtype}{void} sysctlShiWriteRsclkcfgOscsrc\_(\textcolor{keyword}{enum} SysctlCores\_ \textcolor{keyword}{const} core, \textcolor{keyword}{enum} SysctlRsclkcfgOscsrcValues\_ \textcolor{keyword}{const} oscsrc) \{}
+\DoxyCodeLine{00211     uint32\_t registerValue = *((\textcolor{keyword}{volatile} uint32\_t *)(sysctlRsclkcfg\_ + sysctlCoreBaseAddresses\_[core]));}
+\DoxyCodeLine{00212 }
+\DoxyCodeLine{00213     registerValue \&= \string~(0xf << 20);}
+\DoxyCodeLine{00214     registerValue |= (oscsrc << 20);}
+\DoxyCodeLine{00215 }
+\DoxyCodeLine{00216     *((\textcolor{keyword}{volatile} uint32\_t *)(sysctlRsclkcfg\_ + sysctlCoreBaseAddresses\_[core])) = registerValue;}
+\DoxyCodeLine{00217 \}}
+\DoxyCodeLine{00218 }
+\DoxyCodeLine{00219 \textcolor{keywordtype}{void} sysctlShiWriteUIRsclkcfgOscsrc\_(uint32\_t * \textcolor{keyword}{const} registerValue, \textcolor{keyword}{enum} SysctlRsclkcfgOscsrcValues\_ \textcolor{keyword}{const} oscsrc) \{}
+\DoxyCodeLine{00220     *registerValue \&= \string~(0xf << 20);}
+\DoxyCodeLine{00221     *registerValue |= (oscsrc << 20);}
+\DoxyCodeLine{00222 \}}
+\DoxyCodeLine{00223 }
+\DoxyCodeLine{00224 }
+\DoxyCodeLine{00225 \textcolor{keywordtype}{void} sysctlShiWriteRsclkcfgPllsrc\_(\textcolor{keyword}{enum} SysctlCores\_ \textcolor{keyword}{const} core, \textcolor{keyword}{enum} SysctlRsclkcfgPllsrcValues\_ \textcolor{keyword}{const} pllsrc) \{}
+\DoxyCodeLine{00226     uint32\_t registerValue = *((\textcolor{keyword}{volatile} uint32\_t *)(sysctlRsclkcfg\_ + sysctlCoreBaseAddresses\_[core]));}
+\DoxyCodeLine{00227 }
+\DoxyCodeLine{00228     registerValue \&= \string~(0xf << 24);}
+\DoxyCodeLine{00229     registerValue |= (pllsrc << 24);}
+\DoxyCodeLine{00230 }
+\DoxyCodeLine{00231     *((\textcolor{keyword}{volatile} uint32\_t *)(sysctlRsclkcfg\_ + sysctlCoreBaseAddresses\_[core])) = registerValue;}
+\DoxyCodeLine{00232 \}}
+\DoxyCodeLine{00233 }
+\DoxyCodeLine{00234 \textcolor{keywordtype}{void} sysctlShiWriteUIRsclkcfgPllsrc\_(uint32\_t * \textcolor{keyword}{const} registerValue, \textcolor{keyword}{enum} SysctlRsclkcfgPllsrcValues\_ \textcolor{keyword}{const} pllsrc) \{}
+\DoxyCodeLine{00235     *registerValue \&= \string~(0xf << 24);}
+\DoxyCodeLine{00236     *registerValue |= (pllsrc << 24);}
+\DoxyCodeLine{00237 \}}
+\DoxyCodeLine{00238 }
+\DoxyCodeLine{00239 }
+\DoxyCodeLine{00240 \textcolor{keywordtype}{void} sysctlShiWriteRsclkcfgUsepll\_(\textcolor{keyword}{enum} SysctlCores\_ \textcolor{keyword}{const} core, \textcolor{keyword}{enum} SysctlRsclkcfgUsepllValues\_ \textcolor{keyword}{const} usepll) \{}
+\DoxyCodeLine{00241     uint32\_t registerValue = *((\textcolor{keyword}{volatile} uint32\_t *)(sysctlRsclkcfg\_ + sysctlCoreBaseAddresses\_[core]));}
+\DoxyCodeLine{00242 }
+\DoxyCodeLine{00243     registerValue \&= \string~(0x1 << 28);}
+\DoxyCodeLine{00244     registerValue |= (usepll << 28);}
+\DoxyCodeLine{00245 }
+\DoxyCodeLine{00246     *((\textcolor{keyword}{volatile} uint32\_t *)(sysctlRsclkcfg\_ + sysctlCoreBaseAddresses\_[core])) = registerValue;}
+\DoxyCodeLine{00247 \}}
+\DoxyCodeLine{00248 }
+\DoxyCodeLine{00249 \textcolor{keywordtype}{void} sysctlShiWriteUIRsclkcfgUsepll\_(uint32\_t * \textcolor{keyword}{const} registerValue, \textcolor{keyword}{enum} SysctlRsclkcfgUsepllValues\_ \textcolor{keyword}{const} usepll) \{}
+\DoxyCodeLine{00250     *registerValue \&= \string~(0x1 << 28);}
+\DoxyCodeLine{00251     *registerValue |= (usepll << 28);}
+\DoxyCodeLine{00252 \}}
+\DoxyCodeLine{00253 }
+\DoxyCodeLine{00254 }
+\DoxyCodeLine{00255 \textcolor{keywordtype}{void} sysctlShiWriteRsclkcfgMemtimu\_(\textcolor{keyword}{enum} SysctlCores\_ \textcolor{keyword}{const} core, \textcolor{keyword}{enum} SysctlRsclkcfgMemtimuValues\_ \textcolor{keyword}{const} memtimu) \{}
+\DoxyCodeLine{00256     uint32\_t registerValue = *((\textcolor{keyword}{volatile} uint32\_t *)(sysctlRsclkcfg\_ + sysctlCoreBaseAddresses\_[core]));}
+\DoxyCodeLine{00257 }
+\DoxyCodeLine{00258     registerValue \&= \string~(0x1 << 31);}
+\DoxyCodeLine{00259     registerValue |= (memtimu << 31);}
+\DoxyCodeLine{00260 }
+\DoxyCodeLine{00261     *((\textcolor{keyword}{volatile} uint32\_t *)(sysctlRsclkcfg\_ + sysctlCoreBaseAddresses\_[core])) = registerValue;}
+\DoxyCodeLine{00262 \}}
+\DoxyCodeLine{00263 }
+\DoxyCodeLine{00264 \textcolor{keywordtype}{void} sysctlShiWriteUIRsclkcfgMemtimu\_(uint32\_t * \textcolor{keyword}{const} registerValue, \textcolor{keyword}{enum} SysctlRsclkcfgMemtimuValues\_ \textcolor{keyword}{const} memtimu) \{}
+\DoxyCodeLine{00265     *registerValue \&= \string~(0x1 << 31);}
+\DoxyCodeLine{00266     *registerValue |= (memtimu << 31);}
+\DoxyCodeLine{00267 \}}
+\DoxyCodeLine{00268 }
+\DoxyCodeLine{00269 }
+\DoxyCodeLine{00270 \textcolor{keywordtype}{void} sysctlShiWriteMemtim0Fws\_(\textcolor{keyword}{enum} SysctlCores\_ \textcolor{keyword}{const} core, uint32\_t \textcolor{keyword}{const} fws) \{}
+\DoxyCodeLine{00271     uint32\_t registerValue = *((\textcolor{keyword}{volatile} uint32\_t *)(sysctlMemtim0\_ + sysctlCoreBaseAddresses\_[core]));}
+\DoxyCodeLine{00272 }
+\DoxyCodeLine{00273     registerValue \&= \string~(0xf << 0);}
+\DoxyCodeLine{00274     registerValue |= (fws << 0);}
+\DoxyCodeLine{00275 }
+\DoxyCodeLine{00276     *((\textcolor{keyword}{volatile} uint32\_t *)(sysctlMemtim0\_ + sysctlCoreBaseAddresses\_[core])) = registerValue;}
+\DoxyCodeLine{00277 \}}
+\DoxyCodeLine{00278 }
+\DoxyCodeLine{00279 \textcolor{keywordtype}{void} sysctlShiWriteUIMemtim0Fws\_(uint32\_t * \textcolor{keyword}{const} registerValue, uint32\_t \textcolor{keyword}{const} fws) \{}
+\DoxyCodeLine{00280     *registerValue \&= \string~(0xf << 0);}
+\DoxyCodeLine{00281     *registerValue |= (fws << 0);}
+\DoxyCodeLine{00282 \}}
+\DoxyCodeLine{00283 }
+\DoxyCodeLine{00284 }
+\DoxyCodeLine{00285 \textcolor{keywordtype}{void} sysctlShiWriteMemtim0Fbce\_(\textcolor{keyword}{enum} SysctlCores\_ \textcolor{keyword}{const} core, \textcolor{keyword}{enum} SysctlMemtim0FbceValues\_ \textcolor{keyword}{const} fbce) \{}
+\DoxyCodeLine{00286     uint32\_t registerValue = *((\textcolor{keyword}{volatile} uint32\_t *)(sysctlMemtim0\_ + sysctlCoreBaseAddresses\_[core]));}
+\DoxyCodeLine{00287 }
+\DoxyCodeLine{00288     registerValue \&= \string~(0x1 << 5);}
+\DoxyCodeLine{00289     registerValue |= (fbce << 5);}
+\DoxyCodeLine{00290 }
+\DoxyCodeLine{00291     *((\textcolor{keyword}{volatile} uint32\_t *)(sysctlMemtim0\_ + sysctlCoreBaseAddresses\_[core])) = registerValue;}
+\DoxyCodeLine{00292 \}}
+\DoxyCodeLine{00293 }
+\DoxyCodeLine{00294 \textcolor{keywordtype}{void} sysctlShiWriteUIMemtim0Fbce\_(uint32\_t * \textcolor{keyword}{const} registerValue, \textcolor{keyword}{enum} SysctlMemtim0FbceValues\_ \textcolor{keyword}{const} fbce) \{}
+\DoxyCodeLine{00295     *registerValue \&= \string~(0x1 << 5);}
+\DoxyCodeLine{00296     *registerValue |= (fbce << 5);}
+\DoxyCodeLine{00297 \}}
+\DoxyCodeLine{00298 }
+\DoxyCodeLine{00299 }
+\DoxyCodeLine{00300 \textcolor{keywordtype}{void} sysctlShiWriteMemtim0Fbcht\_(\textcolor{keyword}{enum} SysctlCores\_ \textcolor{keyword}{const} core, uint32\_t \textcolor{keyword}{const} fbcht) \{}
+\DoxyCodeLine{00301     uint32\_t registerValue = *((\textcolor{keyword}{volatile} uint32\_t *)(sysctlMemtim0\_ + sysctlCoreBaseAddresses\_[core]));}
+\DoxyCodeLine{00302 }
+\DoxyCodeLine{00303     registerValue \&= \string~(0xf << 5);}
+\DoxyCodeLine{00304     registerValue |= (fbcht << 5);}
+\DoxyCodeLine{00305 }
+\DoxyCodeLine{00306     *((\textcolor{keyword}{volatile} uint32\_t *)(sysctlMemtim0\_ + sysctlCoreBaseAddresses\_[core])) = registerValue;}
+\DoxyCodeLine{00307 \}}
+\DoxyCodeLine{00308 }
+\DoxyCodeLine{00309 \textcolor{keywordtype}{void} sysctlShiWriteUIMemtim0Fbcht\_(uint32\_t * \textcolor{keyword}{const} registerValue, uint32\_t \textcolor{keyword}{const} fbcht) \{}
+\DoxyCodeLine{00310     *registerValue \&= \string~(0xf << 5);}
+\DoxyCodeLine{00311     *registerValue |= (fbcht << 5);}
+\DoxyCodeLine{00312 \}}
+\DoxyCodeLine{00313 }
+\DoxyCodeLine{00314 }
+\DoxyCodeLine{00315 \textcolor{keywordtype}{void} sysctlShiWriteMemtim0Ews\_(\textcolor{keyword}{enum} SysctlCores\_ \textcolor{keyword}{const} core, uint32\_t \textcolor{keyword}{const} ews) \{}
+\DoxyCodeLine{00316     uint32\_t registerValue = *((\textcolor{keyword}{volatile} uint32\_t *)(sysctlMemtim0\_ + sysctlCoreBaseAddresses\_[core]));}
+\DoxyCodeLine{00317 }
+\DoxyCodeLine{00318     registerValue \&= \string~(0xf << 16);}
+\DoxyCodeLine{00319     registerValue |= (ews << 16);}
+\DoxyCodeLine{00320 }
+\DoxyCodeLine{00321     *((\textcolor{keyword}{volatile} uint32\_t *)(sysctlMemtim0\_ + sysctlCoreBaseAddresses\_[core])) = registerValue;}
+\DoxyCodeLine{00322 \}}
+\DoxyCodeLine{00323 }
+\DoxyCodeLine{00324 \textcolor{keywordtype}{void} sysctlShiWriteUIMemtim0Ews\_(uint32\_t * \textcolor{keyword}{const} registerValue, uint32\_t \textcolor{keyword}{const} ews) \{}
+\DoxyCodeLine{00325     *registerValue \&= \string~(0xf << 16);}
+\DoxyCodeLine{00326     *registerValue |= (ews << 16);}
+\DoxyCodeLine{00327 \}}
+\DoxyCodeLine{00328 }
+\DoxyCodeLine{00329 }
+\DoxyCodeLine{00330 \textcolor{keywordtype}{void} sysctlShiWriteMemtim0Ebce\_(\textcolor{keyword}{enum} SysctlCores\_ \textcolor{keyword}{const} core, \textcolor{keyword}{enum} SysctlMemtim0EbceValues\_ \textcolor{keyword}{const} ebce) \{}
+\DoxyCodeLine{00331     uint32\_t registerValue = *((\textcolor{keyword}{volatile} uint32\_t *)(sysctlMemtim0\_ + sysctlCoreBaseAddresses\_[core]));}
+\DoxyCodeLine{00332 }
+\DoxyCodeLine{00333     registerValue \&= \string~(0x1 << 20);}
+\DoxyCodeLine{00334     registerValue |= (ebce << 20);}
+\DoxyCodeLine{00335 }
+\DoxyCodeLine{00336     *((\textcolor{keyword}{volatile} uint32\_t *)(sysctlMemtim0\_ + sysctlCoreBaseAddresses\_[core])) = registerValue;}
+\DoxyCodeLine{00337 \}}
+\DoxyCodeLine{00338 }
+\DoxyCodeLine{00339 \textcolor{keywordtype}{void} sysctlShiWriteUIMemtim0Ebce\_(uint32\_t * \textcolor{keyword}{const} registerValue, \textcolor{keyword}{enum} SysctlMemtim0EbceValues\_ \textcolor{keyword}{const} ebce) \{}
+\DoxyCodeLine{00340     *registerValue \&= \string~(0x1 << 20);}
+\DoxyCodeLine{00341     *registerValue |= (ebce << 20);}
+\DoxyCodeLine{00342 \}}
+\DoxyCodeLine{00343 }
+\DoxyCodeLine{00344 }
+\DoxyCodeLine{00345 \textcolor{keywordtype}{void} sysctlShiWriteMemtim0Ebcht\_(\textcolor{keyword}{enum} SysctlCores\_ \textcolor{keyword}{const} core, uint32\_t \textcolor{keyword}{const} ebcht) \{}
+\DoxyCodeLine{00346     uint32\_t registerValue = *((\textcolor{keyword}{volatile} uint32\_t *)(sysctlMemtim0\_ + sysctlCoreBaseAddresses\_[core]));}
+\DoxyCodeLine{00347 }
+\DoxyCodeLine{00348     registerValue \&= \string~(0xf << 22);}
+\DoxyCodeLine{00349     registerValue |= (ebcht << 22);}
+\DoxyCodeLine{00350 }
+\DoxyCodeLine{00351     *((\textcolor{keyword}{volatile} uint32\_t *)(sysctlMemtim0\_ + sysctlCoreBaseAddresses\_[core])) = registerValue;}
+\DoxyCodeLine{00352 \}}
+\DoxyCodeLine{00353 }
+\DoxyCodeLine{00354 \textcolor{keywordtype}{void} sysctlShiWriteUIMemtim0Ebcht\_(uint32\_t * \textcolor{keyword}{const} registerValue, uint32\_t \textcolor{keyword}{const} ebcht) \{}
+\DoxyCodeLine{00355     *registerValue \&= \string~(0xf << 22);}
+\DoxyCodeLine{00356     *registerValue |= (ebcht << 22);}
+\DoxyCodeLine{00357 \}}
+\DoxyCodeLine{00358 }
+\DoxyCodeLine{00359 }
+\DoxyCodeLine{00360 \textcolor{keywordtype}{void} sysctlShiWritePllfreq0Mint\_(\textcolor{keyword}{enum} SysctlCores\_ \textcolor{keyword}{const} core, uint32\_t \textcolor{keyword}{const} mint) \{}
+\DoxyCodeLine{00361     uint32\_t registerValue = *((\textcolor{keyword}{volatile} uint32\_t *)(sysctlPllfreq0\_ + sysctlCoreBaseAddresses\_[core]));}
+\DoxyCodeLine{00362 }
+\DoxyCodeLine{00363     registerValue \&= \string~(0x3ff << 0);}
+\DoxyCodeLine{00364     registerValue |= (mint << 0);}
+\DoxyCodeLine{00365 }
+\DoxyCodeLine{00366     *((\textcolor{keyword}{volatile} uint32\_t *)(sysctlPllfreq0\_ + sysctlCoreBaseAddresses\_[core])) = registerValue;}
+\DoxyCodeLine{00367 \}}
+\DoxyCodeLine{00368 }
+\DoxyCodeLine{00369 \textcolor{keywordtype}{void} sysctlShiWriteUIPllfreq0Mint\_(uint32\_t * \textcolor{keyword}{const} registerValue, uint32\_t \textcolor{keyword}{const} mint) \{}
+\DoxyCodeLine{00370     *registerValue \&= \string~(0x3ff << 0);}
+\DoxyCodeLine{00371     *registerValue |= (mint << 0);}
+\DoxyCodeLine{00372 \}}
+\DoxyCodeLine{00373 }
+\DoxyCodeLine{00374 }
+\DoxyCodeLine{00375 \textcolor{keywordtype}{void} sysctlShiWritePllfreq0Pllpwr\_(\textcolor{keyword}{enum} SysctlCores\_ \textcolor{keyword}{const} core, \textcolor{keyword}{enum} SysctlPllfreq0PllpwrValues\_ \textcolor{keyword}{const} pllpwr) \{}
+\DoxyCodeLine{00376     uint32\_t registerValue = *((\textcolor{keyword}{volatile} uint32\_t *)(sysctlPllfreq0\_ + sysctlCoreBaseAddresses\_[core]));}
+\DoxyCodeLine{00377 }
+\DoxyCodeLine{00378     registerValue \&= \string~(0x1 << 23);}
+\DoxyCodeLine{00379     registerValue |= (pllpwr << 23);}
+\DoxyCodeLine{00380 }
+\DoxyCodeLine{00381     *((\textcolor{keyword}{volatile} uint32\_t *)(sysctlPllfreq0\_ + sysctlCoreBaseAddresses\_[core])) = registerValue;}
+\DoxyCodeLine{00382 \}}
+\DoxyCodeLine{00383 }
+\DoxyCodeLine{00384 \textcolor{keywordtype}{void} sysctlShiWriteUIPllfreq0Pllpwr\_(uint32\_t * \textcolor{keyword}{const} registerValue, \textcolor{keyword}{enum} SysctlPllfreq0PllpwrValues\_ \textcolor{keyword}{const} pllpwr) \{}
+\DoxyCodeLine{00385     *registerValue \&= \string~(0x1 << 23);}
+\DoxyCodeLine{00386     *registerValue |= (pllpwr << 23);}
+\DoxyCodeLine{00387 \}}
+\DoxyCodeLine{00388 }
+\DoxyCodeLine{00389 }
+\DoxyCodeLine{00390 \textcolor{keywordtype}{void} sysctlShiWritePllfreq1N\_(\textcolor{keyword}{enum} SysctlCores\_ \textcolor{keyword}{const} core, uint32\_t \textcolor{keyword}{const} n) \{}
+\DoxyCodeLine{00391     uint32\_t registerValue = *((\textcolor{keyword}{volatile} uint32\_t *)(sysctlPllfreq1\_ + sysctlCoreBaseAddresses\_[core]));}
+\DoxyCodeLine{00392 }
+\DoxyCodeLine{00393     registerValue \&= \string~(0x1f << 0);}
+\DoxyCodeLine{00394     registerValue |= (n << 0);}
+\DoxyCodeLine{00395 }
+\DoxyCodeLine{00396     *((\textcolor{keyword}{volatile} uint32\_t *)(sysctlPllfreq1\_ + sysctlCoreBaseAddresses\_[core])) = registerValue;}
+\DoxyCodeLine{00397 \}}
+\DoxyCodeLine{00398 }
+\DoxyCodeLine{00399 \textcolor{keywordtype}{void} sysctlShiWriteUIPllfreq1N\_(uint32\_t * \textcolor{keyword}{const} registerValue, uint32\_t \textcolor{keyword}{const} n) \{}
+\DoxyCodeLine{00400     *registerValue \&= \string~(0x1f << 0);}
+\DoxyCodeLine{00401     *registerValue |= (n << 0);}
+\DoxyCodeLine{00402 \}}
+\DoxyCodeLine{00403 }
+\DoxyCodeLine{00404 }
+\DoxyCodeLine{00405 \textcolor{keywordtype}{void} sysctlShiWritePllfreq1Q\_(\textcolor{keyword}{enum} SysctlCores\_ \textcolor{keyword}{const} core, uint32\_t \textcolor{keyword}{const} q) \{}
+\DoxyCodeLine{00406     uint32\_t registerValue = *((\textcolor{keyword}{volatile} uint32\_t *)(sysctlPllfreq1\_ + sysctlCoreBaseAddresses\_[core]));}
+\DoxyCodeLine{00407 }
+\DoxyCodeLine{00408     registerValue \&= \string~(0x1f << 8);}
+\DoxyCodeLine{00409     registerValue |= (q << 8);}
+\DoxyCodeLine{00410 }
+\DoxyCodeLine{00411     *((\textcolor{keyword}{volatile} uint32\_t *)(sysctlPllfreq1\_ + sysctlCoreBaseAddresses\_[core])) = registerValue;}
+\DoxyCodeLine{00412 \}}
+\DoxyCodeLine{00413 }
+\DoxyCodeLine{00414 \textcolor{keywordtype}{void} sysctlShiWriteUIPllfreq1Q\_(uint32\_t * \textcolor{keyword}{const} registerValue, uint32\_t \textcolor{keyword}{const} q) \{}
+\DoxyCodeLine{00415     *registerValue \&= \string~(0x1f << 8);}
+\DoxyCodeLine{00416     *registerValue |= (q << 8);}
+\DoxyCodeLine{00417 \}}
+\DoxyCodeLine{00418 }
+\DoxyCodeLine{00419 }
+
+\end{DoxyCode}

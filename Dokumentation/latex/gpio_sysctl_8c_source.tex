@@ -1,0 +1,87 @@
+\doxysection{gpio\+Sysctl.\+c}
+\label{gpio_sysctl_8c_source}\index{hal/gpio/src/gpioSysctl.c@{hal/gpio/src/gpioSysctl.c}}
+
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00001 \textcolor{preprocessor}{\#include <stdint.h>}}
+\DoxyCodeLine{00002 }
+\DoxyCodeLine{00003 \textcolor{comment}{// SHI}}
+\DoxyCodeLine{00004 \textcolor{preprocessor}{\#include "{}gpioSysctlShiCores.h"{}}}
+\DoxyCodeLine{00005 \textcolor{preprocessor}{\#include "{}gpioSysctlShi.h"{}}}
+\DoxyCodeLine{00006 \textcolor{preprocessor}{\#include "{}gpioShi.h"{}}}
+\DoxyCodeLine{00007 }
+\DoxyCodeLine{00008 \textcolor{comment}{// public interfaces}}
+\DoxyCodeLine{00009 \textcolor{preprocessor}{\#include "{}hal/gpio/halGpio.h"{}}}
+\DoxyCodeLine{00010 \textcolor{preprocessor}{\#include "{}hal/gpio/halGpioShiCores.h"{}}}
+\DoxyCodeLine{00011 }
+\DoxyCodeLine{00012 \textcolor{comment}{// private interface}}
+\DoxyCodeLine{00013 \textcolor{preprocessor}{\#include "{}gpioSysctl.h"{}}}
+\DoxyCodeLine{00014 }
+\DoxyCodeLine{00015 }
+\DoxyCodeLine{00016 \textcolor{keywordtype}{void} halGpioPortEnable(\textcolor{keyword}{enum} HalGpioCores \textcolor{keyword}{const} port)}
+\DoxyCodeLine{00017 \{}
+\DoxyCodeLine{00018     \textcolor{keywordflow}{switch}(port)}
+\DoxyCodeLine{00019     \{}
+\DoxyCodeLine{00020         \textcolor{keywordflow}{case} halGpioPortACore:}
+\DoxyCodeLine{00021             sysctlShiWriteRcgcgpioPortA\_(sysctlSysctlCore\_, sysctlRcgcgpioPortAEnable\_);}
+\DoxyCodeLine{00022             \textcolor{keywordflow}{while}(sysctlPrgpioPortANotReady\_ == sysctlShiReadPrgpioPortA\_(sysctlSysctlCore\_));}
+\DoxyCodeLine{00023             \textcolor{keywordflow}{break};}
+\DoxyCodeLine{00024         \textcolor{keywordflow}{case} halGpioPortBCore:}
+\DoxyCodeLine{00025             sysctlShiWriteRcgcgpioPortB\_(sysctlSysctlCore\_, sysctlRcgcgpioPortBEnable\_);}
+\DoxyCodeLine{00026             \textcolor{keywordflow}{while}(sysctlPrgpioPortBNotReady\_ == sysctlShiReadPrgpioPortB\_(sysctlSysctlCore\_));}
+\DoxyCodeLine{00027             \textcolor{keywordflow}{break};}
+\DoxyCodeLine{00028         \textcolor{keywordflow}{case} halGpioPortCCore:}
+\DoxyCodeLine{00029             sysctlShiWriteRcgcgpioPortC\_(sysctlSysctlCore\_, sysctlRcgcgpioPortCEnable\_);}
+\DoxyCodeLine{00030             \textcolor{keywordflow}{while}(sysctlPrgpioPortCNotReady\_ == sysctlShiReadPrgpioPortC\_(sysctlSysctlCore\_));}
+\DoxyCodeLine{00031             \textcolor{keywordflow}{break};}
+\DoxyCodeLine{00032         \textcolor{keywordflow}{case} halGpioPortDCore:}
+\DoxyCodeLine{00033             sysctlShiWriteRcgcgpioPortD\_(sysctlSysctlCore\_, sysctlRcgcgpioPortDEnable\_);}
+\DoxyCodeLine{00034             \textcolor{keywordflow}{while}(sysctlPrgpioPortDNotReady\_ == sysctlShiReadPrgpioPortD\_(sysctlSysctlCore\_));}
+\DoxyCodeLine{00035             \textcolor{keywordflow}{break};}
+\DoxyCodeLine{00036         \textcolor{keywordflow}{case} halGpioPortECore:}
+\DoxyCodeLine{00037             sysctlShiWriteRcgcgpioPortE\_(sysctlSysctlCore\_, sysctlRcgcgpioPortEEnable\_);}
+\DoxyCodeLine{00038             \textcolor{keywordflow}{while}(sysctlPrgpioPortENotReady\_ == sysctlShiReadPrgpioPortE\_(sysctlSysctlCore\_));}
+\DoxyCodeLine{00039             \textcolor{keywordflow}{break};}
+\DoxyCodeLine{00040         \textcolor{keywordflow}{case} halGpioPortFCore:}
+\DoxyCodeLine{00041             sysctlShiWriteRcgcgpioPortF\_(sysctlSysctlCore\_, sysctlRcgcgpioPortFEnable\_);}
+\DoxyCodeLine{00042             \textcolor{keywordflow}{while}(sysctlPrgpioPortFNotReady\_ == sysctlShiReadPrgpioPortF\_(sysctlSysctlCore\_));}
+\DoxyCodeLine{00043             \textcolor{keywordflow}{break};}
+\DoxyCodeLine{00044         \textcolor{keywordflow}{case} halGpioPortGCore:}
+\DoxyCodeLine{00045             sysctlShiWriteRcgcgpioPortG\_(sysctlSysctlCore\_, sysctlRcgcgpioPortGEnable\_);}
+\DoxyCodeLine{00046             \textcolor{keywordflow}{while}(sysctlPrgpioPortGNotReady\_ == sysctlShiReadPrgpioPortG\_(sysctlSysctlCore\_));}
+\DoxyCodeLine{00047             \textcolor{keywordflow}{break};}
+\DoxyCodeLine{00048         \textcolor{keywordflow}{case} halGpioPortHCore:}
+\DoxyCodeLine{00049             sysctlShiWriteRcgcgpioPortH\_(sysctlSysctlCore\_, sysctlRcgcgpioPortHEnable\_);}
+\DoxyCodeLine{00050             \textcolor{keywordflow}{while}(sysctlPrgpioPortHNotReady\_ == sysctlShiReadPrgpioPortH\_(sysctlSysctlCore\_));}
+\DoxyCodeLine{00051             \textcolor{keywordflow}{break};}
+\DoxyCodeLine{00052         \textcolor{keywordflow}{case} halGpioPortJCore:}
+\DoxyCodeLine{00053             sysctlShiWriteRcgcgpioPortJ\_(sysctlSysctlCore\_, sysctlRcgcgpioPortJEnable\_);}
+\DoxyCodeLine{00054             \textcolor{keywordflow}{while}(sysctlPrgpioPortJNotReady\_ == sysctlShiReadPrgpioPortJ\_(sysctlSysctlCore\_));}
+\DoxyCodeLine{00055             \textcolor{keywordflow}{break};}
+\DoxyCodeLine{00056         \textcolor{keywordflow}{case} halGpioPortKCore:}
+\DoxyCodeLine{00057             sysctlShiWriteRcgcgpioPortK\_(sysctlSysctlCore\_, sysctlRcgcgpioPortKEnable\_);}
+\DoxyCodeLine{00058             \textcolor{keywordflow}{while}(sysctlPrgpioPortKNotReady\_ == sysctlShiReadPrgpioPortK\_(sysctlSysctlCore\_));}
+\DoxyCodeLine{00059             \textcolor{keywordflow}{break};}
+\DoxyCodeLine{00060         \textcolor{keywordflow}{case} halGpioPortLCore:}
+\DoxyCodeLine{00061             sysctlShiWriteRcgcgpioPortL\_(sysctlSysctlCore\_, sysctlRcgcgpioPortLEnable\_);}
+\DoxyCodeLine{00062             \textcolor{keywordflow}{while}(sysctlPrgpioPortLNotReady\_ == sysctlShiReadPrgpioPortL\_(sysctlSysctlCore\_));}
+\DoxyCodeLine{00063             \textcolor{keywordflow}{break};}
+\DoxyCodeLine{00064         \textcolor{keywordflow}{case} halGpioPortMCore:}
+\DoxyCodeLine{00065             sysctlShiWriteRcgcgpioPortM\_(sysctlSysctlCore\_, sysctlRcgcgpioPortMEnable\_);}
+\DoxyCodeLine{00066             \textcolor{keywordflow}{while}(sysctlPrgpioPortMNotReady\_ == sysctlShiReadPrgpioPortM\_(sysctlSysctlCore\_));}
+\DoxyCodeLine{00067             \textcolor{keywordflow}{break};}
+\DoxyCodeLine{00068         \textcolor{keywordflow}{case} halGpioPortNCore:}
+\DoxyCodeLine{00069             sysctlShiWriteRcgcgpioPortN\_(sysctlSysctlCore\_, sysctlRcgcgpioPortNEnable\_);}
+\DoxyCodeLine{00070             \textcolor{keywordflow}{while}(sysctlPrgpioPortNNotReady\_ == sysctlShiReadPrgpioPortN\_(sysctlSysctlCore\_));}
+\DoxyCodeLine{00071             \textcolor{keywordflow}{break};}
+\DoxyCodeLine{00072         \textcolor{keywordflow}{case} halGpioPortPCore:}
+\DoxyCodeLine{00073             sysctlShiWriteRcgcgpioPortP\_(sysctlSysctlCore\_, sysctlRcgcgpioPortPEnable\_);}
+\DoxyCodeLine{00074             \textcolor{keywordflow}{while}(sysctlPrgpioPortPNotReady\_ == sysctlShiReadPrgpioPortP\_(sysctlSysctlCore\_));}
+\DoxyCodeLine{00075             \textcolor{keywordflow}{break};}
+\DoxyCodeLine{00076         \textcolor{keywordflow}{case} halGpioPortQCore:}
+\DoxyCodeLine{00077             sysctlShiWriteRcgcgpioPortQ\_(sysctlSysctlCore\_, sysctlRcgcgpioPortQEnable\_);}
+\DoxyCodeLine{00078             \textcolor{keywordflow}{while}(sysctlPrgpioPortQNotReady\_ == sysctlShiReadPrgpioPortQ\_(sysctlSysctlCore\_));}
+\DoxyCodeLine{00079             \textcolor{keywordflow}{break};}
+\DoxyCodeLine{00080     \}}
+\DoxyCodeLine{00081 \}}
+
+\end{DoxyCode}

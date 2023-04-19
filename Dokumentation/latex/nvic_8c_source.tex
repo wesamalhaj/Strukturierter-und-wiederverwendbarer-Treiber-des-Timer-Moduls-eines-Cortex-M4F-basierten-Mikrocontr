@@ -1,0 +1,179 @@
+\doxysection{nvic.\+c}
+\label{nvic_8c_source}\index{hal/nvic/src/nvic.c@{hal/nvic/src/nvic.c}}
+
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00001 \textcolor{comment}{/*}}
+\DoxyCodeLine{00002 \textcolor{comment}{ *  nvic.c}}
+\DoxyCodeLine{00003 \textcolor{comment}{ *  Created on: 03.02.2020}}
+\DoxyCodeLine{00004 \textcolor{comment}{ *  HAW Hamburg, ERHAW Laboratory}}
+\DoxyCodeLine{00005 \textcolor{comment}{ *}}
+\DoxyCodeLine{00006 \textcolor{comment}{ */}}
+\DoxyCodeLine{00007 }
+\DoxyCodeLine{00008 \textcolor{preprocessor}{\#include <stdint.h>}}
+\DoxyCodeLine{00009 }
+\DoxyCodeLine{00010 \textcolor{preprocessor}{\#include "{}hal/nvic/halNvic.h"{}}}
+\DoxyCodeLine{00011 \textcolor{preprocessor}{\#include "{}nvicShi.h"{}}}
+\DoxyCodeLine{00012 }
+\DoxyCodeLine{00016 \textcolor{keyword}{enum} ExceptionCount\_ \{}
+\DoxyCodeLine{00017     exceptionCount\_ = 129}
+\DoxyCodeLine{00018 \};}
+\DoxyCodeLine{00019 }
+\DoxyCodeLine{00023 \textcolor{keyword}{enum} VectorTableOffsetRegister\_ \{}
+\DoxyCodeLine{00024     vectorTableOffsetRegister\_ = 0xE000ED08}
+\DoxyCodeLine{00025 \};}
+\DoxyCodeLine{00026 }
+\DoxyCodeLine{00027 \textcolor{comment}{/*}}
+\DoxyCodeLine{00028 \textcolor{comment}{ * The vector table}}
+\DoxyCodeLine{00029 \textcolor{comment}{ *}}
+\DoxyCodeLine{00030 \textcolor{comment}{ * Array of pointers to functions with no arguments returning void}}
+\DoxyCodeLine{00031 \textcolor{comment}{ *}}
+\DoxyCodeLine{00032 \textcolor{comment}{ */}}
+\DoxyCodeLine{00033 \textcolor{preprocessor}{\#pragma DATA\_ALIGN(interruptVectorTableRam\_, 1024)}}
+\DoxyCodeLine{00034 \textcolor{preprocessor}{\#pragma DATA\_SECTION(interruptVectorTableRam\_, "{}.vtable"{}})}
+\DoxyCodeLine{00035 HalNvicInterruptServiceRoutine interruptVectorTableRam\_[exceptionCount\_];}
+\DoxyCodeLine{00036 }
+\DoxyCodeLine{00037 \textcolor{comment}{// initialization status of the module}}
+\DoxyCodeLine{00038 \textcolor{keyword}{static} \textcolor{keywordtype}{unsigned} \textcolor{keywordtype}{int} initialized\_ = 0;}
+\DoxyCodeLine{00039 }
+\DoxyCodeLine{00050 \textcolor{keywordtype}{void} halNvicDriverInit(\textcolor{keywordtype}{void}) \{}
+\DoxyCodeLine{00051 }
+\DoxyCodeLine{00052     \textcolor{keywordflow}{if} (0 != initialized\_) \{}
+\DoxyCodeLine{00053         \textcolor{keywordflow}{return};}
+\DoxyCodeLine{00054     \}}
+\DoxyCodeLine{00055 }
+\DoxyCodeLine{00056     \textcolor{comment}{//}}
+\DoxyCodeLine{00057     \textcolor{comment}{// Copy the vector table from the beginning of FLASH to the RAM vector}}
+\DoxyCodeLine{00058     \textcolor{comment}{// table.}}
+\DoxyCodeLine{00059     \textcolor{comment}{//}}
+\DoxyCodeLine{00060     uint32\_t currentVTableBase =}
+\DoxyCodeLine{00061             *((\textcolor{keyword}{volatile} uint32\_t *) vectorTableOffsetRegister\_);}
+\DoxyCodeLine{00062     uint32\_t vectorId;}
+\DoxyCodeLine{00063     \textcolor{keywordflow}{for}(vectorId = 0; vectorId < exceptionCount\_; vectorId++)}
+\DoxyCodeLine{00064     \{}
+\DoxyCodeLine{00065         interruptVectorTableRam\_[vectorId] = (void (*)(void))}
+\DoxyCodeLine{00066                 (}
+\DoxyCodeLine{00067                         *( (uint32\_t *) ( (vectorId * 4) + currentVTableBase) )}
+\DoxyCodeLine{00068                 );}
+\DoxyCodeLine{00069     \}}
+\DoxyCodeLine{00070 }
+\DoxyCodeLine{00071     \textcolor{comment}{//}}
+\DoxyCodeLine{00072     \textcolor{comment}{// Point the NVIC to the RAM vector table.}}
+\DoxyCodeLine{00073     \textcolor{comment}{//}}
+\DoxyCodeLine{00074     *((\textcolor{keyword}{volatile} uint32\_t *) vectorTableOffsetRegister\_) = (uint32\_t) interruptVectorTableRam\_;}
+\DoxyCodeLine{00075     }
+\DoxyCodeLine{00076     initialized\_ = 1;}
+\DoxyCodeLine{00077 }
+\DoxyCodeLine{00078 \}}
+\DoxyCodeLine{00079 }
+\DoxyCodeLine{00080 \textcolor{keyword}{static} \textcolor{keywordtype}{void} \_IntDefaultHandler(\textcolor{keywordtype}{void}) \{}
+\DoxyCodeLine{00081 }
+\DoxyCodeLine{00082     \textcolor{keywordflow}{while}(1)}
+\DoxyCodeLine{00083     \{}
+\DoxyCodeLine{00084         \textcolor{keyword}{asm}(\textcolor{stringliteral}{"{} nop"{}});}
+\DoxyCodeLine{00085     \}}
+\DoxyCodeLine{00086 }
+\DoxyCodeLine{00087 \}}
+\DoxyCodeLine{00088 }
+\DoxyCodeLine{00089 \textcolor{keywordtype}{void} halNvicInstallISR(HalNvicInterruptServiceRoutine \textcolor{keyword}{const} irqHandler, \textcolor{keyword}{enum} HalNvicException \textcolor{keyword}{const} exception) \{}
+\DoxyCodeLine{00090 }
+\DoxyCodeLine{00091     interruptVectorTableRam\_[exception] = irqHandler;}
+\DoxyCodeLine{00092 }
+\DoxyCodeLine{00093 \}}
+\DoxyCodeLine{00094 }
+\DoxyCodeLine{00095 \textcolor{keywordtype}{void} halNvicDeinstallISR(\textcolor{keyword}{enum} HalNvicException \textcolor{keyword}{const} exception) \{}
+\DoxyCodeLine{00096 }
+\DoxyCodeLine{00097     halNvicDisableInterrupt(exception);}
+\DoxyCodeLine{00098     interruptVectorTableRam\_[exception] = \_IntDefaultHandler;}
+\DoxyCodeLine{00099 }
+\DoxyCodeLine{00100 \}}
+\DoxyCodeLine{00101 }
+\DoxyCodeLine{00102 }
+\DoxyCodeLine{00103 \textcolor{keywordtype}{void} halNvicEnableInterrupt(\textcolor{keyword}{enum} HalNvicException \textcolor{keyword}{const} exception) \{}
+\DoxyCodeLine{00104 }
+\DoxyCodeLine{00105     \textcolor{keywordflow}{if} (exception < 16) \{}
+\DoxyCodeLine{00106         \textcolor{keywordflow}{return};}
+\DoxyCodeLine{00107     \}}
+\DoxyCodeLine{00108 }
+\DoxyCodeLine{00109     \textcolor{keywordtype}{unsigned} \textcolor{keywordtype}{int} irqId = exception -\/ 16;}
+\DoxyCodeLine{00110     \textcolor{keywordtype}{unsigned} \textcolor{keywordtype}{int} reg = irqId / 32;}
+\DoxyCodeLine{00111     \textcolor{keywordtype}{unsigned} \textcolor{keywordtype}{int} bit = irqId \% 32;}
+\DoxyCodeLine{00112     uint32\_t content;}
+\DoxyCodeLine{00113 }
+\DoxyCodeLine{00114     \textcolor{comment}{// since ashig currently does not support registers with a}}
+\DoxyCodeLine{00115     \textcolor{comment}{// length over 32, all four registers are individually defined}}
+\DoxyCodeLine{00116     \textcolor{keywordflow}{switch} (reg)}
+\DoxyCodeLine{00117     \{}
+\DoxyCodeLine{00118         \textcolor{keywordflow}{case} 0:}
+\DoxyCodeLine{00119             content = nvicShiReadEn0\_(nvicNvic0Core\_);}
+\DoxyCodeLine{00120             content |= (1 << bit);}
+\DoxyCodeLine{00121             nvicShiWriteEn0\_(nvicNvic0Core\_, content);}
+\DoxyCodeLine{00122             \textcolor{keywordflow}{break};}
+\DoxyCodeLine{00123         \textcolor{keywordflow}{case} 1:}
+\DoxyCodeLine{00124             content = nvicShiReadEn1\_(nvicNvic0Core\_);}
+\DoxyCodeLine{00125             content |= (1 << bit);}
+\DoxyCodeLine{00126             nvicShiWriteEn1\_(nvicNvic0Core\_, content);}
+\DoxyCodeLine{00127             \textcolor{keywordflow}{break};}
+\DoxyCodeLine{00128         \textcolor{keywordflow}{case} 2:}
+\DoxyCodeLine{00129             content = nvicShiReadEn2\_(nvicNvic0Core\_);}
+\DoxyCodeLine{00130             content |= (1 << bit);}
+\DoxyCodeLine{00131             nvicShiWriteEn2\_(nvicNvic0Core\_, content);}
+\DoxyCodeLine{00132             \textcolor{keywordflow}{break};}
+\DoxyCodeLine{00133         \textcolor{keywordflow}{case} 3:}
+\DoxyCodeLine{00134             content = nvicShiReadEn3\_(nvicNvic0Core\_);}
+\DoxyCodeLine{00135             content |= (1 << bit);}
+\DoxyCodeLine{00136             nvicShiWriteEn3\_(nvicNvic0Core\_, content);}
+\DoxyCodeLine{00137             \textcolor{keywordflow}{break};}
+\DoxyCodeLine{00138     \}}
+\DoxyCodeLine{00139 \}}
+\DoxyCodeLine{00140 }
+\DoxyCodeLine{00141 \textcolor{keywordtype}{void} halNvicDisableInterrupt(\textcolor{keyword}{enum} HalNvicException \textcolor{keyword}{const} exception) \{}
+\DoxyCodeLine{00142 }
+\DoxyCodeLine{00143     \textcolor{keywordflow}{if} (exception < 16) \{}
+\DoxyCodeLine{00144         \textcolor{keywordflow}{return};}
+\DoxyCodeLine{00145     \}}
+\DoxyCodeLine{00146 }
+\DoxyCodeLine{00147     \textcolor{keywordtype}{unsigned} \textcolor{keywordtype}{int} irqId = exception -\/ 16;}
+\DoxyCodeLine{00148     \textcolor{keywordtype}{unsigned} \textcolor{keywordtype}{int} reg = irqId / 32;}
+\DoxyCodeLine{00149     \textcolor{keywordtype}{unsigned} \textcolor{keywordtype}{int} bit = irqId \% 32;}
+\DoxyCodeLine{00150     uint32\_t content;}
+\DoxyCodeLine{00151 }
+\DoxyCodeLine{00152     \textcolor{comment}{// since ashig currently does not support registers with a}}
+\DoxyCodeLine{00153     \textcolor{comment}{// length over 32, all four registers are individually defined}}
+\DoxyCodeLine{00154     \textcolor{keywordflow}{switch} (reg)}
+\DoxyCodeLine{00155     \{}
+\DoxyCodeLine{00156         \textcolor{keywordflow}{case} 0:}
+\DoxyCodeLine{00157             content = nvicShiReadDis0\_(nvicNvic0Core\_);}
+\DoxyCodeLine{00158             content \&= (1 << bit);}
+\DoxyCodeLine{00159             nvicShiWriteDis0Disable0\_(nvicNvic0Core\_, \string~content);}
+\DoxyCodeLine{00160             \textcolor{keywordflow}{break};}
+\DoxyCodeLine{00161         \textcolor{keywordflow}{case} 1:}
+\DoxyCodeLine{00162             content = nvicShiReadDis1\_(nvicNvic0Core\_);}
+\DoxyCodeLine{00163             content \&= (1 << bit);}
+\DoxyCodeLine{00164             nvicShiWriteDis1\_(nvicNvic0Core\_, \string~content);}
+\DoxyCodeLine{00165             \textcolor{keywordflow}{break};}
+\DoxyCodeLine{00166         \textcolor{keywordflow}{case} 2:}
+\DoxyCodeLine{00167             content = nvicShiReadDis2\_(nvicNvic0Core\_);}
+\DoxyCodeLine{00168             content \&= (1 << bit);}
+\DoxyCodeLine{00169             nvicShiWriteDis2\_(nvicNvic0Core\_, \string~content);}
+\DoxyCodeLine{00170             \textcolor{keywordflow}{break};}
+\DoxyCodeLine{00171         \textcolor{keywordflow}{case} 3:}
+\DoxyCodeLine{00172             content = nvicShiReadDis3\_(nvicNvic0Core\_);}
+\DoxyCodeLine{00173             content \&= (1 << bit);}
+\DoxyCodeLine{00174             nvicShiWriteDis3\_(nvicNvic0Core\_, \string~content);}
+\DoxyCodeLine{00175             \textcolor{keywordflow}{break};}
+\DoxyCodeLine{00176     \}}
+\DoxyCodeLine{00177 \}}
+\DoxyCodeLine{00178 }
+\DoxyCodeLine{00179 }
+\DoxyCodeLine{00180 \textcolor{keywordtype}{void} halNvicTriggerInterrupt(\textcolor{keyword}{enum} HalNvicException \textcolor{keyword}{const} exception) \{}
+\DoxyCodeLine{00181 }
+\DoxyCodeLine{00182     \textcolor{keywordflow}{if} (exception < 16) \{}
+\DoxyCodeLine{00183         \textcolor{keywordflow}{return};}
+\DoxyCodeLine{00184     \}}
+\DoxyCodeLine{00185 }
+\DoxyCodeLine{00186     \textcolor{keywordtype}{unsigned} \textcolor{keywordtype}{int} irqId = exception -\/ 16;}
+\DoxyCodeLine{00187 }
+\DoxyCodeLine{00188     nvicShiWriteSwtrig\_(nvicNvic0Core\_, (uint32\_t) irqId);}
+\DoxyCodeLine{00189 \}}
+
+\end{DoxyCode}

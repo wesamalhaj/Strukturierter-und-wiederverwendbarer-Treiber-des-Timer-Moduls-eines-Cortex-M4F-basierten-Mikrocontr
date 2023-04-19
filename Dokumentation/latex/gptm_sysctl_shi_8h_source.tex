@@ -1,0 +1,196 @@
+\doxysection{gptm\+Sysctl\+Shi.\+h}
+\label{gptm_sysctl_shi_8h_source}\index{hal/gptm/include/gptmSysctlShi.h@{hal/gptm/include/gptmSysctlShi.h}}
+
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00001 \textcolor{comment}{//*****************************************************************************}}
+\DoxyCodeLine{00002 \textcolor{comment}{// Name        : gptmSysctlShi.h}}
+\DoxyCodeLine{00003 \textcolor{comment}{// Author      : Ole Rönna }}
+\DoxyCodeLine{00004 \textcolor{comment}{// Maintainer  : Prof. Dr. Paweł Buczek }}
+\DoxyCodeLine{00005 \textcolor{comment}{// Version     : 0.4 }}
+\DoxyCodeLine{00006 \textcolor{comment}{// Copyright   : All rights reserved }}
+\DoxyCodeLine{00007 \textcolor{comment}{// Description : }}
+\DoxyCodeLine{00008 \textcolor{comment}{// This code was generated from a template. Manual changes to this file will }}
+\DoxyCodeLine{00009 \textcolor{comment}{// be overwritten if the code is regenerated. }}
+\DoxyCodeLine{00010 \textcolor{comment}{//}}
+\DoxyCodeLine{00011 \textcolor{comment}{//*****************************************************************************}}
+\DoxyCodeLine{00012 }
+\DoxyCodeLine{00013 \textcolor{preprocessor}{\#ifndef SYSCTLSHI\_H\_}}
+\DoxyCodeLine{00014 \textcolor{preprocessor}{\#define SYSCTLSHI\_H\_}}
+\DoxyCodeLine{00015 }
+\DoxyCodeLine{00016 \textcolor{preprocessor}{\#include "{}gptmSysctlShiCores.h"{}}}
+\DoxyCodeLine{00017 \textcolor{preprocessor}{\#include "{}stdint.h"{}}}
+\DoxyCodeLine{00018 }
+\DoxyCodeLine{00019 \textcolor{comment}{//*****************************************************************************}}
+\DoxyCodeLine{00020 \textcolor{comment}{//}}
+\DoxyCodeLine{00021 \textcolor{comment}{// sysctl registers}}
+\DoxyCodeLine{00022 \textcolor{comment}{//}}
+\DoxyCodeLine{00023 \textcolor{comment}{//*****************************************************************************}}
+\DoxyCodeLine{00024 }
+\DoxyCodeLine{00025 \textcolor{keyword}{enum} SysctlRegisters\_ \{}
+\DoxyCodeLine{00026     sysctlRcgctimer\_ = 0x00000604,}
+\DoxyCodeLine{00027     sysctlPrtimer\_ = 0x00000A04}
+\DoxyCodeLine{00028 \};}
+\DoxyCodeLine{00029 }
+\DoxyCodeLine{00030 }
+\DoxyCodeLine{00031 \textcolor{keyword}{enum} SysctlRcgctimerTimer0Values\_ \{}
+\DoxyCodeLine{00032     sysctlRcgctimerTimer0DisableTimer0\_ = 0x00000000,}
+\DoxyCodeLine{00033     sysctlRcgctimerTimer0EnableTimer0\_ = 0x00000001}
+\DoxyCodeLine{00034 \};}
+\DoxyCodeLine{00035 }
+\DoxyCodeLine{00036 \textcolor{keyword}{enum} SysctlRcgctimerTimer1Values\_ \{}
+\DoxyCodeLine{00037     sysctlRcgctimerTimer1DisableTimer1\_ = 0x00000000,}
+\DoxyCodeLine{00038     sysctlRcgctimerTimer1EnableTimer1\_ = 0x00000002}
+\DoxyCodeLine{00039 \};}
+\DoxyCodeLine{00040 }
+\DoxyCodeLine{00041 \textcolor{keyword}{enum} SysctlRcgctimerTimer2Values\_ \{}
+\DoxyCodeLine{00042     sysctlRcgctimerTimer2DisableTimer2\_ = 0x00000000,}
+\DoxyCodeLine{00043     sysctlRcgctimerTimer2EnableTimer2\_ = 0x00000004}
+\DoxyCodeLine{00044 \};}
+\DoxyCodeLine{00045 }
+\DoxyCodeLine{00046 \textcolor{keyword}{enum} SysctlRcgctimerTimer3Values\_ \{}
+\DoxyCodeLine{00047     sysctlRcgctimerTimer3DisableTimer3\_ = 0x00000000,}
+\DoxyCodeLine{00048     sysctlRcgctimerTimer3EnableTimer3\_ = 0x00000008}
+\DoxyCodeLine{00049 \};}
+\DoxyCodeLine{00050 }
+\DoxyCodeLine{00051 \textcolor{keyword}{enum} SysctlRcgctimerTimer4Values\_ \{}
+\DoxyCodeLine{00052     sysctlRcgctimerTimer4DisableTimer4\_ = 0x00000000,}
+\DoxyCodeLine{00053     sysctlRcgctimerTimer4EnableTimer4\_ = 0x00000010}
+\DoxyCodeLine{00054 \};}
+\DoxyCodeLine{00055 }
+\DoxyCodeLine{00056 \textcolor{keyword}{enum} SysctlRcgctimerTimer5Values\_ \{}
+\DoxyCodeLine{00057     sysctlRcgctimerTimer5DisableTimer5\_ = 0x00000000,}
+\DoxyCodeLine{00058     sysctlRcgctimerTimer5EnableTimer5\_ = 0x00000020}
+\DoxyCodeLine{00059 \};}
+\DoxyCodeLine{00060 }
+\DoxyCodeLine{00061 \textcolor{keyword}{enum} SysctlRcgctimerTimer6Values\_ \{}
+\DoxyCodeLine{00062     sysctlRcgctimerTimer6DisableTimer6\_ = 0x00000000,}
+\DoxyCodeLine{00063     sysctlRcgctimerTimer6EnableTimer6\_ = 0x00000040}
+\DoxyCodeLine{00064 \};}
+\DoxyCodeLine{00065 }
+\DoxyCodeLine{00066 \textcolor{keyword}{enum} SysctlRcgctimerTimer7Values\_ \{}
+\DoxyCodeLine{00067     sysctlRcgctimerTimer7DisableTimer7\_ = 0x00000000,}
+\DoxyCodeLine{00068     sysctlRcgctimerTimer7EnableTimer7\_ = 0x00000080}
+\DoxyCodeLine{00069 \};}
+\DoxyCodeLine{00070 }
+\DoxyCodeLine{00071 \textcolor{keyword}{enum} SysctlPrtimerTimer0Values\_ \{}
+\DoxyCodeLine{00072     sysctlPrtimerTimer0Timer0NotReady\_ = 0x00000000,}
+\DoxyCodeLine{00073     sysctlPrtimerTimer0Timer0Ready\_ = 0x00000001}
+\DoxyCodeLine{00074 \};}
+\DoxyCodeLine{00075 }
+\DoxyCodeLine{00076 \textcolor{keyword}{enum} SysctlPrtimerTimer1Values\_ \{}
+\DoxyCodeLine{00077     sysctlPrtimerTimer1Timer1NotReady\_ = 0x00000000,}
+\DoxyCodeLine{00078     sysctlPrtimerTimer1Timer1Ready\_ = 0x00000002}
+\DoxyCodeLine{00079 \};}
+\DoxyCodeLine{00080 }
+\DoxyCodeLine{00081 \textcolor{keyword}{enum} SysctlPrtimerTimer2Values\_ \{}
+\DoxyCodeLine{00082     sysctlPrtimerTimer2Timer2NotReady\_ = 0x00000000,}
+\DoxyCodeLine{00083     sysctlPrtimerTimer2Timer2Ready\_ = 0x00000004}
+\DoxyCodeLine{00084 \};}
+\DoxyCodeLine{00085 }
+\DoxyCodeLine{00086 \textcolor{keyword}{enum} SysctlPrtimerTimer3Values\_ \{}
+\DoxyCodeLine{00087     sysctlPrtimerTimer3Timer3NotReady\_ = 0x00000000,}
+\DoxyCodeLine{00088     sysctlPrtimerTimer3Timer3Ready\_ = 0x00000008}
+\DoxyCodeLine{00089 \};}
+\DoxyCodeLine{00090 }
+\DoxyCodeLine{00091 \textcolor{keyword}{enum} SysctlPrtimerTimer4Values\_ \{}
+\DoxyCodeLine{00092     sysctlPrtimerTimer4Timer4NotReady\_ = 0x00000000,}
+\DoxyCodeLine{00093     sysctlPrtimerTimer4Timer4Ready\_ = 0x00000010}
+\DoxyCodeLine{00094 \};}
+\DoxyCodeLine{00095 }
+\DoxyCodeLine{00096 \textcolor{keyword}{enum} SysctlPrtimerTimer5Values\_ \{}
+\DoxyCodeLine{00097     sysctlPrtimerTimer5Timer5NotReady\_ = 0x00000000,}
+\DoxyCodeLine{00098     sysctlPrtimerTimer5Timer5Ready\_ = 0x00000020}
+\DoxyCodeLine{00099 \};}
+\DoxyCodeLine{00100 }
+\DoxyCodeLine{00101 \textcolor{keyword}{enum} SysctlPrtimerTimer6Values\_ \{}
+\DoxyCodeLine{00102     sysctlPrtimerTimer6Timer6NotReady\_ = 0x00000000,}
+\DoxyCodeLine{00103     sysctlPrtimerTimer6Timer6Ready\_ = 0x00000040}
+\DoxyCodeLine{00104 \};}
+\DoxyCodeLine{00105 }
+\DoxyCodeLine{00106 \textcolor{keyword}{enum} SysctlPrtimerTimer7Values\_ \{}
+\DoxyCodeLine{00107     sysctlPrtimerTimer7Timer7NotReady\_ = 0x00000000,}
+\DoxyCodeLine{00108     sysctlPrtimerTimer7Timer7Ready\_ = 0x00000080}
+\DoxyCodeLine{00109 \};}
+\DoxyCodeLine{00110 }
+\DoxyCodeLine{00111 uint32\_t sysctlShiReadRcgctimer\_(\textcolor{keyword}{enum} SysctlCores\_ \textcolor{keyword}{const} core);}
+\DoxyCodeLine{00112 \textcolor{keywordtype}{void} sysctlShiWriteRcgctimer\_(\textcolor{keyword}{enum} SysctlCores\_ \textcolor{keyword}{const} core, uint32\_t \textcolor{keyword}{const} registerValue);}
+\DoxyCodeLine{00113 }
+\DoxyCodeLine{00114 uint32\_t sysctlShiReadPrtimer\_(\textcolor{keyword}{enum} SysctlCores\_ \textcolor{keyword}{const} core);}
+\DoxyCodeLine{00115 \textcolor{keywordtype}{void} sysctlShiWritePrtimer\_(\textcolor{keyword}{enum} SysctlCores\_ \textcolor{keyword}{const} core, uint32\_t \textcolor{keyword}{const} registerValue);}
+\DoxyCodeLine{00116 }
+\DoxyCodeLine{00117 uint32\_t sysctlShiReadRcgctimerTimer0\_(\textcolor{keyword}{enum} SysctlCores\_ \textcolor{keyword}{const} core);}
+\DoxyCodeLine{00118 uint32\_t sysctlShiReadUIRcgctimerTimer0\_(uint32\_t \textcolor{keyword}{const} registerValue);}
+\DoxyCodeLine{00119 }
+\DoxyCodeLine{00120 \textcolor{keywordtype}{void} sysctlShiWriteRcgctimerTimer0\_(\textcolor{keyword}{enum} SysctlCores\_ \textcolor{keyword}{const} core, \textcolor{keyword}{enum} SysctlRcgctimerTimer0Values\_ \textcolor{keyword}{const} timer0);}
+\DoxyCodeLine{00121 \textcolor{keywordtype}{void} sysctlShiWriteUIRcgctimerTimer0\_(uint32\_t * \textcolor{keyword}{const} registerValue, \textcolor{keyword}{enum} SysctlRcgctimerTimer0Values\_ \textcolor{keyword}{const} timer0);}
+\DoxyCodeLine{00122 }
+\DoxyCodeLine{00123 uint32\_t sysctlShiReadRcgctimerTimer1\_(\textcolor{keyword}{enum} SysctlCores\_ \textcolor{keyword}{const} core);}
+\DoxyCodeLine{00124 uint32\_t sysctlShiReadUIRcgctimerTimer1\_(uint32\_t \textcolor{keyword}{const} registerValue);}
+\DoxyCodeLine{00125 }
+\DoxyCodeLine{00126 \textcolor{keywordtype}{void} sysctlShiWriteRcgctimerTimer1\_(\textcolor{keyword}{enum} SysctlCores\_ \textcolor{keyword}{const} core, \textcolor{keyword}{enum} SysctlRcgctimerTimer1Values\_ \textcolor{keyword}{const} timer1);}
+\DoxyCodeLine{00127 \textcolor{keywordtype}{void} sysctlShiWriteUIRcgctimerTimer1\_(uint32\_t * \textcolor{keyword}{const} registerValue, \textcolor{keyword}{enum} SysctlRcgctimerTimer1Values\_ \textcolor{keyword}{const} timer1);}
+\DoxyCodeLine{00128 }
+\DoxyCodeLine{00129 uint32\_t sysctlShiReadRcgctimerTimer2\_(\textcolor{keyword}{enum} SysctlCores\_ \textcolor{keyword}{const} core);}
+\DoxyCodeLine{00130 uint32\_t sysctlShiReadUIRcgctimerTimer2\_(uint32\_t \textcolor{keyword}{const} registerValue);}
+\DoxyCodeLine{00131 }
+\DoxyCodeLine{00132 \textcolor{keywordtype}{void} sysctlShiWriteRcgctimerTimer2\_(\textcolor{keyword}{enum} SysctlCores\_ \textcolor{keyword}{const} core, \textcolor{keyword}{enum} SysctlRcgctimerTimer2Values\_ \textcolor{keyword}{const} timer2);}
+\DoxyCodeLine{00133 \textcolor{keywordtype}{void} sysctlShiWriteUIRcgctimerTimer2\_(uint32\_t * \textcolor{keyword}{const} registerValue, \textcolor{keyword}{enum} SysctlRcgctimerTimer2Values\_ \textcolor{keyword}{const} timer2);}
+\DoxyCodeLine{00134 }
+\DoxyCodeLine{00135 uint32\_t sysctlShiReadRcgctimerTimer3\_(\textcolor{keyword}{enum} SysctlCores\_ \textcolor{keyword}{const} core);}
+\DoxyCodeLine{00136 uint32\_t sysctlShiReadUIRcgctimerTimer3\_(uint32\_t \textcolor{keyword}{const} registerValue);}
+\DoxyCodeLine{00137 }
+\DoxyCodeLine{00138 \textcolor{keywordtype}{void} sysctlShiWriteRcgctimerTimer3\_(\textcolor{keyword}{enum} SysctlCores\_ \textcolor{keyword}{const} core, \textcolor{keyword}{enum} SysctlRcgctimerTimer3Values\_ \textcolor{keyword}{const} timer3);}
+\DoxyCodeLine{00139 \textcolor{keywordtype}{void} sysctlShiWriteUIRcgctimerTimer3\_(uint32\_t * \textcolor{keyword}{const} registerValue, \textcolor{keyword}{enum} SysctlRcgctimerTimer3Values\_ \textcolor{keyword}{const} timer3);}
+\DoxyCodeLine{00140 }
+\DoxyCodeLine{00141 uint32\_t sysctlShiReadRcgctimerTimer4\_(\textcolor{keyword}{enum} SysctlCores\_ \textcolor{keyword}{const} core);}
+\DoxyCodeLine{00142 uint32\_t sysctlShiReadUIRcgctimerTimer4\_(uint32\_t \textcolor{keyword}{const} registerValue);}
+\DoxyCodeLine{00143 }
+\DoxyCodeLine{00144 \textcolor{keywordtype}{void} sysctlShiWriteRcgctimerTimer4\_(\textcolor{keyword}{enum} SysctlCores\_ \textcolor{keyword}{const} core, \textcolor{keyword}{enum} SysctlRcgctimerTimer4Values\_ \textcolor{keyword}{const} timer4);}
+\DoxyCodeLine{00145 \textcolor{keywordtype}{void} sysctlShiWriteUIRcgctimerTimer4\_(uint32\_t * \textcolor{keyword}{const} registerValue, \textcolor{keyword}{enum} SysctlRcgctimerTimer4Values\_ \textcolor{keyword}{const} timer4);}
+\DoxyCodeLine{00146 }
+\DoxyCodeLine{00147 uint32\_t sysctlShiReadRcgctimerTimer5\_(\textcolor{keyword}{enum} SysctlCores\_ \textcolor{keyword}{const} core);}
+\DoxyCodeLine{00148 uint32\_t sysctlShiReadUIRcgctimerTimer5\_(uint32\_t \textcolor{keyword}{const} registerValue);}
+\DoxyCodeLine{00149 }
+\DoxyCodeLine{00150 \textcolor{keywordtype}{void} sysctlShiWriteRcgctimerTimer5\_(\textcolor{keyword}{enum} SysctlCores\_ \textcolor{keyword}{const} core, \textcolor{keyword}{enum} SysctlRcgctimerTimer5Values\_ \textcolor{keyword}{const} timer5);}
+\DoxyCodeLine{00151 \textcolor{keywordtype}{void} sysctlShiWriteUIRcgctimerTimer5\_(uint32\_t * \textcolor{keyword}{const} registerValue, \textcolor{keyword}{enum} SysctlRcgctimerTimer5Values\_ \textcolor{keyword}{const} timer5);}
+\DoxyCodeLine{00152 }
+\DoxyCodeLine{00153 uint32\_t sysctlShiReadRcgctimerTimer6\_(\textcolor{keyword}{enum} SysctlCores\_ \textcolor{keyword}{const} core);}
+\DoxyCodeLine{00154 uint32\_t sysctlShiReadUIRcgctimerTimer6\_(uint32\_t \textcolor{keyword}{const} registerValue);}
+\DoxyCodeLine{00155 }
+\DoxyCodeLine{00156 \textcolor{keywordtype}{void} sysctlShiWriteRcgctimerTimer6\_(\textcolor{keyword}{enum} SysctlCores\_ \textcolor{keyword}{const} core, \textcolor{keyword}{enum} SysctlRcgctimerTimer6Values\_ \textcolor{keyword}{const} timer6);}
+\DoxyCodeLine{00157 \textcolor{keywordtype}{void} sysctlShiWriteUIRcgctimerTimer6\_(uint32\_t * \textcolor{keyword}{const} registerValue, \textcolor{keyword}{enum} SysctlRcgctimerTimer6Values\_ \textcolor{keyword}{const} timer6);}
+\DoxyCodeLine{00158 }
+\DoxyCodeLine{00159 uint32\_t sysctlShiReadRcgctimerTimer7\_(\textcolor{keyword}{enum} SysctlCores\_ \textcolor{keyword}{const} core);}
+\DoxyCodeLine{00160 uint32\_t sysctlShiReadUIRcgctimerTimer7\_(uint32\_t \textcolor{keyword}{const} registerValue);}
+\DoxyCodeLine{00161 }
+\DoxyCodeLine{00162 \textcolor{keywordtype}{void} sysctlShiWriteRcgctimerTimer7\_(\textcolor{keyword}{enum} SysctlCores\_ \textcolor{keyword}{const} core, \textcolor{keyword}{enum} SysctlRcgctimerTimer7Values\_ \textcolor{keyword}{const} timer7);}
+\DoxyCodeLine{00163 \textcolor{keywordtype}{void} sysctlShiWriteUIRcgctimerTimer7\_(uint32\_t * \textcolor{keyword}{const} registerValue, \textcolor{keyword}{enum} SysctlRcgctimerTimer7Values\_ \textcolor{keyword}{const} timer7);}
+\DoxyCodeLine{00164 }
+\DoxyCodeLine{00165 uint32\_t sysctlShiReadPrtimerTimer0\_(\textcolor{keyword}{enum} SysctlCores\_ \textcolor{keyword}{const} core);}
+\DoxyCodeLine{00166 uint32\_t sysctlShiReadUIPrtimerTimer0\_(uint32\_t \textcolor{keyword}{const} registerValue);}
+\DoxyCodeLine{00167 }
+\DoxyCodeLine{00168 uint32\_t sysctlShiReadPrtimerTimer1\_(\textcolor{keyword}{enum} SysctlCores\_ \textcolor{keyword}{const} core);}
+\DoxyCodeLine{00169 uint32\_t sysctlShiReadUIPrtimerTimer1\_(uint32\_t \textcolor{keyword}{const} registerValue);}
+\DoxyCodeLine{00170 }
+\DoxyCodeLine{00171 uint32\_t sysctlShiReadPrtimerTimer2\_(\textcolor{keyword}{enum} SysctlCores\_ \textcolor{keyword}{const} core);}
+\DoxyCodeLine{00172 uint32\_t sysctlShiReadUIPrtimerTimer2\_(uint32\_t \textcolor{keyword}{const} registerValue);}
+\DoxyCodeLine{00173 }
+\DoxyCodeLine{00174 uint32\_t sysctlShiReadPrtimerTimer3\_(\textcolor{keyword}{enum} SysctlCores\_ \textcolor{keyword}{const} core);}
+\DoxyCodeLine{00175 uint32\_t sysctlShiReadUIPrtimerTimer3\_(uint32\_t \textcolor{keyword}{const} registerValue);}
+\DoxyCodeLine{00176 }
+\DoxyCodeLine{00177 uint32\_t sysctlShiReadPrtimerTimer4\_(\textcolor{keyword}{enum} SysctlCores\_ \textcolor{keyword}{const} core);}
+\DoxyCodeLine{00178 uint32\_t sysctlShiReadUIPrtimerTimer4\_(uint32\_t \textcolor{keyword}{const} registerValue);}
+\DoxyCodeLine{00179 }
+\DoxyCodeLine{00180 uint32\_t sysctlShiReadPrtimerTimer5\_(\textcolor{keyword}{enum} SysctlCores\_ \textcolor{keyword}{const} core);}
+\DoxyCodeLine{00181 uint32\_t sysctlShiReadUIPrtimerTimer5\_(uint32\_t \textcolor{keyword}{const} registerValue);}
+\DoxyCodeLine{00182 }
+\DoxyCodeLine{00183 uint32\_t sysctlShiReadPrtimerTimer6\_(\textcolor{keyword}{enum} SysctlCores\_ \textcolor{keyword}{const} core);}
+\DoxyCodeLine{00184 uint32\_t sysctlShiReadUIPrtimerTimer6\_(uint32\_t \textcolor{keyword}{const} registerValue);}
+\DoxyCodeLine{00185 }
+\DoxyCodeLine{00186 uint32\_t sysctlShiReadPrtimerTimer7\_(\textcolor{keyword}{enum} SysctlCores\_ \textcolor{keyword}{const} core);}
+\DoxyCodeLine{00187 uint32\_t sysctlShiReadUIPrtimerTimer7\_(uint32\_t \textcolor{keyword}{const} registerValue);}
+\DoxyCodeLine{00188 }
+\DoxyCodeLine{00189 }
+\DoxyCodeLine{00190 \textcolor{preprocessor}{\#endif}}
+
+\end{DoxyCode}

@@ -1,0 +1,244 @@
+\doxysection{gpio\+Shi.\+c}
+\label{gpio_shi_8c_source}\index{hal/gpio/src/gpioShi.c@{hal/gpio/src/gpioShi.c}}
+
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00001 \textcolor{comment}{//*****************************************************************************}}
+\DoxyCodeLine{00002 \textcolor{comment}{// Name        : gpioShi.c}}
+\DoxyCodeLine{00003 \textcolor{comment}{// Author      : Ole Rönna }}
+\DoxyCodeLine{00004 \textcolor{comment}{// Maintainer  : Prof. Dr. Paweł Buczek }}
+\DoxyCodeLine{00005 \textcolor{comment}{// Version     : 0.4 }}
+\DoxyCodeLine{00006 \textcolor{comment}{// Copyright   : All rights reserved }}
+\DoxyCodeLine{00007 \textcolor{comment}{// Description : }}
+\DoxyCodeLine{00008 \textcolor{comment}{// This code was generated from a template. Manual changes to this file will }}
+\DoxyCodeLine{00009 \textcolor{comment}{// be overwritten if the code is regenerated. }}
+\DoxyCodeLine{00010 \textcolor{comment}{//}}
+\DoxyCodeLine{00011 \textcolor{comment}{//*****************************************************************************}}
+\DoxyCodeLine{00012 }
+\DoxyCodeLine{00013 \textcolor{preprocessor}{\#include "{}hal/gpio/halGpioShiCores.h"{}}}
+\DoxyCodeLine{00014 \textcolor{preprocessor}{\#include "{}gpioShi.h"{}}}
+\DoxyCodeLine{00015 \textcolor{preprocessor}{\#include "{}stdint.h"{}}}
+\DoxyCodeLine{00016 }
+\DoxyCodeLine{00017 \textcolor{comment}{//*****************************************************************************}}
+\DoxyCodeLine{00018 \textcolor{comment}{//}}
+\DoxyCodeLine{00019 \textcolor{comment}{// gpio base addresses}}
+\DoxyCodeLine{00020 \textcolor{comment}{//}}
+\DoxyCodeLine{00021 \textcolor{comment}{//*****************************************************************************}}
+\DoxyCodeLine{00022 }
+\DoxyCodeLine{00023 \textcolor{keyword}{static} \textcolor{keyword}{const} uint32\_t gpioCoreBaseAddresses\_[halGpioCoreCount] = \{}
+\DoxyCodeLine{00024     0x40058000,}
+\DoxyCodeLine{00025     0x40059000,}
+\DoxyCodeLine{00026     0x4005A000,}
+\DoxyCodeLine{00027     0x4005B000,}
+\DoxyCodeLine{00028     0x4005C000,}
+\DoxyCodeLine{00029     0x4005D000,}
+\DoxyCodeLine{00030     0x4005E000,}
+\DoxyCodeLine{00031     0x4005F000,}
+\DoxyCodeLine{00032     0x40060000,}
+\DoxyCodeLine{00033     0x40061000,}
+\DoxyCodeLine{00034     0x40062000,}
+\DoxyCodeLine{00035     0x40063000,}
+\DoxyCodeLine{00036     0x40064000,}
+\DoxyCodeLine{00037     0x40065000,}
+\DoxyCodeLine{00038     0x40066000}
+\DoxyCodeLine{00039 \};}
+\DoxyCodeLine{00040 }
+\DoxyCodeLine{00041 \textcolor{comment}{//*****************************************************************************}}
+\DoxyCodeLine{00042 \textcolor{comment}{//}}
+\DoxyCodeLine{00043 \textcolor{comment}{// gpio functions for reading/writing of the whole register}}
+\DoxyCodeLine{00044 \textcolor{comment}{//}}
+\DoxyCodeLine{00045 \textcolor{comment}{//*****************************************************************************}}
+\DoxyCodeLine{00046 }
+\DoxyCodeLine{00047 uint32\_t gpioShiReadGpioData\_(\textcolor{keyword}{enum} HalGpioCores \textcolor{keyword}{const} core) \{}
+\DoxyCodeLine{00048     \textcolor{keywordflow}{return} *((\textcolor{keyword}{volatile} uint32\_t *)(gpioGpioData\_ + gpioCoreBaseAddresses\_[core]));}
+\DoxyCodeLine{00049 \}}
+\DoxyCodeLine{00050 }
+\DoxyCodeLine{00051 \textcolor{keywordtype}{void} gpioShiWriteGpioData\_(\textcolor{keyword}{enum} HalGpioCores \textcolor{keyword}{const} core, uint32\_t \textcolor{keyword}{const} registerValue) \{}
+\DoxyCodeLine{00052     *((\textcolor{keyword}{volatile} uint32\_t *)(gpioGpioData\_ + gpioCoreBaseAddresses\_[core])) = registerValue;}
+\DoxyCodeLine{00053 \}}
+\DoxyCodeLine{00054 }
+\DoxyCodeLine{00055 }
+\DoxyCodeLine{00056 uint32\_t gpioShiReadGpioDir\_(\textcolor{keyword}{enum} HalGpioCores \textcolor{keyword}{const} core) \{}
+\DoxyCodeLine{00057     \textcolor{keywordflow}{return} *((\textcolor{keyword}{volatile} uint32\_t *)(gpioGpioDir\_ + gpioCoreBaseAddresses\_[core]));}
+\DoxyCodeLine{00058 \}}
+\DoxyCodeLine{00059 }
+\DoxyCodeLine{00060 \textcolor{keywordtype}{void} gpioShiWriteGpioDir\_(\textcolor{keyword}{enum} HalGpioCores \textcolor{keyword}{const} core, uint32\_t \textcolor{keyword}{const} registerValue) \{}
+\DoxyCodeLine{00061     *((\textcolor{keyword}{volatile} uint32\_t *)(gpioGpioDir\_ + gpioCoreBaseAddresses\_[core])) = registerValue;}
+\DoxyCodeLine{00062 \}}
+\DoxyCodeLine{00063 }
+\DoxyCodeLine{00064 }
+\DoxyCodeLine{00065 uint32\_t gpioShiReadGpioIs\_(\textcolor{keyword}{enum} HalGpioCores \textcolor{keyword}{const} core) \{}
+\DoxyCodeLine{00066     \textcolor{keywordflow}{return} *((\textcolor{keyword}{volatile} uint32\_t *)(gpioGpioIs\_ + gpioCoreBaseAddresses\_[core]));}
+\DoxyCodeLine{00067 \}}
+\DoxyCodeLine{00068 }
+\DoxyCodeLine{00069 \textcolor{keywordtype}{void} gpioShiWriteGpioIs\_(\textcolor{keyword}{enum} HalGpioCores \textcolor{keyword}{const} core, uint32\_t \textcolor{keyword}{const} registerValue) \{}
+\DoxyCodeLine{00070     *((\textcolor{keyword}{volatile} uint32\_t *)(gpioGpioIs\_ + gpioCoreBaseAddresses\_[core])) = registerValue;}
+\DoxyCodeLine{00071 \}}
+\DoxyCodeLine{00072 }
+\DoxyCodeLine{00073 }
+\DoxyCodeLine{00074 uint32\_t gpioShiReadGpioBe\_(\textcolor{keyword}{enum} HalGpioCores \textcolor{keyword}{const} core) \{}
+\DoxyCodeLine{00075     \textcolor{keywordflow}{return} *((\textcolor{keyword}{volatile} uint32\_t *)(gpioGpioBe\_ + gpioCoreBaseAddresses\_[core]));}
+\DoxyCodeLine{00076 \}}
+\DoxyCodeLine{00077 }
+\DoxyCodeLine{00078 \textcolor{keywordtype}{void} gpioShiWriteGpioBe\_(\textcolor{keyword}{enum} HalGpioCores \textcolor{keyword}{const} core, uint32\_t \textcolor{keyword}{const} registerValue) \{}
+\DoxyCodeLine{00079     *((\textcolor{keyword}{volatile} uint32\_t *)(gpioGpioBe\_ + gpioCoreBaseAddresses\_[core])) = registerValue;}
+\DoxyCodeLine{00080 \}}
+\DoxyCodeLine{00081 }
+\DoxyCodeLine{00082 }
+\DoxyCodeLine{00083 uint32\_t gpioShiReadGpioEv\_(\textcolor{keyword}{enum} HalGpioCores \textcolor{keyword}{const} core) \{}
+\DoxyCodeLine{00084     \textcolor{keywordflow}{return} *((\textcolor{keyword}{volatile} uint32\_t *)(gpioGpioEv\_ + gpioCoreBaseAddresses\_[core]));}
+\DoxyCodeLine{00085 \}}
+\DoxyCodeLine{00086 }
+\DoxyCodeLine{00087 \textcolor{keywordtype}{void} gpioShiWriteGpioEv\_(\textcolor{keyword}{enum} HalGpioCores \textcolor{keyword}{const} core, uint32\_t \textcolor{keyword}{const} registerValue) \{}
+\DoxyCodeLine{00088     *((\textcolor{keyword}{volatile} uint32\_t *)(gpioGpioEv\_ + gpioCoreBaseAddresses\_[core])) = registerValue;}
+\DoxyCodeLine{00089 \}}
+\DoxyCodeLine{00090 }
+\DoxyCodeLine{00091 }
+\DoxyCodeLine{00092 uint32\_t gpioShiReadGpioIm\_(\textcolor{keyword}{enum} HalGpioCores \textcolor{keyword}{const} core) \{}
+\DoxyCodeLine{00093     \textcolor{keywordflow}{return} *((\textcolor{keyword}{volatile} uint32\_t *)(gpioGpioIm\_ + gpioCoreBaseAddresses\_[core]));}
+\DoxyCodeLine{00094 \}}
+\DoxyCodeLine{00095 }
+\DoxyCodeLine{00096 \textcolor{keywordtype}{void} gpioShiWriteGpioIm\_(\textcolor{keyword}{enum} HalGpioCores \textcolor{keyword}{const} core, uint32\_t \textcolor{keyword}{const} registerValue) \{}
+\DoxyCodeLine{00097     *((\textcolor{keyword}{volatile} uint32\_t *)(gpioGpioIm\_ + gpioCoreBaseAddresses\_[core])) = registerValue;}
+\DoxyCodeLine{00098 \}}
+\DoxyCodeLine{00099 }
+\DoxyCodeLine{00100 }
+\DoxyCodeLine{00101 uint32\_t gpioShiReadGpioRis\_(\textcolor{keyword}{enum} HalGpioCores \textcolor{keyword}{const} core) \{}
+\DoxyCodeLine{00102     \textcolor{keywordflow}{return} *((\textcolor{keyword}{volatile} uint32\_t *)(gpioGpioRis\_ + gpioCoreBaseAddresses\_[core]));}
+\DoxyCodeLine{00103 \}}
+\DoxyCodeLine{00104 }
+\DoxyCodeLine{00105 \textcolor{keywordtype}{void} gpioShiWriteGpioRis\_(\textcolor{keyword}{enum} HalGpioCores \textcolor{keyword}{const} core, uint32\_t \textcolor{keyword}{const} registerValue) \{}
+\DoxyCodeLine{00106     *((\textcolor{keyword}{volatile} uint32\_t *)(gpioGpioRis\_ + gpioCoreBaseAddresses\_[core])) = registerValue;}
+\DoxyCodeLine{00107 \}}
+\DoxyCodeLine{00108 }
+\DoxyCodeLine{00109 }
+\DoxyCodeLine{00110 uint32\_t gpioShiReadGpioMis\_(\textcolor{keyword}{enum} HalGpioCores \textcolor{keyword}{const} core) \{}
+\DoxyCodeLine{00111     \textcolor{keywordflow}{return} *((\textcolor{keyword}{volatile} uint32\_t *)(gpioGpioMis\_ + gpioCoreBaseAddresses\_[core]));}
+\DoxyCodeLine{00112 \}}
+\DoxyCodeLine{00113 }
+\DoxyCodeLine{00114 \textcolor{keywordtype}{void} gpioShiWriteGpioMis\_(\textcolor{keyword}{enum} HalGpioCores \textcolor{keyword}{const} core, uint32\_t \textcolor{keyword}{const} registerValue) \{}
+\DoxyCodeLine{00115     *((\textcolor{keyword}{volatile} uint32\_t *)(gpioGpioMis\_ + gpioCoreBaseAddresses\_[core])) = registerValue;}
+\DoxyCodeLine{00116 \}}
+\DoxyCodeLine{00117 }
+\DoxyCodeLine{00118 }
+\DoxyCodeLine{00119 uint32\_t gpioShiReadGpioIcr\_(\textcolor{keyword}{enum} HalGpioCores \textcolor{keyword}{const} core) \{}
+\DoxyCodeLine{00120     \textcolor{keywordflow}{return} *((\textcolor{keyword}{volatile} uint32\_t *)(gpioGpioIcr\_ + gpioCoreBaseAddresses\_[core]));}
+\DoxyCodeLine{00121 \}}
+\DoxyCodeLine{00122 }
+\DoxyCodeLine{00123 \textcolor{keywordtype}{void} gpioShiWriteGpioIcr\_(\textcolor{keyword}{enum} HalGpioCores \textcolor{keyword}{const} core, uint32\_t \textcolor{keyword}{const} registerValue) \{}
+\DoxyCodeLine{00124     *((\textcolor{keyword}{volatile} uint32\_t *)(gpioGpioIcr\_ + gpioCoreBaseAddresses\_[core])) = registerValue;}
+\DoxyCodeLine{00125 \}}
+\DoxyCodeLine{00126 }
+\DoxyCodeLine{00127 }
+\DoxyCodeLine{00128 uint32\_t gpioShiReadGpioAfsel\_(\textcolor{keyword}{enum} HalGpioCores \textcolor{keyword}{const} core) \{}
+\DoxyCodeLine{00129     \textcolor{keywordflow}{return} *((\textcolor{keyword}{volatile} uint32\_t *)(gpioGpioAfsel\_ + gpioCoreBaseAddresses\_[core]));}
+\DoxyCodeLine{00130 \}}
+\DoxyCodeLine{00131 }
+\DoxyCodeLine{00132 \textcolor{keywordtype}{void} gpioShiWriteGpioAfsel\_(\textcolor{keyword}{enum} HalGpioCores \textcolor{keyword}{const} core, uint32\_t \textcolor{keyword}{const} registerValue) \{}
+\DoxyCodeLine{00133     *((\textcolor{keyword}{volatile} uint32\_t *)(gpioGpioAfsel\_ + gpioCoreBaseAddresses\_[core])) = registerValue;}
+\DoxyCodeLine{00134 \}}
+\DoxyCodeLine{00135 }
+\DoxyCodeLine{00136 }
+\DoxyCodeLine{00137 uint32\_t gpioShiReadGpioDr2r\_(\textcolor{keyword}{enum} HalGpioCores \textcolor{keyword}{const} core) \{}
+\DoxyCodeLine{00138     \textcolor{keywordflow}{return} *((\textcolor{keyword}{volatile} uint32\_t *)(gpioGpioDr2r\_ + gpioCoreBaseAddresses\_[core]));}
+\DoxyCodeLine{00139 \}}
+\DoxyCodeLine{00140 }
+\DoxyCodeLine{00141 \textcolor{keywordtype}{void} gpioShiWriteGpioDr2r\_(\textcolor{keyword}{enum} HalGpioCores \textcolor{keyword}{const} core, uint32\_t \textcolor{keyword}{const} registerValue) \{}
+\DoxyCodeLine{00142     *((\textcolor{keyword}{volatile} uint32\_t *)(gpioGpioDr2r\_ + gpioCoreBaseAddresses\_[core])) = registerValue;}
+\DoxyCodeLine{00143 \}}
+\DoxyCodeLine{00144 }
+\DoxyCodeLine{00145 }
+\DoxyCodeLine{00146 uint32\_t gpioShiReadGpioDr4r\_(\textcolor{keyword}{enum} HalGpioCores \textcolor{keyword}{const} core) \{}
+\DoxyCodeLine{00147     \textcolor{keywordflow}{return} *((\textcolor{keyword}{volatile} uint32\_t *)(gpioGpioDr4r\_ + gpioCoreBaseAddresses\_[core]));}
+\DoxyCodeLine{00148 \}}
+\DoxyCodeLine{00149 }
+\DoxyCodeLine{00150 \textcolor{keywordtype}{void} gpioShiWriteGpioDr4r\_(\textcolor{keyword}{enum} HalGpioCores \textcolor{keyword}{const} core, uint32\_t \textcolor{keyword}{const} registerValue) \{}
+\DoxyCodeLine{00151     *((\textcolor{keyword}{volatile} uint32\_t *)(gpioGpioDr4r\_ + gpioCoreBaseAddresses\_[core])) = registerValue;}
+\DoxyCodeLine{00152 \}}
+\DoxyCodeLine{00153 }
+\DoxyCodeLine{00154 }
+\DoxyCodeLine{00155 uint32\_t gpioShiReadGpioDr8r\_(\textcolor{keyword}{enum} HalGpioCores \textcolor{keyword}{const} core) \{}
+\DoxyCodeLine{00156     \textcolor{keywordflow}{return} *((\textcolor{keyword}{volatile} uint32\_t *)(gpioGpioDr8r\_ + gpioCoreBaseAddresses\_[core]));}
+\DoxyCodeLine{00157 \}}
+\DoxyCodeLine{00158 }
+\DoxyCodeLine{00159 \textcolor{keywordtype}{void} gpioShiWriteGpioDr8r\_(\textcolor{keyword}{enum} HalGpioCores \textcolor{keyword}{const} core, uint32\_t \textcolor{keyword}{const} registerValue) \{}
+\DoxyCodeLine{00160     *((\textcolor{keyword}{volatile} uint32\_t *)(gpioGpioDr8r\_ + gpioCoreBaseAddresses\_[core])) = registerValue;}
+\DoxyCodeLine{00161 \}}
+\DoxyCodeLine{00162 }
+\DoxyCodeLine{00163 }
+\DoxyCodeLine{00164 uint32\_t gpioShiReadGpioOdr\_(\textcolor{keyword}{enum} HalGpioCores \textcolor{keyword}{const} core) \{}
+\DoxyCodeLine{00165     \textcolor{keywordflow}{return} *((\textcolor{keyword}{volatile} uint32\_t *)(gpioGpioOdr\_ + gpioCoreBaseAddresses\_[core]));}
+\DoxyCodeLine{00166 \}}
+\DoxyCodeLine{00167 }
+\DoxyCodeLine{00168 \textcolor{keywordtype}{void} gpioShiWriteGpioOdr\_(\textcolor{keyword}{enum} HalGpioCores \textcolor{keyword}{const} core, uint32\_t \textcolor{keyword}{const} registerValue) \{}
+\DoxyCodeLine{00169     *((\textcolor{keyword}{volatile} uint32\_t *)(gpioGpioOdr\_ + gpioCoreBaseAddresses\_[core])) = registerValue;}
+\DoxyCodeLine{00170 \}}
+\DoxyCodeLine{00171 }
+\DoxyCodeLine{00172 }
+\DoxyCodeLine{00173 uint32\_t gpioShiReadGpioPur\_(\textcolor{keyword}{enum} HalGpioCores \textcolor{keyword}{const} core) \{}
+\DoxyCodeLine{00174     \textcolor{keywordflow}{return} *((\textcolor{keyword}{volatile} uint32\_t *)(gpioGpioPur\_ + gpioCoreBaseAddresses\_[core]));}
+\DoxyCodeLine{00175 \}}
+\DoxyCodeLine{00176 }
+\DoxyCodeLine{00177 \textcolor{keywordtype}{void} gpioShiWriteGpioPur\_(\textcolor{keyword}{enum} HalGpioCores \textcolor{keyword}{const} core, uint32\_t \textcolor{keyword}{const} registerValue) \{}
+\DoxyCodeLine{00178     *((\textcolor{keyword}{volatile} uint32\_t *)(gpioGpioPur\_ + gpioCoreBaseAddresses\_[core])) = registerValue;}
+\DoxyCodeLine{00179 \}}
+\DoxyCodeLine{00180 }
+\DoxyCodeLine{00181 }
+\DoxyCodeLine{00182 uint32\_t gpioShiReadGpioPdr\_(\textcolor{keyword}{enum} HalGpioCores \textcolor{keyword}{const} core) \{}
+\DoxyCodeLine{00183     \textcolor{keywordflow}{return} *((\textcolor{keyword}{volatile} uint32\_t *)(gpioGpioPdr\_ + gpioCoreBaseAddresses\_[core]));}
+\DoxyCodeLine{00184 \}}
+\DoxyCodeLine{00185 }
+\DoxyCodeLine{00186 \textcolor{keywordtype}{void} gpioShiWriteGpioPdr\_(\textcolor{keyword}{enum} HalGpioCores \textcolor{keyword}{const} core, uint32\_t \textcolor{keyword}{const} registerValue) \{}
+\DoxyCodeLine{00187     *((\textcolor{keyword}{volatile} uint32\_t *)(gpioGpioPdr\_ + gpioCoreBaseAddresses\_[core])) = registerValue;}
+\DoxyCodeLine{00188 \}}
+\DoxyCodeLine{00189 }
+\DoxyCodeLine{00190 }
+\DoxyCodeLine{00191 uint32\_t gpioShiReadGpioDen\_(\textcolor{keyword}{enum} HalGpioCores \textcolor{keyword}{const} core) \{}
+\DoxyCodeLine{00192     \textcolor{keywordflow}{return} *((\textcolor{keyword}{volatile} uint32\_t *)(gpioGpioDen\_ + gpioCoreBaseAddresses\_[core]));}
+\DoxyCodeLine{00193 \}}
+\DoxyCodeLine{00194 }
+\DoxyCodeLine{00195 \textcolor{keywordtype}{void} gpioShiWriteGpioDen\_(\textcolor{keyword}{enum} HalGpioCores \textcolor{keyword}{const} core, uint32\_t \textcolor{keyword}{const} registerValue) \{}
+\DoxyCodeLine{00196     *((\textcolor{keyword}{volatile} uint32\_t *)(gpioGpioDen\_ + gpioCoreBaseAddresses\_[core])) = registerValue;}
+\DoxyCodeLine{00197 \}}
+\DoxyCodeLine{00198 }
+\DoxyCodeLine{00199 }
+\DoxyCodeLine{00200 uint32\_t gpioShiReadGpioPctl\_(\textcolor{keyword}{enum} HalGpioCores \textcolor{keyword}{const} core) \{}
+\DoxyCodeLine{00201     \textcolor{keywordflow}{return} *((\textcolor{keyword}{volatile} uint32\_t *)(gpioGpioPctl\_ + gpioCoreBaseAddresses\_[core]));}
+\DoxyCodeLine{00202 \}}
+\DoxyCodeLine{00203 }
+\DoxyCodeLine{00204 \textcolor{keywordtype}{void} gpioShiWriteGpioPctl\_(\textcolor{keyword}{enum} HalGpioCores \textcolor{keyword}{const} core, uint32\_t \textcolor{keyword}{const} registerValue) \{}
+\DoxyCodeLine{00205     *((\textcolor{keyword}{volatile} uint32\_t *)(gpioGpioPctl\_ + gpioCoreBaseAddresses\_[core])) = registerValue;}
+\DoxyCodeLine{00206 \}}
+\DoxyCodeLine{00207 }
+\DoxyCodeLine{00208 }
+\DoxyCodeLine{00209 uint32\_t gpioShiReadGpioSi\_(\textcolor{keyword}{enum} HalGpioCores \textcolor{keyword}{const} core) \{}
+\DoxyCodeLine{00210     \textcolor{keywordflow}{return} *((\textcolor{keyword}{volatile} uint32\_t *)(gpioGpioSi\_ + gpioCoreBaseAddresses\_[core]));}
+\DoxyCodeLine{00211 \}}
+\DoxyCodeLine{00212 }
+\DoxyCodeLine{00213 \textcolor{keywordtype}{void} gpioShiWriteGpioSi\_(\textcolor{keyword}{enum} HalGpioCores \textcolor{keyword}{const} core, uint32\_t \textcolor{keyword}{const} registerValue) \{}
+\DoxyCodeLine{00214     *((\textcolor{keyword}{volatile} uint32\_t *)(gpioGpioSi\_ + gpioCoreBaseAddresses\_[core])) = registerValue;}
+\DoxyCodeLine{00215 \}}
+\DoxyCodeLine{00216 }
+\DoxyCodeLine{00217 }
+\DoxyCodeLine{00218 \textcolor{comment}{//*****************************************************************************}}
+\DoxyCodeLine{00219 \textcolor{comment}{//}}
+\DoxyCodeLine{00220 \textcolor{comment}{// gpio read/write individual bit fields}}
+\DoxyCodeLine{00221 \textcolor{comment}{//}}
+\DoxyCodeLine{00222 \textcolor{comment}{//*****************************************************************************}}
+\DoxyCodeLine{00223 }
+\DoxyCodeLine{00224 \textcolor{keywordtype}{void} gpioShiWriteGpioSiSum\_(\textcolor{keyword}{enum} HalGpioCores \textcolor{keyword}{const} core, \textcolor{keyword}{enum} GpioGpioSiSumValues\_ \textcolor{keyword}{const} sum) \{}
+\DoxyCodeLine{00225     uint32\_t registerValue = *((\textcolor{keyword}{volatile} uint32\_t *)(gpioGpioSi\_ + gpioCoreBaseAddresses\_[core]));}
+\DoxyCodeLine{00226 }
+\DoxyCodeLine{00227     registerValue \&= \string~(0x1 << 0);}
+\DoxyCodeLine{00228     registerValue |= (sum << 0);}
+\DoxyCodeLine{00229 }
+\DoxyCodeLine{00230     *((\textcolor{keyword}{volatile} uint32\_t *)(gpioGpioSi\_ + gpioCoreBaseAddresses\_[core])) = registerValue;}
+\DoxyCodeLine{00231 \}}
+\DoxyCodeLine{00232 }
+\DoxyCodeLine{00233 \textcolor{keywordtype}{void} gpioShiWriteUIGpioSiSum\_(uint32\_t * \textcolor{keyword}{const} registerValue, \textcolor{keyword}{enum} GpioGpioSiSumValues\_ \textcolor{keyword}{const} sum) \{}
+\DoxyCodeLine{00234     *registerValue \&= \string~(0x1 << 0);}
+\DoxyCodeLine{00235     *registerValue |= (sum << 0);}
+\DoxyCodeLine{00236 \}}
+\DoxyCodeLine{00237 }
+\DoxyCodeLine{00238 }
+
+\end{DoxyCode}

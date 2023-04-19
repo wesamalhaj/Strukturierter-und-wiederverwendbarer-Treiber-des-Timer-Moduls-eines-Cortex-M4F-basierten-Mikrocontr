@@ -1,0 +1,284 @@
+\doxysection{gpio\+Sysctl\+Shi.\+h}
+\label{gpio_sysctl_shi_8h_source}\index{hal/gpio/include/gpioSysctlShi.h@{hal/gpio/include/gpioSysctlShi.h}}
+
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00001 \textcolor{comment}{//*****************************************************************************}}
+\DoxyCodeLine{00002 \textcolor{comment}{// Name        : gpioSysctlShi.h}}
+\DoxyCodeLine{00003 \textcolor{comment}{// Author      : Ole Rönna }}
+\DoxyCodeLine{00004 \textcolor{comment}{// Maintainer  : Prof. Dr. Paweł Buczek }}
+\DoxyCodeLine{00005 \textcolor{comment}{// Version     : 0.4 }}
+\DoxyCodeLine{00006 \textcolor{comment}{// Copyright   : All rights reserved }}
+\DoxyCodeLine{00007 \textcolor{comment}{// Description : }}
+\DoxyCodeLine{00008 \textcolor{comment}{// This code was generated from a template. Manual changes to this file will }}
+\DoxyCodeLine{00009 \textcolor{comment}{// be overwritten if the code is regenerated. }}
+\DoxyCodeLine{00010 \textcolor{comment}{//}}
+\DoxyCodeLine{00011 \textcolor{comment}{//*****************************************************************************}}
+\DoxyCodeLine{00012 }
+\DoxyCodeLine{00013 \textcolor{preprocessor}{\#ifndef SYSCTLSHI\_H\_}}
+\DoxyCodeLine{00014 \textcolor{preprocessor}{\#define SYSCTLSHI\_H\_}}
+\DoxyCodeLine{00015 }
+\DoxyCodeLine{00016 \textcolor{preprocessor}{\#include "{}gpioSysctlShiCores.h"{}}}
+\DoxyCodeLine{00017 \textcolor{preprocessor}{\#include "{}stdint.h"{}}}
+\DoxyCodeLine{00018 }
+\DoxyCodeLine{00019 \textcolor{comment}{//*****************************************************************************}}
+\DoxyCodeLine{00020 \textcolor{comment}{//}}
+\DoxyCodeLine{00021 \textcolor{comment}{// sysctl registers}}
+\DoxyCodeLine{00022 \textcolor{comment}{//}}
+\DoxyCodeLine{00023 \textcolor{comment}{//*****************************************************************************}}
+\DoxyCodeLine{00024 }
+\DoxyCodeLine{00025 \textcolor{keyword}{enum} SysctlRegisters\_ \{}
+\DoxyCodeLine{00026     sysctlRcgcgpio\_ = 0x00000608,}
+\DoxyCodeLine{00027     sysctlPrgpio\_ = 0x00000A08}
+\DoxyCodeLine{00028 \};}
+\DoxyCodeLine{00029 }
+\DoxyCodeLine{00030 }
+\DoxyCodeLine{00031 \textcolor{keyword}{enum} SysctlRcgcgpioPortAValues\_ \{}
+\DoxyCodeLine{00032     sysctlRcgcgpioPortADisable\_ = 0x00000000,}
+\DoxyCodeLine{00033     sysctlRcgcgpioPortAEnable\_ = 0x00000001}
+\DoxyCodeLine{00034 \};}
+\DoxyCodeLine{00035 }
+\DoxyCodeLine{00036 \textcolor{keyword}{enum} SysctlRcgcgpioPortBValues\_ \{}
+\DoxyCodeLine{00037     sysctlRcgcgpioPortBDisable\_ = 0x00000000,}
+\DoxyCodeLine{00038     sysctlRcgcgpioPortBEnable\_ = 0x00000001}
+\DoxyCodeLine{00039 \};}
+\DoxyCodeLine{00040 }
+\DoxyCodeLine{00041 \textcolor{keyword}{enum} SysctlRcgcgpioPortCValues\_ \{}
+\DoxyCodeLine{00042     sysctlRcgcgpioPortCDisable\_ = 0x00000000,}
+\DoxyCodeLine{00043     sysctlRcgcgpioPortCEnable\_ = 0x00000001}
+\DoxyCodeLine{00044 \};}
+\DoxyCodeLine{00045 }
+\DoxyCodeLine{00046 \textcolor{keyword}{enum} SysctlRcgcgpioPortDValues\_ \{}
+\DoxyCodeLine{00047     sysctlRcgcgpioPortDDisable\_ = 0x00000000,}
+\DoxyCodeLine{00048     sysctlRcgcgpioPortDEnable\_ = 0x00000001}
+\DoxyCodeLine{00049 \};}
+\DoxyCodeLine{00050 }
+\DoxyCodeLine{00051 \textcolor{keyword}{enum} SysctlRcgcgpioPortEValues\_ \{}
+\DoxyCodeLine{00052     sysctlRcgcgpioPortEDisable\_ = 0x00000000,}
+\DoxyCodeLine{00053     sysctlRcgcgpioPortEEnable\_ = 0x00000001}
+\DoxyCodeLine{00054 \};}
+\DoxyCodeLine{00055 }
+\DoxyCodeLine{00056 \textcolor{keyword}{enum} SysctlRcgcgpioPortFValues\_ \{}
+\DoxyCodeLine{00057     sysctlRcgcgpioPortFDisable\_ = 0x00000000,}
+\DoxyCodeLine{00058     sysctlRcgcgpioPortFEnable\_ = 0x00000001}
+\DoxyCodeLine{00059 \};}
+\DoxyCodeLine{00060 }
+\DoxyCodeLine{00061 \textcolor{keyword}{enum} SysctlRcgcgpioPortGValues\_ \{}
+\DoxyCodeLine{00062     sysctlRcgcgpioPortGDisable\_ = 0x00000000,}
+\DoxyCodeLine{00063     sysctlRcgcgpioPortGEnable\_ = 0x00000001}
+\DoxyCodeLine{00064 \};}
+\DoxyCodeLine{00065 }
+\DoxyCodeLine{00066 \textcolor{keyword}{enum} SysctlRcgcgpioPortHValues\_ \{}
+\DoxyCodeLine{00067     sysctlRcgcgpioPortHDisable\_ = 0x00000000,}
+\DoxyCodeLine{00068     sysctlRcgcgpioPortHEnable\_ = 0x00000001}
+\DoxyCodeLine{00069 \};}
+\DoxyCodeLine{00070 }
+\DoxyCodeLine{00071 \textcolor{keyword}{enum} SysctlRcgcgpioPortJValues\_ \{}
+\DoxyCodeLine{00072     sysctlRcgcgpioPortJDisable\_ = 0x00000000,}
+\DoxyCodeLine{00073     sysctlRcgcgpioPortJEnable\_ = 0x00000001}
+\DoxyCodeLine{00074 \};}
+\DoxyCodeLine{00075 }
+\DoxyCodeLine{00076 \textcolor{keyword}{enum} SysctlRcgcgpioPortKValues\_ \{}
+\DoxyCodeLine{00077     sysctlRcgcgpioPortKDisable\_ = 0x00000000,}
+\DoxyCodeLine{00078     sysctlRcgcgpioPortKEnable\_ = 0x00000001}
+\DoxyCodeLine{00079 \};}
+\DoxyCodeLine{00080 }
+\DoxyCodeLine{00081 \textcolor{keyword}{enum} SysctlRcgcgpioPortLValues\_ \{}
+\DoxyCodeLine{00082     sysctlRcgcgpioPortLDisable\_ = 0x00000000,}
+\DoxyCodeLine{00083     sysctlRcgcgpioPortLEnable\_ = 0x00000001}
+\DoxyCodeLine{00084 \};}
+\DoxyCodeLine{00085 }
+\DoxyCodeLine{00086 \textcolor{keyword}{enum} SysctlRcgcgpioPortMValues\_ \{}
+\DoxyCodeLine{00087     sysctlRcgcgpioPortMDisable\_ = 0x00000000,}
+\DoxyCodeLine{00088     sysctlRcgcgpioPortMEnable\_ = 0x00000001}
+\DoxyCodeLine{00089 \};}
+\DoxyCodeLine{00090 }
+\DoxyCodeLine{00091 \textcolor{keyword}{enum} SysctlRcgcgpioPortNValues\_ \{}
+\DoxyCodeLine{00092     sysctlRcgcgpioPortNDisable\_ = 0x00000000,}
+\DoxyCodeLine{00093     sysctlRcgcgpioPortNEnable\_ = 0x00000001}
+\DoxyCodeLine{00094 \};}
+\DoxyCodeLine{00095 }
+\DoxyCodeLine{00096 \textcolor{keyword}{enum} SysctlRcgcgpioPortPValues\_ \{}
+\DoxyCodeLine{00097     sysctlRcgcgpioPortPDisable\_ = 0x00000000,}
+\DoxyCodeLine{00098     sysctlRcgcgpioPortPEnable\_ = 0x00000001}
+\DoxyCodeLine{00099 \};}
+\DoxyCodeLine{00100 }
+\DoxyCodeLine{00101 \textcolor{keyword}{enum} SysctlRcgcgpioPortQValues\_ \{}
+\DoxyCodeLine{00102     sysctlRcgcgpioPortQDisable\_ = 0x00000000,}
+\DoxyCodeLine{00103     sysctlRcgcgpioPortQEnable\_ = 0x00000001}
+\DoxyCodeLine{00104 \};}
+\DoxyCodeLine{00105 }
+\DoxyCodeLine{00106 \textcolor{keyword}{enum} SysctlPrgpioPortAValues\_ \{}
+\DoxyCodeLine{00107     sysctlPrgpioPortANotReady\_ = 0x00000000,}
+\DoxyCodeLine{00108     sysctlPrgpioPortAReady\_ = 0x00000001}
+\DoxyCodeLine{00109 \};}
+\DoxyCodeLine{00110 }
+\DoxyCodeLine{00111 \textcolor{keyword}{enum} SysctlPrgpioPortBValues\_ \{}
+\DoxyCodeLine{00112     sysctlPrgpioPortBNotReady\_ = 0x00000000,}
+\DoxyCodeLine{00113     sysctlPrgpioPortBReady\_ = 0x00000001}
+\DoxyCodeLine{00114 \};}
+\DoxyCodeLine{00115 }
+\DoxyCodeLine{00116 \textcolor{keyword}{enum} SysctlPrgpioPortCValues\_ \{}
+\DoxyCodeLine{00117     sysctlPrgpioPortCNotReady\_ = 0x00000000,}
+\DoxyCodeLine{00118     sysctlPrgpioPortCReady\_ = 0x00000001}
+\DoxyCodeLine{00119 \};}
+\DoxyCodeLine{00120 }
+\DoxyCodeLine{00121 \textcolor{keyword}{enum} SysctlPrgpioPortDValues\_ \{}
+\DoxyCodeLine{00122     sysctlPrgpioPortDNotReady\_ = 0x00000000,}
+\DoxyCodeLine{00123     sysctlPrgpioPortDReady\_ = 0x00000001}
+\DoxyCodeLine{00124 \};}
+\DoxyCodeLine{00125 }
+\DoxyCodeLine{00126 \textcolor{keyword}{enum} SysctlPrgpioPortEValues\_ \{}
+\DoxyCodeLine{00127     sysctlPrgpioPortENotReady\_ = 0x00000000,}
+\DoxyCodeLine{00128     sysctlPrgpioPortEReady\_ = 0x00000001}
+\DoxyCodeLine{00129 \};}
+\DoxyCodeLine{00130 }
+\DoxyCodeLine{00131 \textcolor{keyword}{enum} SysctlPrgpioPortFValues\_ \{}
+\DoxyCodeLine{00132     sysctlPrgpioPortFNotReady\_ = 0x00000000,}
+\DoxyCodeLine{00133     sysctlPrgpioPortFReady\_ = 0x00000001}
+\DoxyCodeLine{00134 \};}
+\DoxyCodeLine{00135 }
+\DoxyCodeLine{00136 \textcolor{keyword}{enum} SysctlPrgpioPortGValues\_ \{}
+\DoxyCodeLine{00137     sysctlPrgpioPortGNotReady\_ = 0x00000000,}
+\DoxyCodeLine{00138     sysctlPrgpioPortGReady\_ = 0x00000001}
+\DoxyCodeLine{00139 \};}
+\DoxyCodeLine{00140 }
+\DoxyCodeLine{00141 \textcolor{keyword}{enum} SysctlPrgpioPortHValues\_ \{}
+\DoxyCodeLine{00142     sysctlPrgpioPortHNotReady\_ = 0x00000000,}
+\DoxyCodeLine{00143     sysctlPrgpioPortHReady\_ = 0x00000001}
+\DoxyCodeLine{00144 \};}
+\DoxyCodeLine{00145 }
+\DoxyCodeLine{00146 \textcolor{keyword}{enum} SysctlPrgpioPortJValues\_ \{}
+\DoxyCodeLine{00147     sysctlPrgpioPortJNotReady\_ = 0x00000000,}
+\DoxyCodeLine{00148     sysctlPrgpioPortJReady\_ = 0x00000001}
+\DoxyCodeLine{00149 \};}
+\DoxyCodeLine{00150 }
+\DoxyCodeLine{00151 \textcolor{keyword}{enum} SysctlPrgpioPortKValues\_ \{}
+\DoxyCodeLine{00152     sysctlPrgpioPortKNotReady\_ = 0x00000000,}
+\DoxyCodeLine{00153     sysctlPrgpioPortKReady\_ = 0x00000001}
+\DoxyCodeLine{00154 \};}
+\DoxyCodeLine{00155 }
+\DoxyCodeLine{00156 \textcolor{keyword}{enum} SysctlPrgpioPortLValues\_ \{}
+\DoxyCodeLine{00157     sysctlPrgpioPortLNotReady\_ = 0x00000000,}
+\DoxyCodeLine{00158     sysctlPrgpioPortLReady\_ = 0x00000001}
+\DoxyCodeLine{00159 \};}
+\DoxyCodeLine{00160 }
+\DoxyCodeLine{00161 \textcolor{keyword}{enum} SysctlPrgpioPortMValues\_ \{}
+\DoxyCodeLine{00162     sysctlPrgpioPortMNotReady\_ = 0x00000000,}
+\DoxyCodeLine{00163     sysctlPrgpioPortMReady\_ = 0x00000001}
+\DoxyCodeLine{00164 \};}
+\DoxyCodeLine{00165 }
+\DoxyCodeLine{00166 \textcolor{keyword}{enum} SysctlPrgpioPortNValues\_ \{}
+\DoxyCodeLine{00167     sysctlPrgpioPortNNotReady\_ = 0x00000000,}
+\DoxyCodeLine{00168     sysctlPrgpioPortNReady\_ = 0x00000001}
+\DoxyCodeLine{00169 \};}
+\DoxyCodeLine{00170 }
+\DoxyCodeLine{00171 \textcolor{keyword}{enum} SysctlPrgpioPortPValues\_ \{}
+\DoxyCodeLine{00172     sysctlPrgpioPortPNotReady\_ = 0x00000000,}
+\DoxyCodeLine{00173     sysctlPrgpioPortPReady\_ = 0x00000001}
+\DoxyCodeLine{00174 \};}
+\DoxyCodeLine{00175 }
+\DoxyCodeLine{00176 \textcolor{keyword}{enum} SysctlPrgpioPortQValues\_ \{}
+\DoxyCodeLine{00177     sysctlPrgpioPortQNotReady\_ = 0x00000000,}
+\DoxyCodeLine{00178     sysctlPrgpioPortQReady\_ = 0x00000001}
+\DoxyCodeLine{00179 \};}
+\DoxyCodeLine{00180 }
+\DoxyCodeLine{00181 uint32\_t sysctlShiReadRcgcgpio\_(\textcolor{keyword}{enum} SysctlCores\_ \textcolor{keyword}{const} core);}
+\DoxyCodeLine{00182 \textcolor{keywordtype}{void} sysctlShiWriteRcgcgpio\_(\textcolor{keyword}{enum} SysctlCores\_ \textcolor{keyword}{const} core, uint32\_t \textcolor{keyword}{const} registerValue);}
+\DoxyCodeLine{00183 }
+\DoxyCodeLine{00184 uint32\_t sysctlShiReadPrgpio\_(\textcolor{keyword}{enum} SysctlCores\_ \textcolor{keyword}{const} core);}
+\DoxyCodeLine{00185 \textcolor{keywordtype}{void} sysctlShiWritePrgpio\_(\textcolor{keyword}{enum} SysctlCores\_ \textcolor{keyword}{const} core, uint32\_t \textcolor{keyword}{const} registerValue);}
+\DoxyCodeLine{00186 }
+\DoxyCodeLine{00187 \textcolor{keywordtype}{void} sysctlShiWriteRcgcgpioPortA\_(\textcolor{keyword}{enum} SysctlCores\_ \textcolor{keyword}{const} core, \textcolor{keyword}{enum} SysctlRcgcgpioPortAValues\_ \textcolor{keyword}{const} portA);}
+\DoxyCodeLine{00188 \textcolor{keywordtype}{void} sysctlShiWriteUIRcgcgpioPortA\_(uint32\_t * \textcolor{keyword}{const} registerValue, \textcolor{keyword}{enum} SysctlRcgcgpioPortAValues\_ \textcolor{keyword}{const} portA);}
+\DoxyCodeLine{00189 }
+\DoxyCodeLine{00190 \textcolor{keywordtype}{void} sysctlShiWriteRcgcgpioPortB\_(\textcolor{keyword}{enum} SysctlCores\_ \textcolor{keyword}{const} core, \textcolor{keyword}{enum} SysctlRcgcgpioPortBValues\_ \textcolor{keyword}{const} portB);}
+\DoxyCodeLine{00191 \textcolor{keywordtype}{void} sysctlShiWriteUIRcgcgpioPortB\_(uint32\_t * \textcolor{keyword}{const} registerValue, \textcolor{keyword}{enum} SysctlRcgcgpioPortBValues\_ \textcolor{keyword}{const} portB);}
+\DoxyCodeLine{00192 }
+\DoxyCodeLine{00193 \textcolor{keywordtype}{void} sysctlShiWriteRcgcgpioPortC\_(\textcolor{keyword}{enum} SysctlCores\_ \textcolor{keyword}{const} core, \textcolor{keyword}{enum} SysctlRcgcgpioPortCValues\_ \textcolor{keyword}{const} portC);}
+\DoxyCodeLine{00194 \textcolor{keywordtype}{void} sysctlShiWriteUIRcgcgpioPortC\_(uint32\_t * \textcolor{keyword}{const} registerValue, \textcolor{keyword}{enum} SysctlRcgcgpioPortCValues\_ \textcolor{keyword}{const} portC);}
+\DoxyCodeLine{00195 }
+\DoxyCodeLine{00196 \textcolor{keywordtype}{void} sysctlShiWriteRcgcgpioPortD\_(\textcolor{keyword}{enum} SysctlCores\_ \textcolor{keyword}{const} core, \textcolor{keyword}{enum} SysctlRcgcgpioPortDValues\_ \textcolor{keyword}{const} portD);}
+\DoxyCodeLine{00197 \textcolor{keywordtype}{void} sysctlShiWriteUIRcgcgpioPortD\_(uint32\_t * \textcolor{keyword}{const} registerValue, \textcolor{keyword}{enum} SysctlRcgcgpioPortDValues\_ \textcolor{keyword}{const} portD);}
+\DoxyCodeLine{00198 }
+\DoxyCodeLine{00199 \textcolor{keywordtype}{void} sysctlShiWriteRcgcgpioPortE\_(\textcolor{keyword}{enum} SysctlCores\_ \textcolor{keyword}{const} core, \textcolor{keyword}{enum} SysctlRcgcgpioPortEValues\_ \textcolor{keyword}{const} portE);}
+\DoxyCodeLine{00200 \textcolor{keywordtype}{void} sysctlShiWriteUIRcgcgpioPortE\_(uint32\_t * \textcolor{keyword}{const} registerValue, \textcolor{keyword}{enum} SysctlRcgcgpioPortEValues\_ \textcolor{keyword}{const} portE);}
+\DoxyCodeLine{00201 }
+\DoxyCodeLine{00202 \textcolor{keywordtype}{void} sysctlShiWriteRcgcgpioPortF\_(\textcolor{keyword}{enum} SysctlCores\_ \textcolor{keyword}{const} core, \textcolor{keyword}{enum} SysctlRcgcgpioPortFValues\_ \textcolor{keyword}{const} portF);}
+\DoxyCodeLine{00203 \textcolor{keywordtype}{void} sysctlShiWriteUIRcgcgpioPortF\_(uint32\_t * \textcolor{keyword}{const} registerValue, \textcolor{keyword}{enum} SysctlRcgcgpioPortFValues\_ \textcolor{keyword}{const} portF);}
+\DoxyCodeLine{00204 }
+\DoxyCodeLine{00205 \textcolor{keywordtype}{void} sysctlShiWriteRcgcgpioPortG\_(\textcolor{keyword}{enum} SysctlCores\_ \textcolor{keyword}{const} core, \textcolor{keyword}{enum} SysctlRcgcgpioPortGValues\_ \textcolor{keyword}{const} portG);}
+\DoxyCodeLine{00206 \textcolor{keywordtype}{void} sysctlShiWriteUIRcgcgpioPortG\_(uint32\_t * \textcolor{keyword}{const} registerValue, \textcolor{keyword}{enum} SysctlRcgcgpioPortGValues\_ \textcolor{keyword}{const} portG);}
+\DoxyCodeLine{00207 }
+\DoxyCodeLine{00208 \textcolor{keywordtype}{void} sysctlShiWriteRcgcgpioPortH\_(\textcolor{keyword}{enum} SysctlCores\_ \textcolor{keyword}{const} core, \textcolor{keyword}{enum} SysctlRcgcgpioPortHValues\_ \textcolor{keyword}{const} portH);}
+\DoxyCodeLine{00209 \textcolor{keywordtype}{void} sysctlShiWriteUIRcgcgpioPortH\_(uint32\_t * \textcolor{keyword}{const} registerValue, \textcolor{keyword}{enum} SysctlRcgcgpioPortHValues\_ \textcolor{keyword}{const} portH);}
+\DoxyCodeLine{00210 }
+\DoxyCodeLine{00211 \textcolor{keywordtype}{void} sysctlShiWriteRcgcgpioPortJ\_(\textcolor{keyword}{enum} SysctlCores\_ \textcolor{keyword}{const} core, \textcolor{keyword}{enum} SysctlRcgcgpioPortJValues\_ \textcolor{keyword}{const} portJ);}
+\DoxyCodeLine{00212 \textcolor{keywordtype}{void} sysctlShiWriteUIRcgcgpioPortJ\_(uint32\_t * \textcolor{keyword}{const} registerValue, \textcolor{keyword}{enum} SysctlRcgcgpioPortJValues\_ \textcolor{keyword}{const} portJ);}
+\DoxyCodeLine{00213 }
+\DoxyCodeLine{00214 \textcolor{keywordtype}{void} sysctlShiWriteRcgcgpioPortK\_(\textcolor{keyword}{enum} SysctlCores\_ \textcolor{keyword}{const} core, \textcolor{keyword}{enum} SysctlRcgcgpioPortKValues\_ \textcolor{keyword}{const} portK);}
+\DoxyCodeLine{00215 \textcolor{keywordtype}{void} sysctlShiWriteUIRcgcgpioPortK\_(uint32\_t * \textcolor{keyword}{const} registerValue, \textcolor{keyword}{enum} SysctlRcgcgpioPortKValues\_ \textcolor{keyword}{const} portK);}
+\DoxyCodeLine{00216 }
+\DoxyCodeLine{00217 \textcolor{keywordtype}{void} sysctlShiWriteRcgcgpioPortL\_(\textcolor{keyword}{enum} SysctlCores\_ \textcolor{keyword}{const} core, \textcolor{keyword}{enum} SysctlRcgcgpioPortLValues\_ \textcolor{keyword}{const} portL);}
+\DoxyCodeLine{00218 \textcolor{keywordtype}{void} sysctlShiWriteUIRcgcgpioPortL\_(uint32\_t * \textcolor{keyword}{const} registerValue, \textcolor{keyword}{enum} SysctlRcgcgpioPortLValues\_ \textcolor{keyword}{const} portL);}
+\DoxyCodeLine{00219 }
+\DoxyCodeLine{00220 \textcolor{keywordtype}{void} sysctlShiWriteRcgcgpioPortM\_(\textcolor{keyword}{enum} SysctlCores\_ \textcolor{keyword}{const} core, \textcolor{keyword}{enum} SysctlRcgcgpioPortMValues\_ \textcolor{keyword}{const} portM);}
+\DoxyCodeLine{00221 \textcolor{keywordtype}{void} sysctlShiWriteUIRcgcgpioPortM\_(uint32\_t * \textcolor{keyword}{const} registerValue, \textcolor{keyword}{enum} SysctlRcgcgpioPortMValues\_ \textcolor{keyword}{const} portM);}
+\DoxyCodeLine{00222 }
+\DoxyCodeLine{00223 \textcolor{keywordtype}{void} sysctlShiWriteRcgcgpioPortN\_(\textcolor{keyword}{enum} SysctlCores\_ \textcolor{keyword}{const} core, \textcolor{keyword}{enum} SysctlRcgcgpioPortNValues\_ \textcolor{keyword}{const} portN);}
+\DoxyCodeLine{00224 \textcolor{keywordtype}{void} sysctlShiWriteUIRcgcgpioPortN\_(uint32\_t * \textcolor{keyword}{const} registerValue, \textcolor{keyword}{enum} SysctlRcgcgpioPortNValues\_ \textcolor{keyword}{const} portN);}
+\DoxyCodeLine{00225 }
+\DoxyCodeLine{00226 \textcolor{keywordtype}{void} sysctlShiWriteRcgcgpioPortP\_(\textcolor{keyword}{enum} SysctlCores\_ \textcolor{keyword}{const} core, \textcolor{keyword}{enum} SysctlRcgcgpioPortPValues\_ \textcolor{keyword}{const} portP);}
+\DoxyCodeLine{00227 \textcolor{keywordtype}{void} sysctlShiWriteUIRcgcgpioPortP\_(uint32\_t * \textcolor{keyword}{const} registerValue, \textcolor{keyword}{enum} SysctlRcgcgpioPortPValues\_ \textcolor{keyword}{const} portP);}
+\DoxyCodeLine{00228 }
+\DoxyCodeLine{00229 \textcolor{keywordtype}{void} sysctlShiWriteRcgcgpioPortQ\_(\textcolor{keyword}{enum} SysctlCores\_ \textcolor{keyword}{const} core, \textcolor{keyword}{enum} SysctlRcgcgpioPortQValues\_ \textcolor{keyword}{const} portQ);}
+\DoxyCodeLine{00230 \textcolor{keywordtype}{void} sysctlShiWriteUIRcgcgpioPortQ\_(uint32\_t * \textcolor{keyword}{const} registerValue, \textcolor{keyword}{enum} SysctlRcgcgpioPortQValues\_ \textcolor{keyword}{const} portQ);}
+\DoxyCodeLine{00231 }
+\DoxyCodeLine{00232 uint32\_t sysctlShiReadPrgpioPortA\_(\textcolor{keyword}{enum} SysctlCores\_ \textcolor{keyword}{const} core);}
+\DoxyCodeLine{00233 uint32\_t sysctlShiReadUIPrgpioPortA\_(uint32\_t \textcolor{keyword}{const} registerValue);}
+\DoxyCodeLine{00234 }
+\DoxyCodeLine{00235 uint32\_t sysctlShiReadPrgpioPortB\_(\textcolor{keyword}{enum} SysctlCores\_ \textcolor{keyword}{const} core);}
+\DoxyCodeLine{00236 uint32\_t sysctlShiReadUIPrgpioPortB\_(uint32\_t \textcolor{keyword}{const} registerValue);}
+\DoxyCodeLine{00237 }
+\DoxyCodeLine{00238 uint32\_t sysctlShiReadPrgpioPortC\_(\textcolor{keyword}{enum} SysctlCores\_ \textcolor{keyword}{const} core);}
+\DoxyCodeLine{00239 uint32\_t sysctlShiReadUIPrgpioPortC\_(uint32\_t \textcolor{keyword}{const} registerValue);}
+\DoxyCodeLine{00240 }
+\DoxyCodeLine{00241 uint32\_t sysctlShiReadPrgpioPortD\_(\textcolor{keyword}{enum} SysctlCores\_ \textcolor{keyword}{const} core);}
+\DoxyCodeLine{00242 uint32\_t sysctlShiReadUIPrgpioPortD\_(uint32\_t \textcolor{keyword}{const} registerValue);}
+\DoxyCodeLine{00243 }
+\DoxyCodeLine{00244 uint32\_t sysctlShiReadPrgpioPortE\_(\textcolor{keyword}{enum} SysctlCores\_ \textcolor{keyword}{const} core);}
+\DoxyCodeLine{00245 uint32\_t sysctlShiReadUIPrgpioPortE\_(uint32\_t \textcolor{keyword}{const} registerValue);}
+\DoxyCodeLine{00246 }
+\DoxyCodeLine{00247 uint32\_t sysctlShiReadPrgpioPortF\_(\textcolor{keyword}{enum} SysctlCores\_ \textcolor{keyword}{const} core);}
+\DoxyCodeLine{00248 uint32\_t sysctlShiReadUIPrgpioPortF\_(uint32\_t \textcolor{keyword}{const} registerValue);}
+\DoxyCodeLine{00249 }
+\DoxyCodeLine{00250 uint32\_t sysctlShiReadPrgpioPortG\_(\textcolor{keyword}{enum} SysctlCores\_ \textcolor{keyword}{const} core);}
+\DoxyCodeLine{00251 uint32\_t sysctlShiReadUIPrgpioPortG\_(uint32\_t \textcolor{keyword}{const} registerValue);}
+\DoxyCodeLine{00252 }
+\DoxyCodeLine{00253 uint32\_t sysctlShiReadPrgpioPortH\_(\textcolor{keyword}{enum} SysctlCores\_ \textcolor{keyword}{const} core);}
+\DoxyCodeLine{00254 uint32\_t sysctlShiReadUIPrgpioPortH\_(uint32\_t \textcolor{keyword}{const} registerValue);}
+\DoxyCodeLine{00255 }
+\DoxyCodeLine{00256 uint32\_t sysctlShiReadPrgpioPortJ\_(\textcolor{keyword}{enum} SysctlCores\_ \textcolor{keyword}{const} core);}
+\DoxyCodeLine{00257 uint32\_t sysctlShiReadUIPrgpioPortJ\_(uint32\_t \textcolor{keyword}{const} registerValue);}
+\DoxyCodeLine{00258 }
+\DoxyCodeLine{00259 uint32\_t sysctlShiReadPrgpioPortK\_(\textcolor{keyword}{enum} SysctlCores\_ \textcolor{keyword}{const} core);}
+\DoxyCodeLine{00260 uint32\_t sysctlShiReadUIPrgpioPortK\_(uint32\_t \textcolor{keyword}{const} registerValue);}
+\DoxyCodeLine{00261 }
+\DoxyCodeLine{00262 uint32\_t sysctlShiReadPrgpioPortL\_(\textcolor{keyword}{enum} SysctlCores\_ \textcolor{keyword}{const} core);}
+\DoxyCodeLine{00263 uint32\_t sysctlShiReadUIPrgpioPortL\_(uint32\_t \textcolor{keyword}{const} registerValue);}
+\DoxyCodeLine{00264 }
+\DoxyCodeLine{00265 uint32\_t sysctlShiReadPrgpioPortM\_(\textcolor{keyword}{enum} SysctlCores\_ \textcolor{keyword}{const} core);}
+\DoxyCodeLine{00266 uint32\_t sysctlShiReadUIPrgpioPortM\_(uint32\_t \textcolor{keyword}{const} registerValue);}
+\DoxyCodeLine{00267 }
+\DoxyCodeLine{00268 uint32\_t sysctlShiReadPrgpioPortN\_(\textcolor{keyword}{enum} SysctlCores\_ \textcolor{keyword}{const} core);}
+\DoxyCodeLine{00269 uint32\_t sysctlShiReadUIPrgpioPortN\_(uint32\_t \textcolor{keyword}{const} registerValue);}
+\DoxyCodeLine{00270 }
+\DoxyCodeLine{00271 uint32\_t sysctlShiReadPrgpioPortP\_(\textcolor{keyword}{enum} SysctlCores\_ \textcolor{keyword}{const} core);}
+\DoxyCodeLine{00272 uint32\_t sysctlShiReadUIPrgpioPortP\_(uint32\_t \textcolor{keyword}{const} registerValue);}
+\DoxyCodeLine{00273 }
+\DoxyCodeLine{00274 uint32\_t sysctlShiReadPrgpioPortQ\_(\textcolor{keyword}{enum} SysctlCores\_ \textcolor{keyword}{const} core);}
+\DoxyCodeLine{00275 uint32\_t sysctlShiReadUIPrgpioPortQ\_(uint32\_t \textcolor{keyword}{const} registerValue);}
+\DoxyCodeLine{00276 }
+\DoxyCodeLine{00277 }
+\DoxyCodeLine{00278 \textcolor{preprocessor}{\#endif}}
+
+\end{DoxyCode}

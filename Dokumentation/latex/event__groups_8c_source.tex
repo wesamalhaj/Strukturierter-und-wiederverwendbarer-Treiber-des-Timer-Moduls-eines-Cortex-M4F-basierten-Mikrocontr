@@ -1,0 +1,759 @@
+\doxysection{event\+\_\+groups.\+c}
+\label{event__groups_8c_source}\index{rtos/FreeRTOS/source/event\_groups.c@{rtos/FreeRTOS/source/event\_groups.c}}
+
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00001 \textcolor{comment}{/*}}
+\DoxyCodeLine{00002 \textcolor{comment}{ * FreeRTOS Kernel V10.2.1}}
+\DoxyCodeLine{00003 \textcolor{comment}{ * Copyright (C) 2019 Amazon.com, Inc. or its affiliates.  All Rights Reserved.}}
+\DoxyCodeLine{00004 \textcolor{comment}{ *}}
+\DoxyCodeLine{00005 \textcolor{comment}{ * Permission is hereby granted, free of charge, to any person obtaining a copy of}}
+\DoxyCodeLine{00006 \textcolor{comment}{ * this software and associated documentation files (the "{}Software"{}), to deal in}}
+\DoxyCodeLine{00007 \textcolor{comment}{ * the Software without restriction, including without limitation the rights to}}
+\DoxyCodeLine{00008 \textcolor{comment}{ * use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of}}
+\DoxyCodeLine{00009 \textcolor{comment}{ * the Software, and to permit persons to whom the Software is furnished to do so,}}
+\DoxyCodeLine{00010 \textcolor{comment}{ * subject to the following conditions:}}
+\DoxyCodeLine{00011 \textcolor{comment}{ *}}
+\DoxyCodeLine{00012 \textcolor{comment}{ * The above copyright notice and this permission notice shall be included in all}}
+\DoxyCodeLine{00013 \textcolor{comment}{ * copies or substantial portions of the Software.}}
+\DoxyCodeLine{00014 \textcolor{comment}{ *}}
+\DoxyCodeLine{00015 \textcolor{comment}{ * THE SOFTWARE IS PROVIDED "{}AS IS"{}, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR}}
+\DoxyCodeLine{00016 \textcolor{comment}{ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS}}
+\DoxyCodeLine{00017 \textcolor{comment}{ * FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR}}
+\DoxyCodeLine{00018 \textcolor{comment}{ * COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER}}
+\DoxyCodeLine{00019 \textcolor{comment}{ * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN}}
+\DoxyCodeLine{00020 \textcolor{comment}{ * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.}}
+\DoxyCodeLine{00021 \textcolor{comment}{ *}}
+\DoxyCodeLine{00022 \textcolor{comment}{ * http://www.FreeRTOS.org}}
+\DoxyCodeLine{00023 \textcolor{comment}{ * http://aws.amazon.com/freertos}}
+\DoxyCodeLine{00024 \textcolor{comment}{ *}}
+\DoxyCodeLine{00025 \textcolor{comment}{ * 1 tab == 4 spaces!}}
+\DoxyCodeLine{00026 \textcolor{comment}{ */}}
+\DoxyCodeLine{00027 }
+\DoxyCodeLine{00028 \textcolor{comment}{/* Standard includes. */}}
+\DoxyCodeLine{00029 \textcolor{preprocessor}{\#include <stdlib.h>}}
+\DoxyCodeLine{00030 }
+\DoxyCodeLine{00031 \textcolor{comment}{/* Defining MPU\_WRAPPERS\_INCLUDED\_FROM\_API\_FILE prevents task.h from redefining}}
+\DoxyCodeLine{00032 \textcolor{comment}{all the API functions to use the MPU wrappers.  That should only be done when}}
+\DoxyCodeLine{00033 \textcolor{comment}{task.h is included from an application file. */}}
+\DoxyCodeLine{00034 \textcolor{preprocessor}{\#define MPU\_WRAPPERS\_INCLUDED\_FROM\_API\_FILE}}
+\DoxyCodeLine{00035 }
+\DoxyCodeLine{00036 \textcolor{comment}{/* FreeRTOS includes. */}}
+\DoxyCodeLine{00037 \textcolor{preprocessor}{\#include "{}FreeRTOS.h"{}}}
+\DoxyCodeLine{00038 \textcolor{preprocessor}{\#include "{}task.h"{}}}
+\DoxyCodeLine{00039 \textcolor{preprocessor}{\#include "{}timers.h"{}}}
+\DoxyCodeLine{00040 \textcolor{preprocessor}{\#include "{}event\_groups.h"{}}}
+\DoxyCodeLine{00041 }
+\DoxyCodeLine{00042 \textcolor{comment}{/* Lint e961, e750 and e9021 are suppressed as a MISRA exception justified}}
+\DoxyCodeLine{00043 \textcolor{comment}{because the MPU ports require MPU\_WRAPPERS\_INCLUDED\_FROM\_API\_FILE to be defined}}
+\DoxyCodeLine{00044 \textcolor{comment}{for the header files above, but not in this file, in order to generate the}}
+\DoxyCodeLine{00045 \textcolor{comment}{correct privileged Vs unprivileged linkage and placement. */}}
+\DoxyCodeLine{00046 \textcolor{preprocessor}{\#undef MPU\_WRAPPERS\_INCLUDED\_FROM\_API\_FILE }\textcolor{comment}{/*lint !e961 !e750 !e9021 See comment above. */}\textcolor{preprocessor}{}}
+\DoxyCodeLine{00047 }
+\DoxyCodeLine{00048 \textcolor{comment}{/* The following bit fields convey control information in a task's event list}}
+\DoxyCodeLine{00049 \textcolor{comment}{item value.  It is important they don't clash with the}}
+\DoxyCodeLine{00050 \textcolor{comment}{taskEVENT\_LIST\_ITEM\_VALUE\_IN\_USE definition. */}}
+\DoxyCodeLine{00051 \textcolor{preprocessor}{\#if configUSE\_16\_BIT\_TICKS == 1}}
+\DoxyCodeLine{00052 \textcolor{preprocessor}{    \#define eventCLEAR\_EVENTS\_ON\_EXIT\_BIT   0x0100U}}
+\DoxyCodeLine{00053 \textcolor{preprocessor}{    \#define eventUNBLOCKED\_DUE\_TO\_BIT\_SET   0x0200U}}
+\DoxyCodeLine{00054 \textcolor{preprocessor}{    \#define eventWAIT\_FOR\_ALL\_BITS          0x0400U}}
+\DoxyCodeLine{00055 \textcolor{preprocessor}{    \#define eventEVENT\_BITS\_CONTROL\_BYTES   0xff00U}}
+\DoxyCodeLine{00056 \textcolor{preprocessor}{\#else}}
+\DoxyCodeLine{00057 \textcolor{preprocessor}{    \#define eventCLEAR\_EVENTS\_ON\_EXIT\_BIT   0x01000000UL}}
+\DoxyCodeLine{00058 \textcolor{preprocessor}{    \#define eventUNBLOCKED\_DUE\_TO\_BIT\_SET   0x02000000UL}}
+\DoxyCodeLine{00059 \textcolor{preprocessor}{    \#define eventWAIT\_FOR\_ALL\_BITS          0x04000000UL}}
+\DoxyCodeLine{00060 \textcolor{preprocessor}{    \#define eventEVENT\_BITS\_CONTROL\_BYTES   0xff000000UL}}
+\DoxyCodeLine{00061 \textcolor{preprocessor}{\#endif}}
+\DoxyCodeLine{00062 }
+\DoxyCodeLine{00063 \textcolor{keyword}{typedef} \textcolor{keyword}{struct }EventGroupDef\_t}
+\DoxyCodeLine{00064 \{}
+\DoxyCodeLine{00065     EventBits\_t uxEventBits;}
+\DoxyCodeLine{00066     List\_t xTasksWaitingForBits;      \textcolor{comment}{/*< List of tasks waiting for a bit to be set. */}}
+\DoxyCodeLine{00067 }
+\DoxyCodeLine{00068 \textcolor{preprocessor}{    \#if( configUSE\_TRACE\_FACILITY == 1 )}}
+\DoxyCodeLine{00069         UBaseType\_t uxEventGroupNumber;}
+\DoxyCodeLine{00070 \textcolor{preprocessor}{    \#endif}}
+\DoxyCodeLine{00071 }
+\DoxyCodeLine{00072 \textcolor{preprocessor}{    \#if( ( configSUPPORT\_STATIC\_ALLOCATION == 1 ) \&\& ( configSUPPORT\_DYNAMIC\_ALLOCATION == 1 ) )}}
+\DoxyCodeLine{00073         uint8\_t ucStaticallyAllocated; \textcolor{comment}{/*< Set to pdTRUE if the event group is statically allocated to ensure no attempt is made to free the memory. */}}
+\DoxyCodeLine{00074 \textcolor{preprocessor}{    \#endif}}
+\DoxyCodeLine{00075 \} EventGroup\_t;}
+\DoxyCodeLine{00076 }
+\DoxyCodeLine{00077 \textcolor{comment}{/*-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/*/}}
+\DoxyCodeLine{00078 }
+\DoxyCodeLine{00079 \textcolor{comment}{/*}}
+\DoxyCodeLine{00080 \textcolor{comment}{ * Test the bits set in uxCurrentEventBits to see if the wait condition is met.}}
+\DoxyCodeLine{00081 \textcolor{comment}{ * The wait condition is defined by xWaitForAllBits.  If xWaitForAllBits is}}
+\DoxyCodeLine{00082 \textcolor{comment}{ * pdTRUE then the wait condition is met if all the bits set in uxBitsToWaitFor}}
+\DoxyCodeLine{00083 \textcolor{comment}{ * are also set in uxCurrentEventBits.  If xWaitForAllBits is pdFALSE then the}}
+\DoxyCodeLine{00084 \textcolor{comment}{ * wait condition is met if any of the bits set in uxBitsToWait for are also set}}
+\DoxyCodeLine{00085 \textcolor{comment}{ * in uxCurrentEventBits.}}
+\DoxyCodeLine{00086 \textcolor{comment}{ */}}
+\DoxyCodeLine{00087 \textcolor{keyword}{static} BaseType\_t prvTestWaitCondition( \textcolor{keyword}{const} EventBits\_t uxCurrentEventBits, \textcolor{keyword}{const} EventBits\_t uxBitsToWaitFor, \textcolor{keyword}{const} BaseType\_t xWaitForAllBits ) PRIVILEGED\_FUNCTION;}
+\DoxyCodeLine{00088 }
+\DoxyCodeLine{00089 \textcolor{comment}{/*-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/*/}}
+\DoxyCodeLine{00090 }
+\DoxyCodeLine{00091 \textcolor{preprocessor}{\#if( configSUPPORT\_STATIC\_ALLOCATION == 1 )}}
+\DoxyCodeLine{00092 }
+\DoxyCodeLine{00093     EventGroupHandle\_t xEventGroupCreateStatic( StaticEventGroup\_t *pxEventGroupBuffer )}
+\DoxyCodeLine{00094     \{}
+\DoxyCodeLine{00095     EventGroup\_t *pxEventBits;}
+\DoxyCodeLine{00096 }
+\DoxyCodeLine{00097         \textcolor{comment}{/* A StaticEventGroup\_t object must be provided. */}}
+\DoxyCodeLine{00098         configASSERT( pxEventGroupBuffer );}
+\DoxyCodeLine{00099 }
+\DoxyCodeLine{00100 \textcolor{preprocessor}{        \#if( configASSERT\_DEFINED == 1 )}}
+\DoxyCodeLine{00101         \{}
+\DoxyCodeLine{00102             \textcolor{comment}{/* Sanity check that the size of the structure used to declare a}}
+\DoxyCodeLine{00103 \textcolor{comment}{            variable of type StaticEventGroup\_t equals the size of the real}}
+\DoxyCodeLine{00104 \textcolor{comment}{            event group structure. */}}
+\DoxyCodeLine{00105             \textcolor{keyword}{volatile} \textcolor{keywordtype}{size\_t} xSize = \textcolor{keyword}{sizeof}( StaticEventGroup\_t );}
+\DoxyCodeLine{00106             configASSERT( xSize == \textcolor{keyword}{sizeof}( EventGroup\_t ) );}
+\DoxyCodeLine{00107         \} \textcolor{comment}{/*lint !e529 xSize is referenced if configASSERT() is defined. */}}
+\DoxyCodeLine{00108 \textcolor{preprocessor}{        \#endif }\textcolor{comment}{/* configASSERT\_DEFINED */}\textcolor{preprocessor}{}}
+\DoxyCodeLine{00109 }
+\DoxyCodeLine{00110         \textcolor{comment}{/* The user has provided a statically allocated event group -\/ use it. */}}
+\DoxyCodeLine{00111         pxEventBits = ( EventGroup\_t * ) pxEventGroupBuffer; \textcolor{comment}{/*lint !e740 !e9087 EventGroup\_t and StaticEventGroup\_t are deliberately aliased for data hiding purposes and guaranteed to have the same size and alignment requirement -\/ checked by configASSERT(). */}}
+\DoxyCodeLine{00112 }
+\DoxyCodeLine{00113         \textcolor{keywordflow}{if}( pxEventBits != NULL )}
+\DoxyCodeLine{00114         \{}
+\DoxyCodeLine{00115             pxEventBits-\/>uxEventBits = 0;}
+\DoxyCodeLine{00116             vListInitialise( \&( pxEventBits-\/>xTasksWaitingForBits ) );}
+\DoxyCodeLine{00117 }
+\DoxyCodeLine{00118 \textcolor{preprocessor}{            \#if( configSUPPORT\_DYNAMIC\_ALLOCATION == 1 )}}
+\DoxyCodeLine{00119             \{}
+\DoxyCodeLine{00120                 \textcolor{comment}{/* Both static and dynamic allocation can be used, so note that}}
+\DoxyCodeLine{00121 \textcolor{comment}{                this event group was created statically in case the event group}}
+\DoxyCodeLine{00122 \textcolor{comment}{                is later deleted. */}}
+\DoxyCodeLine{00123                 pxEventBits-\/>ucStaticallyAllocated = pdTRUE;}
+\DoxyCodeLine{00124             \}}
+\DoxyCodeLine{00125 \textcolor{preprocessor}{            \#endif }\textcolor{comment}{/* configSUPPORT\_DYNAMIC\_ALLOCATION */}\textcolor{preprocessor}{}}
+\DoxyCodeLine{00126 }
+\DoxyCodeLine{00127             traceEVENT\_GROUP\_CREATE( pxEventBits );}
+\DoxyCodeLine{00128         \}}
+\DoxyCodeLine{00129         \textcolor{keywordflow}{else}}
+\DoxyCodeLine{00130         \{}
+\DoxyCodeLine{00131             \textcolor{comment}{/* xEventGroupCreateStatic should only ever be called with}}
+\DoxyCodeLine{00132 \textcolor{comment}{            pxEventGroupBuffer pointing to a pre-\/allocated (compile time}}
+\DoxyCodeLine{00133 \textcolor{comment}{            allocated) StaticEventGroup\_t variable. */}}
+\DoxyCodeLine{00134             traceEVENT\_GROUP\_CREATE\_FAILED();}
+\DoxyCodeLine{00135         \}}
+\DoxyCodeLine{00136 }
+\DoxyCodeLine{00137         \textcolor{keywordflow}{return} pxEventBits;}
+\DoxyCodeLine{00138     \}}
+\DoxyCodeLine{00139 }
+\DoxyCodeLine{00140 \textcolor{preprocessor}{\#endif }\textcolor{comment}{/* configSUPPORT\_STATIC\_ALLOCATION */}\textcolor{preprocessor}{}}
+\DoxyCodeLine{00141 \textcolor{comment}{/*-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/*/}}
+\DoxyCodeLine{00142 }
+\DoxyCodeLine{00143 \textcolor{preprocessor}{\#if( configSUPPORT\_DYNAMIC\_ALLOCATION == 1 )}}
+\DoxyCodeLine{00144 }
+\DoxyCodeLine{00145     EventGroupHandle\_t xEventGroupCreate( \textcolor{keywordtype}{void} )}
+\DoxyCodeLine{00146     \{}
+\DoxyCodeLine{00147     EventGroup\_t *pxEventBits;}
+\DoxyCodeLine{00148 }
+\DoxyCodeLine{00149         \textcolor{comment}{/* Allocate the event group.  Justification for MISRA deviation as}}
+\DoxyCodeLine{00150 \textcolor{comment}{        follows:  pvPortMalloc() always ensures returned memory blocks are}}
+\DoxyCodeLine{00151 \textcolor{comment}{        aligned per the requirements of the MCU stack.  In this case}}
+\DoxyCodeLine{00152 \textcolor{comment}{        pvPortMalloc() must return a pointer that is guaranteed to meet the}}
+\DoxyCodeLine{00153 \textcolor{comment}{        alignment requirements of the EventGroup\_t structure -\/ which (if you}}
+\DoxyCodeLine{00154 \textcolor{comment}{        follow it through) is the alignment requirements of the TickType\_t type}}
+\DoxyCodeLine{00155 \textcolor{comment}{        (EventBits\_t being of TickType\_t itself).  Therefore, whenever the}}
+\DoxyCodeLine{00156 \textcolor{comment}{        stack alignment requirements are greater than or equal to the}}
+\DoxyCodeLine{00157 \textcolor{comment}{        TickType\_t alignment requirements the cast is safe.  In other cases,}}
+\DoxyCodeLine{00158 \textcolor{comment}{        where the natural word size of the architecture is less than}}
+\DoxyCodeLine{00159 \textcolor{comment}{        sizeof( TickType\_t ), the TickType\_t variables will be accessed in two}}
+\DoxyCodeLine{00160 \textcolor{comment}{        or more reads operations, and the alignment requirements is only that}}
+\DoxyCodeLine{00161 \textcolor{comment}{        of each individual read. */}}
+\DoxyCodeLine{00162         pxEventBits = ( EventGroup\_t * ) pvPortMalloc( \textcolor{keyword}{sizeof}( EventGroup\_t ) ); \textcolor{comment}{/*lint !e9087 !e9079 see comment above. */}}
+\DoxyCodeLine{00163 }
+\DoxyCodeLine{00164         \textcolor{keywordflow}{if}( pxEventBits != NULL )}
+\DoxyCodeLine{00165         \{}
+\DoxyCodeLine{00166             pxEventBits-\/>uxEventBits = 0;}
+\DoxyCodeLine{00167             vListInitialise( \&( pxEventBits-\/>xTasksWaitingForBits ) );}
+\DoxyCodeLine{00168 }
+\DoxyCodeLine{00169 \textcolor{preprocessor}{            \#if( configSUPPORT\_STATIC\_ALLOCATION == 1 )}}
+\DoxyCodeLine{00170             \{}
+\DoxyCodeLine{00171                 \textcolor{comment}{/* Both static and dynamic allocation can be used, so note this}}
+\DoxyCodeLine{00172 \textcolor{comment}{                event group was allocated statically in case the event group is}}
+\DoxyCodeLine{00173 \textcolor{comment}{                later deleted. */}}
+\DoxyCodeLine{00174                 pxEventBits-\/>ucStaticallyAllocated = pdFALSE;}
+\DoxyCodeLine{00175             \}}
+\DoxyCodeLine{00176 \textcolor{preprocessor}{            \#endif }\textcolor{comment}{/* configSUPPORT\_STATIC\_ALLOCATION */}\textcolor{preprocessor}{}}
+\DoxyCodeLine{00177 }
+\DoxyCodeLine{00178             traceEVENT\_GROUP\_CREATE( pxEventBits );}
+\DoxyCodeLine{00179         \}}
+\DoxyCodeLine{00180         \textcolor{keywordflow}{else}}
+\DoxyCodeLine{00181         \{}
+\DoxyCodeLine{00182             traceEVENT\_GROUP\_CREATE\_FAILED(); \textcolor{comment}{/*lint !e9063 Else branch only exists to allow tracing and does not generate code if trace macros are not defined. */}}
+\DoxyCodeLine{00183         \}}
+\DoxyCodeLine{00184 }
+\DoxyCodeLine{00185         \textcolor{keywordflow}{return} pxEventBits;}
+\DoxyCodeLine{00186     \}}
+\DoxyCodeLine{00187 }
+\DoxyCodeLine{00188 \textcolor{preprocessor}{\#endif }\textcolor{comment}{/* configSUPPORT\_DYNAMIC\_ALLOCATION */}\textcolor{preprocessor}{}}
+\DoxyCodeLine{00189 \textcolor{comment}{/*-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/*/}}
+\DoxyCodeLine{00190 }
+\DoxyCodeLine{00191 EventBits\_t xEventGroupSync( EventGroupHandle\_t xEventGroup, \textcolor{keyword}{const} EventBits\_t uxBitsToSet, \textcolor{keyword}{const} EventBits\_t uxBitsToWaitFor, TickType\_t xTicksToWait )}
+\DoxyCodeLine{00192 \{}
+\DoxyCodeLine{00193 EventBits\_t uxOriginalBitValue, uxReturn;}
+\DoxyCodeLine{00194 EventGroup\_t *pxEventBits = xEventGroup;}
+\DoxyCodeLine{00195 BaseType\_t xAlreadyYielded;}
+\DoxyCodeLine{00196 BaseType\_t xTimeoutOccurred = pdFALSE;}
+\DoxyCodeLine{00197 }
+\DoxyCodeLine{00198     configASSERT( ( uxBitsToWaitFor \& eventEVENT\_BITS\_CONTROL\_BYTES ) == 0 );}
+\DoxyCodeLine{00199     configASSERT( uxBitsToWaitFor != 0 );}
+\DoxyCodeLine{00200 \textcolor{preprocessor}{    \#if ( ( INCLUDE\_xTaskGetSchedulerState == 1 ) || ( configUSE\_TIMERS == 1 ) )}}
+\DoxyCodeLine{00201     \{}
+\DoxyCodeLine{00202         configASSERT( !( ( xTaskGetSchedulerState() == taskSCHEDULER\_SUSPENDED ) \&\& ( xTicksToWait != 0 ) ) );}
+\DoxyCodeLine{00203     \}}
+\DoxyCodeLine{00204 \textcolor{preprocessor}{    \#endif}}
+\DoxyCodeLine{00205 }
+\DoxyCodeLine{00206     vTaskSuspendAll();}
+\DoxyCodeLine{00207     \{}
+\DoxyCodeLine{00208         uxOriginalBitValue = pxEventBits-\/>uxEventBits;}
+\DoxyCodeLine{00209 }
+\DoxyCodeLine{00210         ( void ) xEventGroupSetBits( xEventGroup, uxBitsToSet );}
+\DoxyCodeLine{00211 }
+\DoxyCodeLine{00212         \textcolor{keywordflow}{if}( ( ( uxOriginalBitValue | uxBitsToSet ) \& uxBitsToWaitFor ) == uxBitsToWaitFor )}
+\DoxyCodeLine{00213         \{}
+\DoxyCodeLine{00214             \textcolor{comment}{/* All the rendezvous bits are now set -\/ no need to block. */}}
+\DoxyCodeLine{00215             uxReturn = ( uxOriginalBitValue | uxBitsToSet );}
+\DoxyCodeLine{00216 }
+\DoxyCodeLine{00217             \textcolor{comment}{/* Rendezvous always clear the bits.  They will have been cleared}}
+\DoxyCodeLine{00218 \textcolor{comment}{            already unless this is the only task in the rendezvous. */}}
+\DoxyCodeLine{00219             pxEventBits-\/>uxEventBits \&= \string~uxBitsToWaitFor;}
+\DoxyCodeLine{00220 }
+\DoxyCodeLine{00221             xTicksToWait = 0;}
+\DoxyCodeLine{00222         \}}
+\DoxyCodeLine{00223         \textcolor{keywordflow}{else}}
+\DoxyCodeLine{00224         \{}
+\DoxyCodeLine{00225             \textcolor{keywordflow}{if}( xTicksToWait != ( TickType\_t ) 0 )}
+\DoxyCodeLine{00226             \{}
+\DoxyCodeLine{00227                 traceEVENT\_GROUP\_SYNC\_BLOCK( xEventGroup, uxBitsToSet, uxBitsToWaitFor );}
+\DoxyCodeLine{00228 }
+\DoxyCodeLine{00229                 \textcolor{comment}{/* Store the bits that the calling task is waiting for in the}}
+\DoxyCodeLine{00230 \textcolor{comment}{                task's event list item so the kernel knows when a match is}}
+\DoxyCodeLine{00231 \textcolor{comment}{                found.  Then enter the blocked state. */}}
+\DoxyCodeLine{00232                 vTaskPlaceOnUnorderedEventList( \&( pxEventBits-\/>xTasksWaitingForBits ), ( uxBitsToWaitFor | eventCLEAR\_EVENTS\_ON\_EXIT\_BIT | eventWAIT\_FOR\_ALL\_BITS ), xTicksToWait );}
+\DoxyCodeLine{00233 }
+\DoxyCodeLine{00234                 \textcolor{comment}{/* This assignment is obsolete as uxReturn will get set after}}
+\DoxyCodeLine{00235 \textcolor{comment}{                the task unblocks, but some compilers mistakenly generate a}}
+\DoxyCodeLine{00236 \textcolor{comment}{                warning about uxReturn being returned without being set if the}}
+\DoxyCodeLine{00237 \textcolor{comment}{                assignment is omitted. */}}
+\DoxyCodeLine{00238                 uxReturn = 0;}
+\DoxyCodeLine{00239             \}}
+\DoxyCodeLine{00240             \textcolor{keywordflow}{else}}
+\DoxyCodeLine{00241             \{}
+\DoxyCodeLine{00242                 \textcolor{comment}{/* The rendezvous bits were not set, but no block time was}}
+\DoxyCodeLine{00243 \textcolor{comment}{                specified -\/ just return the current event bit value. */}}
+\DoxyCodeLine{00244                 uxReturn = pxEventBits-\/>uxEventBits;}
+\DoxyCodeLine{00245                 xTimeoutOccurred = pdTRUE;}
+\DoxyCodeLine{00246             \}}
+\DoxyCodeLine{00247         \}}
+\DoxyCodeLine{00248     \}}
+\DoxyCodeLine{00249     xAlreadyYielded = xTaskResumeAll();}
+\DoxyCodeLine{00250 }
+\DoxyCodeLine{00251     \textcolor{keywordflow}{if}( xTicksToWait != ( TickType\_t ) 0 )}
+\DoxyCodeLine{00252     \{}
+\DoxyCodeLine{00253         \textcolor{keywordflow}{if}( xAlreadyYielded == pdFALSE )}
+\DoxyCodeLine{00254         \{}
+\DoxyCodeLine{00255             portYIELD\_WITHIN\_API();}
+\DoxyCodeLine{00256         \}}
+\DoxyCodeLine{00257         \textcolor{keywordflow}{else}}
+\DoxyCodeLine{00258         \{}
+\DoxyCodeLine{00259             mtCOVERAGE\_TEST\_MARKER();}
+\DoxyCodeLine{00260         \}}
+\DoxyCodeLine{00261 }
+\DoxyCodeLine{00262         \textcolor{comment}{/* The task blocked to wait for its required bits to be set -\/ at this}}
+\DoxyCodeLine{00263 \textcolor{comment}{        point either the required bits were set or the block time expired.  If}}
+\DoxyCodeLine{00264 \textcolor{comment}{        the required bits were set they will have been stored in the task's}}
+\DoxyCodeLine{00265 \textcolor{comment}{        event list item, and they should now be retrieved then cleared. */}}
+\DoxyCodeLine{00266         uxReturn = uxTaskResetEventItemValue();}
+\DoxyCodeLine{00267 }
+\DoxyCodeLine{00268         \textcolor{keywordflow}{if}( ( uxReturn \& eventUNBLOCKED\_DUE\_TO\_BIT\_SET ) == ( EventBits\_t ) 0 )}
+\DoxyCodeLine{00269         \{}
+\DoxyCodeLine{00270             \textcolor{comment}{/* The task timed out, just return the current event bit value. */}}
+\DoxyCodeLine{00271             taskENTER\_CRITICAL();}
+\DoxyCodeLine{00272             \{}
+\DoxyCodeLine{00273                 uxReturn = pxEventBits-\/>uxEventBits;}
+\DoxyCodeLine{00274 }
+\DoxyCodeLine{00275                 \textcolor{comment}{/* Although the task got here because it timed out before the}}
+\DoxyCodeLine{00276 \textcolor{comment}{                bits it was waiting for were set, it is possible that since it}}
+\DoxyCodeLine{00277 \textcolor{comment}{                unblocked another task has set the bits.  If this is the case}}
+\DoxyCodeLine{00278 \textcolor{comment}{                then it needs to clear the bits before exiting. */}}
+\DoxyCodeLine{00279                 \textcolor{keywordflow}{if}( ( uxReturn \& uxBitsToWaitFor ) == uxBitsToWaitFor )}
+\DoxyCodeLine{00280                 \{}
+\DoxyCodeLine{00281                     pxEventBits-\/>uxEventBits \&= \string~uxBitsToWaitFor;}
+\DoxyCodeLine{00282                 \}}
+\DoxyCodeLine{00283                 \textcolor{keywordflow}{else}}
+\DoxyCodeLine{00284                 \{}
+\DoxyCodeLine{00285                     mtCOVERAGE\_TEST\_MARKER();}
+\DoxyCodeLine{00286                 \}}
+\DoxyCodeLine{00287             \}}
+\DoxyCodeLine{00288             taskEXIT\_CRITICAL();}
+\DoxyCodeLine{00289 }
+\DoxyCodeLine{00290             xTimeoutOccurred = pdTRUE;}
+\DoxyCodeLine{00291         \}}
+\DoxyCodeLine{00292         \textcolor{keywordflow}{else}}
+\DoxyCodeLine{00293         \{}
+\DoxyCodeLine{00294             \textcolor{comment}{/* The task unblocked because the bits were set. */}}
+\DoxyCodeLine{00295         \}}
+\DoxyCodeLine{00296 }
+\DoxyCodeLine{00297         \textcolor{comment}{/* Control bits might be set as the task had blocked should not be}}
+\DoxyCodeLine{00298 \textcolor{comment}{        returned. */}}
+\DoxyCodeLine{00299         uxReturn \&= \string~eventEVENT\_BITS\_CONTROL\_BYTES;}
+\DoxyCodeLine{00300     \}}
+\DoxyCodeLine{00301 }
+\DoxyCodeLine{00302     traceEVENT\_GROUP\_SYNC\_END( xEventGroup, uxBitsToSet, uxBitsToWaitFor, xTimeoutOccurred );}
+\DoxyCodeLine{00303 }
+\DoxyCodeLine{00304     \textcolor{comment}{/* Prevent compiler warnings when trace macros are not used. */}}
+\DoxyCodeLine{00305     ( void ) xTimeoutOccurred;}
+\DoxyCodeLine{00306 }
+\DoxyCodeLine{00307     \textcolor{keywordflow}{return} uxReturn;}
+\DoxyCodeLine{00308 \}}
+\DoxyCodeLine{00309 \textcolor{comment}{/*-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/*/}}
+\DoxyCodeLine{00310 }
+\DoxyCodeLine{00311 EventBits\_t xEventGroupWaitBits( EventGroupHandle\_t xEventGroup, \textcolor{keyword}{const} EventBits\_t uxBitsToWaitFor, \textcolor{keyword}{const} BaseType\_t xClearOnExit, \textcolor{keyword}{const} BaseType\_t xWaitForAllBits, TickType\_t xTicksToWait )}
+\DoxyCodeLine{00312 \{}
+\DoxyCodeLine{00313 EventGroup\_t *pxEventBits = xEventGroup;}
+\DoxyCodeLine{00314 EventBits\_t uxReturn, uxControlBits = 0;}
+\DoxyCodeLine{00315 BaseType\_t xWaitConditionMet, xAlreadyYielded;}
+\DoxyCodeLine{00316 BaseType\_t xTimeoutOccurred = pdFALSE;}
+\DoxyCodeLine{00317 }
+\DoxyCodeLine{00318     \textcolor{comment}{/* Check the user is not attempting to wait on the bits used by the kernel}}
+\DoxyCodeLine{00319 \textcolor{comment}{    itself, and that at least one bit is being requested. */}}
+\DoxyCodeLine{00320     configASSERT( xEventGroup );}
+\DoxyCodeLine{00321     configASSERT( ( uxBitsToWaitFor \& eventEVENT\_BITS\_CONTROL\_BYTES ) == 0 );}
+\DoxyCodeLine{00322     configASSERT( uxBitsToWaitFor != 0 );}
+\DoxyCodeLine{00323 \textcolor{preprocessor}{    \#if ( ( INCLUDE\_xTaskGetSchedulerState == 1 ) || ( configUSE\_TIMERS == 1 ) )}}
+\DoxyCodeLine{00324     \{}
+\DoxyCodeLine{00325         configASSERT( !( ( xTaskGetSchedulerState() == taskSCHEDULER\_SUSPENDED ) \&\& ( xTicksToWait != 0 ) ) );}
+\DoxyCodeLine{00326     \}}
+\DoxyCodeLine{00327 \textcolor{preprocessor}{    \#endif}}
+\DoxyCodeLine{00328 }
+\DoxyCodeLine{00329     vTaskSuspendAll();}
+\DoxyCodeLine{00330     \{}
+\DoxyCodeLine{00331         \textcolor{keyword}{const} EventBits\_t uxCurrentEventBits = pxEventBits-\/>uxEventBits;}
+\DoxyCodeLine{00332 }
+\DoxyCodeLine{00333         \textcolor{comment}{/* Check to see if the wait condition is already met or not. */}}
+\DoxyCodeLine{00334         xWaitConditionMet = prvTestWaitCondition( uxCurrentEventBits, uxBitsToWaitFor, xWaitForAllBits );}
+\DoxyCodeLine{00335 }
+\DoxyCodeLine{00336         \textcolor{keywordflow}{if}( xWaitConditionMet != pdFALSE )}
+\DoxyCodeLine{00337         \{}
+\DoxyCodeLine{00338             \textcolor{comment}{/* The wait condition has already been met so there is no need to}}
+\DoxyCodeLine{00339 \textcolor{comment}{            block. */}}
+\DoxyCodeLine{00340             uxReturn = uxCurrentEventBits;}
+\DoxyCodeLine{00341             xTicksToWait = ( TickType\_t ) 0;}
+\DoxyCodeLine{00342 }
+\DoxyCodeLine{00343             \textcolor{comment}{/* Clear the wait bits if requested to do so. */}}
+\DoxyCodeLine{00344             \textcolor{keywordflow}{if}( xClearOnExit != pdFALSE )}
+\DoxyCodeLine{00345             \{}
+\DoxyCodeLine{00346                 pxEventBits-\/>uxEventBits \&= \string~uxBitsToWaitFor;}
+\DoxyCodeLine{00347             \}}
+\DoxyCodeLine{00348             \textcolor{keywordflow}{else}}
+\DoxyCodeLine{00349             \{}
+\DoxyCodeLine{00350                 mtCOVERAGE\_TEST\_MARKER();}
+\DoxyCodeLine{00351             \}}
+\DoxyCodeLine{00352         \}}
+\DoxyCodeLine{00353         \textcolor{keywordflow}{else} \textcolor{keywordflow}{if}( xTicksToWait == ( TickType\_t ) 0 )}
+\DoxyCodeLine{00354         \{}
+\DoxyCodeLine{00355             \textcolor{comment}{/* The wait condition has not been met, but no block time was}}
+\DoxyCodeLine{00356 \textcolor{comment}{            specified, so just return the current value. */}}
+\DoxyCodeLine{00357             uxReturn = uxCurrentEventBits;}
+\DoxyCodeLine{00358             xTimeoutOccurred = pdTRUE;}
+\DoxyCodeLine{00359         \}}
+\DoxyCodeLine{00360         \textcolor{keywordflow}{else}}
+\DoxyCodeLine{00361         \{}
+\DoxyCodeLine{00362             \textcolor{comment}{/* The task is going to block to wait for its required bits to be}}
+\DoxyCodeLine{00363 \textcolor{comment}{            set.  uxControlBits are used to remember the specified behaviour of}}
+\DoxyCodeLine{00364 \textcolor{comment}{            this call to xEventGroupWaitBits() -\/ for use when the event bits}}
+\DoxyCodeLine{00365 \textcolor{comment}{            unblock the task. */}}
+\DoxyCodeLine{00366             \textcolor{keywordflow}{if}( xClearOnExit != pdFALSE )}
+\DoxyCodeLine{00367             \{}
+\DoxyCodeLine{00368                 uxControlBits |= eventCLEAR\_EVENTS\_ON\_EXIT\_BIT;}
+\DoxyCodeLine{00369             \}}
+\DoxyCodeLine{00370             \textcolor{keywordflow}{else}}
+\DoxyCodeLine{00371             \{}
+\DoxyCodeLine{00372                 mtCOVERAGE\_TEST\_MARKER();}
+\DoxyCodeLine{00373             \}}
+\DoxyCodeLine{00374 }
+\DoxyCodeLine{00375             \textcolor{keywordflow}{if}( xWaitForAllBits != pdFALSE )}
+\DoxyCodeLine{00376             \{}
+\DoxyCodeLine{00377                 uxControlBits |= eventWAIT\_FOR\_ALL\_BITS;}
+\DoxyCodeLine{00378             \}}
+\DoxyCodeLine{00379             \textcolor{keywordflow}{else}}
+\DoxyCodeLine{00380             \{}
+\DoxyCodeLine{00381                 mtCOVERAGE\_TEST\_MARKER();}
+\DoxyCodeLine{00382             \}}
+\DoxyCodeLine{00383 }
+\DoxyCodeLine{00384             \textcolor{comment}{/* Store the bits that the calling task is waiting for in the}}
+\DoxyCodeLine{00385 \textcolor{comment}{            task's event list item so the kernel knows when a match is}}
+\DoxyCodeLine{00386 \textcolor{comment}{            found.  Then enter the blocked state. */}}
+\DoxyCodeLine{00387             vTaskPlaceOnUnorderedEventList( \&( pxEventBits-\/>xTasksWaitingForBits ), ( uxBitsToWaitFor | uxControlBits ), xTicksToWait );}
+\DoxyCodeLine{00388 }
+\DoxyCodeLine{00389             \textcolor{comment}{/* This is obsolete as it will get set after the task unblocks, but}}
+\DoxyCodeLine{00390 \textcolor{comment}{            some compilers mistakenly generate a warning about the variable}}
+\DoxyCodeLine{00391 \textcolor{comment}{            being returned without being set if it is not done. */}}
+\DoxyCodeLine{00392             uxReturn = 0;}
+\DoxyCodeLine{00393 }
+\DoxyCodeLine{00394             traceEVENT\_GROUP\_WAIT\_BITS\_BLOCK( xEventGroup, uxBitsToWaitFor );}
+\DoxyCodeLine{00395         \}}
+\DoxyCodeLine{00396     \}}
+\DoxyCodeLine{00397     xAlreadyYielded = xTaskResumeAll();}
+\DoxyCodeLine{00398 }
+\DoxyCodeLine{00399     \textcolor{keywordflow}{if}( xTicksToWait != ( TickType\_t ) 0 )}
+\DoxyCodeLine{00400     \{}
+\DoxyCodeLine{00401         \textcolor{keywordflow}{if}( xAlreadyYielded == pdFALSE )}
+\DoxyCodeLine{00402         \{}
+\DoxyCodeLine{00403             portYIELD\_WITHIN\_API();}
+\DoxyCodeLine{00404         \}}
+\DoxyCodeLine{00405         \textcolor{keywordflow}{else}}
+\DoxyCodeLine{00406         \{}
+\DoxyCodeLine{00407             mtCOVERAGE\_TEST\_MARKER();}
+\DoxyCodeLine{00408         \}}
+\DoxyCodeLine{00409 }
+\DoxyCodeLine{00410         \textcolor{comment}{/* The task blocked to wait for its required bits to be set -\/ at this}}
+\DoxyCodeLine{00411 \textcolor{comment}{        point either the required bits were set or the block time expired.  If}}
+\DoxyCodeLine{00412 \textcolor{comment}{        the required bits were set they will have been stored in the task's}}
+\DoxyCodeLine{00413 \textcolor{comment}{        event list item, and they should now be retrieved then cleared. */}}
+\DoxyCodeLine{00414         uxReturn = uxTaskResetEventItemValue();}
+\DoxyCodeLine{00415 }
+\DoxyCodeLine{00416         \textcolor{keywordflow}{if}( ( uxReturn \& eventUNBLOCKED\_DUE\_TO\_BIT\_SET ) == ( EventBits\_t ) 0 )}
+\DoxyCodeLine{00417         \{}
+\DoxyCodeLine{00418             taskENTER\_CRITICAL();}
+\DoxyCodeLine{00419             \{}
+\DoxyCodeLine{00420                 \textcolor{comment}{/* The task timed out, just return the current event bit value. */}}
+\DoxyCodeLine{00421                 uxReturn = pxEventBits-\/>uxEventBits;}
+\DoxyCodeLine{00422 }
+\DoxyCodeLine{00423                 \textcolor{comment}{/* It is possible that the event bits were updated between this}}
+\DoxyCodeLine{00424 \textcolor{comment}{                task leaving the Blocked state and running again. */}}
+\DoxyCodeLine{00425                 \textcolor{keywordflow}{if}( prvTestWaitCondition( uxReturn, uxBitsToWaitFor, xWaitForAllBits ) != pdFALSE )}
+\DoxyCodeLine{00426                 \{}
+\DoxyCodeLine{00427                     \textcolor{keywordflow}{if}( xClearOnExit != pdFALSE )}
+\DoxyCodeLine{00428                     \{}
+\DoxyCodeLine{00429                         pxEventBits-\/>uxEventBits \&= \string~uxBitsToWaitFor;}
+\DoxyCodeLine{00430                     \}}
+\DoxyCodeLine{00431                     \textcolor{keywordflow}{else}}
+\DoxyCodeLine{00432                     \{}
+\DoxyCodeLine{00433                         mtCOVERAGE\_TEST\_MARKER();}
+\DoxyCodeLine{00434                     \}}
+\DoxyCodeLine{00435                 \}}
+\DoxyCodeLine{00436                 \textcolor{keywordflow}{else}}
+\DoxyCodeLine{00437                 \{}
+\DoxyCodeLine{00438                     mtCOVERAGE\_TEST\_MARKER();}
+\DoxyCodeLine{00439                 \}}
+\DoxyCodeLine{00440                 xTimeoutOccurred = pdTRUE;}
+\DoxyCodeLine{00441             \}}
+\DoxyCodeLine{00442             taskEXIT\_CRITICAL();}
+\DoxyCodeLine{00443         \}}
+\DoxyCodeLine{00444         \textcolor{keywordflow}{else}}
+\DoxyCodeLine{00445         \{}
+\DoxyCodeLine{00446             \textcolor{comment}{/* The task unblocked because the bits were set. */}}
+\DoxyCodeLine{00447         \}}
+\DoxyCodeLine{00448 }
+\DoxyCodeLine{00449         \textcolor{comment}{/* The task blocked so control bits may have been set. */}}
+\DoxyCodeLine{00450         uxReturn \&= \string~eventEVENT\_BITS\_CONTROL\_BYTES;}
+\DoxyCodeLine{00451     \}}
+\DoxyCodeLine{00452     traceEVENT\_GROUP\_WAIT\_BITS\_END( xEventGroup, uxBitsToWaitFor, xTimeoutOccurred );}
+\DoxyCodeLine{00453 }
+\DoxyCodeLine{00454     \textcolor{comment}{/* Prevent compiler warnings when trace macros are not used. */}}
+\DoxyCodeLine{00455     ( void ) xTimeoutOccurred;}
+\DoxyCodeLine{00456 }
+\DoxyCodeLine{00457     \textcolor{keywordflow}{return} uxReturn;}
+\DoxyCodeLine{00458 \}}
+\DoxyCodeLine{00459 \textcolor{comment}{/*-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/*/}}
+\DoxyCodeLine{00460 }
+\DoxyCodeLine{00461 EventBits\_t xEventGroupClearBits( EventGroupHandle\_t xEventGroup, \textcolor{keyword}{const} EventBits\_t uxBitsToClear )}
+\DoxyCodeLine{00462 \{}
+\DoxyCodeLine{00463 EventGroup\_t *pxEventBits = xEventGroup;}
+\DoxyCodeLine{00464 EventBits\_t uxReturn;}
+\DoxyCodeLine{00465 }
+\DoxyCodeLine{00466     \textcolor{comment}{/* Check the user is not attempting to clear the bits used by the kernel}}
+\DoxyCodeLine{00467 \textcolor{comment}{    itself. */}}
+\DoxyCodeLine{00468     configASSERT( xEventGroup );}
+\DoxyCodeLine{00469     configASSERT( ( uxBitsToClear \& eventEVENT\_BITS\_CONTROL\_BYTES ) == 0 );}
+\DoxyCodeLine{00470 }
+\DoxyCodeLine{00471     taskENTER\_CRITICAL();}
+\DoxyCodeLine{00472     \{}
+\DoxyCodeLine{00473         traceEVENT\_GROUP\_CLEAR\_BITS( xEventGroup, uxBitsToClear );}
+\DoxyCodeLine{00474 }
+\DoxyCodeLine{00475         \textcolor{comment}{/* The value returned is the event group value prior to the bits being}}
+\DoxyCodeLine{00476 \textcolor{comment}{        cleared. */}}
+\DoxyCodeLine{00477         uxReturn = pxEventBits-\/>uxEventBits;}
+\DoxyCodeLine{00478 }
+\DoxyCodeLine{00479         \textcolor{comment}{/* Clear the bits. */}}
+\DoxyCodeLine{00480         pxEventBits-\/>uxEventBits \&= \string~uxBitsToClear;}
+\DoxyCodeLine{00481     \}}
+\DoxyCodeLine{00482     taskEXIT\_CRITICAL();}
+\DoxyCodeLine{00483 }
+\DoxyCodeLine{00484     \textcolor{keywordflow}{return} uxReturn;}
+\DoxyCodeLine{00485 \}}
+\DoxyCodeLine{00486 \textcolor{comment}{/*-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/*/}}
+\DoxyCodeLine{00487 }
+\DoxyCodeLine{00488 \textcolor{preprocessor}{\#if ( ( configUSE\_TRACE\_FACILITY == 1 ) \&\& ( INCLUDE\_xTimerPendFunctionCall == 1 ) \&\& ( configUSE\_TIMERS == 1 ) )}}
+\DoxyCodeLine{00489 }
+\DoxyCodeLine{00490     BaseType\_t xEventGroupClearBitsFromISR( EventGroupHandle\_t xEventGroup, \textcolor{keyword}{const} EventBits\_t uxBitsToClear )}
+\DoxyCodeLine{00491     \{}
+\DoxyCodeLine{00492         BaseType\_t xReturn;}
+\DoxyCodeLine{00493 }
+\DoxyCodeLine{00494         traceEVENT\_GROUP\_CLEAR\_BITS\_FROM\_ISR( xEventGroup, uxBitsToClear );}
+\DoxyCodeLine{00495         xReturn = xTimerPendFunctionCallFromISR( vEventGroupClearBitsCallback, ( \textcolor{keywordtype}{void} * ) xEventGroup, ( uint32\_t ) uxBitsToClear, NULL ); \textcolor{comment}{/*lint !e9087 Can't avoid cast to void* as a generic callback function not specific to this use case. Callback casts back to original type so safe. */}}
+\DoxyCodeLine{00496 }
+\DoxyCodeLine{00497         \textcolor{keywordflow}{return} xReturn;}
+\DoxyCodeLine{00498     \}}
+\DoxyCodeLine{00499 }
+\DoxyCodeLine{00500 \textcolor{preprocessor}{\#endif}}
+\DoxyCodeLine{00501 \textcolor{comment}{/*-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/*/}}
+\DoxyCodeLine{00502 }
+\DoxyCodeLine{00503 EventBits\_t xEventGroupGetBitsFromISR( EventGroupHandle\_t xEventGroup )}
+\DoxyCodeLine{00504 \{}
+\DoxyCodeLine{00505 UBaseType\_t uxSavedInterruptStatus;}
+\DoxyCodeLine{00506 EventGroup\_t \textcolor{keyword}{const} * \textcolor{keyword}{const} pxEventBits = xEventGroup;}
+\DoxyCodeLine{00507 EventBits\_t uxReturn;}
+\DoxyCodeLine{00508 }
+\DoxyCodeLine{00509     uxSavedInterruptStatus = portSET\_INTERRUPT\_MASK\_FROM\_ISR();}
+\DoxyCodeLine{00510     \{}
+\DoxyCodeLine{00511         uxReturn = pxEventBits-\/>uxEventBits;}
+\DoxyCodeLine{00512     \}}
+\DoxyCodeLine{00513     portCLEAR\_INTERRUPT\_MASK\_FROM\_ISR( uxSavedInterruptStatus );}
+\DoxyCodeLine{00514 }
+\DoxyCodeLine{00515     \textcolor{keywordflow}{return} uxReturn;}
+\DoxyCodeLine{00516 \} \textcolor{comment}{/*lint !e818 EventGroupHandle\_t is a typedef used in other functions to so can't be pointer to const. */}}
+\DoxyCodeLine{00517 \textcolor{comment}{/*-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/*/}}
+\DoxyCodeLine{00518 }
+\DoxyCodeLine{00519 EventBits\_t xEventGroupSetBits( EventGroupHandle\_t xEventGroup, \textcolor{keyword}{const} EventBits\_t uxBitsToSet )}
+\DoxyCodeLine{00520 \{}
+\DoxyCodeLine{00521 ListItem\_t *pxListItem, *pxNext;}
+\DoxyCodeLine{00522 ListItem\_t \textcolor{keyword}{const} *pxListEnd;}
+\DoxyCodeLine{00523 List\_t \textcolor{keyword}{const} * pxList;}
+\DoxyCodeLine{00524 EventBits\_t uxBitsToClear = 0, uxBitsWaitedFor, uxControlBits;}
+\DoxyCodeLine{00525 EventGroup\_t *pxEventBits = xEventGroup;}
+\DoxyCodeLine{00526 BaseType\_t xMatchFound = pdFALSE;}
+\DoxyCodeLine{00527 }
+\DoxyCodeLine{00528     \textcolor{comment}{/* Check the user is not attempting to set the bits used by the kernel}}
+\DoxyCodeLine{00529 \textcolor{comment}{    itself. */}}
+\DoxyCodeLine{00530     configASSERT( xEventGroup );}
+\DoxyCodeLine{00531     configASSERT( ( uxBitsToSet \& eventEVENT\_BITS\_CONTROL\_BYTES ) == 0 );}
+\DoxyCodeLine{00532 }
+\DoxyCodeLine{00533     pxList = \&( pxEventBits-\/>xTasksWaitingForBits );}
+\DoxyCodeLine{00534     pxListEnd = listGET\_END\_MARKER( pxList ); \textcolor{comment}{/*lint !e826 !e740 !e9087 The mini list structure is used as the list end to save RAM.  This is checked and valid. */}}
+\DoxyCodeLine{00535     vTaskSuspendAll();}
+\DoxyCodeLine{00536     \{}
+\DoxyCodeLine{00537         traceEVENT\_GROUP\_SET\_BITS( xEventGroup, uxBitsToSet );}
+\DoxyCodeLine{00538 }
+\DoxyCodeLine{00539         pxListItem = listGET\_HEAD\_ENTRY( pxList );}
+\DoxyCodeLine{00540 }
+\DoxyCodeLine{00541         \textcolor{comment}{/* Set the bits. */}}
+\DoxyCodeLine{00542         pxEventBits-\/>uxEventBits |= uxBitsToSet;}
+\DoxyCodeLine{00543 }
+\DoxyCodeLine{00544         \textcolor{comment}{/* See if the new bit value should unblock any tasks. */}}
+\DoxyCodeLine{00545         \textcolor{keywordflow}{while}( pxListItem != pxListEnd )}
+\DoxyCodeLine{00546         \{}
+\DoxyCodeLine{00547             pxNext = listGET\_NEXT( pxListItem );}
+\DoxyCodeLine{00548             uxBitsWaitedFor = listGET\_LIST\_ITEM\_VALUE( pxListItem );}
+\DoxyCodeLine{00549             xMatchFound = pdFALSE;}
+\DoxyCodeLine{00550 }
+\DoxyCodeLine{00551             \textcolor{comment}{/* Split the bits waited for from the control bits. */}}
+\DoxyCodeLine{00552             uxControlBits = uxBitsWaitedFor \& eventEVENT\_BITS\_CONTROL\_BYTES;}
+\DoxyCodeLine{00553             uxBitsWaitedFor \&= \string~eventEVENT\_BITS\_CONTROL\_BYTES;}
+\DoxyCodeLine{00554 }
+\DoxyCodeLine{00555             \textcolor{keywordflow}{if}( ( uxControlBits \& eventWAIT\_FOR\_ALL\_BITS ) == ( EventBits\_t ) 0 )}
+\DoxyCodeLine{00556             \{}
+\DoxyCodeLine{00557                 \textcolor{comment}{/* Just looking for single bit being set. */}}
+\DoxyCodeLine{00558                 \textcolor{keywordflow}{if}( ( uxBitsWaitedFor \& pxEventBits-\/>uxEventBits ) != ( EventBits\_t ) 0 )}
+\DoxyCodeLine{00559                 \{}
+\DoxyCodeLine{00560                     xMatchFound = pdTRUE;}
+\DoxyCodeLine{00561                 \}}
+\DoxyCodeLine{00562                 \textcolor{keywordflow}{else}}
+\DoxyCodeLine{00563                 \{}
+\DoxyCodeLine{00564                     mtCOVERAGE\_TEST\_MARKER();}
+\DoxyCodeLine{00565                 \}}
+\DoxyCodeLine{00566             \}}
+\DoxyCodeLine{00567             \textcolor{keywordflow}{else} \textcolor{keywordflow}{if}( ( uxBitsWaitedFor \& pxEventBits-\/>uxEventBits ) == uxBitsWaitedFor )}
+\DoxyCodeLine{00568             \{}
+\DoxyCodeLine{00569                 \textcolor{comment}{/* All bits are set. */}}
+\DoxyCodeLine{00570                 xMatchFound = pdTRUE;}
+\DoxyCodeLine{00571             \}}
+\DoxyCodeLine{00572             \textcolor{keywordflow}{else}}
+\DoxyCodeLine{00573             \{}
+\DoxyCodeLine{00574                 \textcolor{comment}{/* Need all bits to be set, but not all the bits were set. */}}
+\DoxyCodeLine{00575             \}}
+\DoxyCodeLine{00576 }
+\DoxyCodeLine{00577             \textcolor{keywordflow}{if}( xMatchFound != pdFALSE )}
+\DoxyCodeLine{00578             \{}
+\DoxyCodeLine{00579                 \textcolor{comment}{/* The bits match.  Should the bits be cleared on exit? */}}
+\DoxyCodeLine{00580                 \textcolor{keywordflow}{if}( ( uxControlBits \& eventCLEAR\_EVENTS\_ON\_EXIT\_BIT ) != ( EventBits\_t ) 0 )}
+\DoxyCodeLine{00581                 \{}
+\DoxyCodeLine{00582                     uxBitsToClear |= uxBitsWaitedFor;}
+\DoxyCodeLine{00583                 \}}
+\DoxyCodeLine{00584                 \textcolor{keywordflow}{else}}
+\DoxyCodeLine{00585                 \{}
+\DoxyCodeLine{00586                     mtCOVERAGE\_TEST\_MARKER();}
+\DoxyCodeLine{00587                 \}}
+\DoxyCodeLine{00588 }
+\DoxyCodeLine{00589                 \textcolor{comment}{/* Store the actual event flag value in the task's event list}}
+\DoxyCodeLine{00590 \textcolor{comment}{                item before removing the task from the event list.  The}}
+\DoxyCodeLine{00591 \textcolor{comment}{                eventUNBLOCKED\_DUE\_TO\_BIT\_SET bit is set so the task knows}}
+\DoxyCodeLine{00592 \textcolor{comment}{                that is was unblocked due to its required bits matching, rather}}
+\DoxyCodeLine{00593 \textcolor{comment}{                than because it timed out. */}}
+\DoxyCodeLine{00594                 vTaskRemoveFromUnorderedEventList( pxListItem, pxEventBits-\/>uxEventBits | eventUNBLOCKED\_DUE\_TO\_BIT\_SET );}
+\DoxyCodeLine{00595             \}}
+\DoxyCodeLine{00596 }
+\DoxyCodeLine{00597             \textcolor{comment}{/* Move onto the next list item.  Note pxListItem-\/>pxNext is not}}
+\DoxyCodeLine{00598 \textcolor{comment}{            used here as the list item may have been removed from the event list}}
+\DoxyCodeLine{00599 \textcolor{comment}{            and inserted into the ready/pending reading list. */}}
+\DoxyCodeLine{00600             pxListItem = pxNext;}
+\DoxyCodeLine{00601         \}}
+\DoxyCodeLine{00602 }
+\DoxyCodeLine{00603         \textcolor{comment}{/* Clear any bits that matched when the eventCLEAR\_EVENTS\_ON\_EXIT\_BIT}}
+\DoxyCodeLine{00604 \textcolor{comment}{        bit was set in the control word. */}}
+\DoxyCodeLine{00605         pxEventBits-\/>uxEventBits \&= \string~uxBitsToClear;}
+\DoxyCodeLine{00606     \}}
+\DoxyCodeLine{00607     ( void ) xTaskResumeAll();}
+\DoxyCodeLine{00608 }
+\DoxyCodeLine{00609     \textcolor{keywordflow}{return} pxEventBits-\/>uxEventBits;}
+\DoxyCodeLine{00610 \}}
+\DoxyCodeLine{00611 \textcolor{comment}{/*-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/*/}}
+\DoxyCodeLine{00612 }
+\DoxyCodeLine{00613 \textcolor{keywordtype}{void} vEventGroupDelete( EventGroupHandle\_t xEventGroup )}
+\DoxyCodeLine{00614 \{}
+\DoxyCodeLine{00615 EventGroup\_t *pxEventBits = xEventGroup;}
+\DoxyCodeLine{00616 \textcolor{keyword}{const} List\_t *pxTasksWaitingForBits = \&( pxEventBits-\/>xTasksWaitingForBits );}
+\DoxyCodeLine{00617 }
+\DoxyCodeLine{00618     vTaskSuspendAll();}
+\DoxyCodeLine{00619     \{}
+\DoxyCodeLine{00620         traceEVENT\_GROUP\_DELETE( xEventGroup );}
+\DoxyCodeLine{00621 }
+\DoxyCodeLine{00622         \textcolor{keywordflow}{while}( listCURRENT\_LIST\_LENGTH( pxTasksWaitingForBits ) > ( UBaseType\_t ) 0 )}
+\DoxyCodeLine{00623         \{}
+\DoxyCodeLine{00624             \textcolor{comment}{/* Unblock the task, returning 0 as the event list is being deleted}}
+\DoxyCodeLine{00625 \textcolor{comment}{            and cannot therefore have any bits set. */}}
+\DoxyCodeLine{00626             configASSERT( pxTasksWaitingForBits-\/>xListEnd.pxNext != ( \textcolor{keyword}{const} ListItem\_t * ) \&( pxTasksWaitingForBits-\/>xListEnd ) );}
+\DoxyCodeLine{00627             vTaskRemoveFromUnorderedEventList( pxTasksWaitingForBits-\/>xListEnd.pxNext, eventUNBLOCKED\_DUE\_TO\_BIT\_SET );}
+\DoxyCodeLine{00628         \}}
+\DoxyCodeLine{00629 }
+\DoxyCodeLine{00630 \textcolor{preprocessor}{        \#if( ( configSUPPORT\_DYNAMIC\_ALLOCATION == 1 ) \&\& ( configSUPPORT\_STATIC\_ALLOCATION == 0 ) )}}
+\DoxyCodeLine{00631         \{}
+\DoxyCodeLine{00632             \textcolor{comment}{/* The event group can only have been allocated dynamically -\/ free}}
+\DoxyCodeLine{00633 \textcolor{comment}{            it again. */}}
+\DoxyCodeLine{00634             vPortFree( pxEventBits );}
+\DoxyCodeLine{00635         \}}
+\DoxyCodeLine{00636 \textcolor{preprocessor}{        \#elif( ( configSUPPORT\_DYNAMIC\_ALLOCATION == 1 ) \&\& ( configSUPPORT\_STATIC\_ALLOCATION == 1 ) )}}
+\DoxyCodeLine{00637         \{}
+\DoxyCodeLine{00638             \textcolor{comment}{/* The event group could have been allocated statically or}}
+\DoxyCodeLine{00639 \textcolor{comment}{            dynamically, so check before attempting to free the memory. */}}
+\DoxyCodeLine{00640             \textcolor{keywordflow}{if}( pxEventBits-\/>ucStaticallyAllocated == ( uint8\_t ) pdFALSE )}
+\DoxyCodeLine{00641             \{}
+\DoxyCodeLine{00642                 vPortFree( pxEventBits );}
+\DoxyCodeLine{00643             \}}
+\DoxyCodeLine{00644             \textcolor{keywordflow}{else}}
+\DoxyCodeLine{00645             \{}
+\DoxyCodeLine{00646                 mtCOVERAGE\_TEST\_MARKER();}
+\DoxyCodeLine{00647             \}}
+\DoxyCodeLine{00648         \}}
+\DoxyCodeLine{00649 \textcolor{preprocessor}{        \#endif }\textcolor{comment}{/* configSUPPORT\_DYNAMIC\_ALLOCATION */}\textcolor{preprocessor}{}}
+\DoxyCodeLine{00650     \}}
+\DoxyCodeLine{00651     ( void ) xTaskResumeAll();}
+\DoxyCodeLine{00652 \}}
+\DoxyCodeLine{00653 \textcolor{comment}{/*-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/*/}}
+\DoxyCodeLine{00654 }
+\DoxyCodeLine{00655 \textcolor{comment}{/* For internal use only -\/ execute a 'set bits' command that was pended from}}
+\DoxyCodeLine{00656 \textcolor{comment}{an interrupt. */}}
+\DoxyCodeLine{00657 \textcolor{keywordtype}{void} vEventGroupSetBitsCallback( \textcolor{keywordtype}{void} *pvEventGroup, \textcolor{keyword}{const} uint32\_t ulBitsToSet )}
+\DoxyCodeLine{00658 \{}
+\DoxyCodeLine{00659     ( void ) xEventGroupSetBits( pvEventGroup, ( EventBits\_t ) ulBitsToSet ); \textcolor{comment}{/*lint !e9079 Can't avoid cast to void* as a generic timer callback prototype. Callback casts back to original type so safe. */}}
+\DoxyCodeLine{00660 \}}
+\DoxyCodeLine{00661 \textcolor{comment}{/*-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/*/}}
+\DoxyCodeLine{00662 }
+\DoxyCodeLine{00663 \textcolor{comment}{/* For internal use only -\/ execute a 'clear bits' command that was pended from}}
+\DoxyCodeLine{00664 \textcolor{comment}{an interrupt. */}}
+\DoxyCodeLine{00665 \textcolor{keywordtype}{void} vEventGroupClearBitsCallback( \textcolor{keywordtype}{void} *pvEventGroup, \textcolor{keyword}{const} uint32\_t ulBitsToClear )}
+\DoxyCodeLine{00666 \{}
+\DoxyCodeLine{00667     ( void ) xEventGroupClearBits( pvEventGroup, ( EventBits\_t ) ulBitsToClear ); \textcolor{comment}{/*lint !e9079 Can't avoid cast to void* as a generic timer callback prototype. Callback casts back to original type so safe. */}}
+\DoxyCodeLine{00668 \}}
+\DoxyCodeLine{00669 \textcolor{comment}{/*-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/*/}}
+\DoxyCodeLine{00670 }
+\DoxyCodeLine{00671 \textcolor{keyword}{static} BaseType\_t prvTestWaitCondition( \textcolor{keyword}{const} EventBits\_t uxCurrentEventBits, \textcolor{keyword}{const} EventBits\_t uxBitsToWaitFor, \textcolor{keyword}{const} BaseType\_t xWaitForAllBits )}
+\DoxyCodeLine{00672 \{}
+\DoxyCodeLine{00673 BaseType\_t xWaitConditionMet = pdFALSE;}
+\DoxyCodeLine{00674 }
+\DoxyCodeLine{00675     \textcolor{keywordflow}{if}( xWaitForAllBits == pdFALSE )}
+\DoxyCodeLine{00676     \{}
+\DoxyCodeLine{00677         \textcolor{comment}{/* Task only has to wait for one bit within uxBitsToWaitFor to be}}
+\DoxyCodeLine{00678 \textcolor{comment}{        set.  Is one already set? */}}
+\DoxyCodeLine{00679         \textcolor{keywordflow}{if}( ( uxCurrentEventBits \& uxBitsToWaitFor ) != ( EventBits\_t ) 0 )}
+\DoxyCodeLine{00680         \{}
+\DoxyCodeLine{00681             xWaitConditionMet = pdTRUE;}
+\DoxyCodeLine{00682         \}}
+\DoxyCodeLine{00683         \textcolor{keywordflow}{else}}
+\DoxyCodeLine{00684         \{}
+\DoxyCodeLine{00685             mtCOVERAGE\_TEST\_MARKER();}
+\DoxyCodeLine{00686         \}}
+\DoxyCodeLine{00687     \}}
+\DoxyCodeLine{00688     \textcolor{keywordflow}{else}}
+\DoxyCodeLine{00689     \{}
+\DoxyCodeLine{00690         \textcolor{comment}{/* Task has to wait for all the bits in uxBitsToWaitFor to be set.}}
+\DoxyCodeLine{00691 \textcolor{comment}{        Are they set already? */}}
+\DoxyCodeLine{00692         \textcolor{keywordflow}{if}( ( uxCurrentEventBits \& uxBitsToWaitFor ) == uxBitsToWaitFor )}
+\DoxyCodeLine{00693         \{}
+\DoxyCodeLine{00694             xWaitConditionMet = pdTRUE;}
+\DoxyCodeLine{00695         \}}
+\DoxyCodeLine{00696         \textcolor{keywordflow}{else}}
+\DoxyCodeLine{00697         \{}
+\DoxyCodeLine{00698             mtCOVERAGE\_TEST\_MARKER();}
+\DoxyCodeLine{00699         \}}
+\DoxyCodeLine{00700     \}}
+\DoxyCodeLine{00701 }
+\DoxyCodeLine{00702     \textcolor{keywordflow}{return} xWaitConditionMet;}
+\DoxyCodeLine{00703 \}}
+\DoxyCodeLine{00704 \textcolor{comment}{/*-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/*/}}
+\DoxyCodeLine{00705 }
+\DoxyCodeLine{00706 \textcolor{preprocessor}{\#if ( ( configUSE\_TRACE\_FACILITY == 1 ) \&\& ( INCLUDE\_xTimerPendFunctionCall == 1 ) \&\& ( configUSE\_TIMERS == 1 ) )}}
+\DoxyCodeLine{00707 }
+\DoxyCodeLine{00708     BaseType\_t xEventGroupSetBitsFromISR( EventGroupHandle\_t xEventGroup, \textcolor{keyword}{const} EventBits\_t uxBitsToSet, BaseType\_t *pxHigherPriorityTaskWoken )}
+\DoxyCodeLine{00709     \{}
+\DoxyCodeLine{00710     BaseType\_t xReturn;}
+\DoxyCodeLine{00711 }
+\DoxyCodeLine{00712         traceEVENT\_GROUP\_SET\_BITS\_FROM\_ISR( xEventGroup, uxBitsToSet );}
+\DoxyCodeLine{00713         xReturn = xTimerPendFunctionCallFromISR( vEventGroupSetBitsCallback, ( \textcolor{keywordtype}{void} * ) xEventGroup, ( uint32\_t ) uxBitsToSet, pxHigherPriorityTaskWoken ); \textcolor{comment}{/*lint !e9087 Can't avoid cast to void* as a generic callback function not specific to this use case. Callback casts back to original type so safe. */}}
+\DoxyCodeLine{00714 }
+\DoxyCodeLine{00715         \textcolor{keywordflow}{return} xReturn;}
+\DoxyCodeLine{00716     \}}
+\DoxyCodeLine{00717 }
+\DoxyCodeLine{00718 \textcolor{preprocessor}{\#endif}}
+\DoxyCodeLine{00719 \textcolor{comment}{/*-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/*/}}
+\DoxyCodeLine{00720 }
+\DoxyCodeLine{00721 \textcolor{preprocessor}{\#if (configUSE\_TRACE\_FACILITY == 1)}}
+\DoxyCodeLine{00722 }
+\DoxyCodeLine{00723     UBaseType\_t uxEventGroupGetNumber( \textcolor{keywordtype}{void}* xEventGroup )}
+\DoxyCodeLine{00724     \{}
+\DoxyCodeLine{00725     UBaseType\_t xReturn;}
+\DoxyCodeLine{00726     EventGroup\_t \textcolor{keyword}{const} *pxEventBits = ( EventGroup\_t * ) xEventGroup; \textcolor{comment}{/*lint !e9087 !e9079 EventGroupHandle\_t is a pointer to an EventGroup\_t, but EventGroupHandle\_t is kept opaque outside of this file for data hiding purposes. */}}
+\DoxyCodeLine{00727 }
+\DoxyCodeLine{00728         \textcolor{keywordflow}{if}( xEventGroup == NULL )}
+\DoxyCodeLine{00729         \{}
+\DoxyCodeLine{00730             xReturn = 0;}
+\DoxyCodeLine{00731         \}}
+\DoxyCodeLine{00732         \textcolor{keywordflow}{else}}
+\DoxyCodeLine{00733         \{}
+\DoxyCodeLine{00734             xReturn = pxEventBits-\/>uxEventGroupNumber;}
+\DoxyCodeLine{00735         \}}
+\DoxyCodeLine{00736 }
+\DoxyCodeLine{00737         \textcolor{keywordflow}{return} xReturn;}
+\DoxyCodeLine{00738     \}}
+\DoxyCodeLine{00739 }
+\DoxyCodeLine{00740 \textcolor{preprocessor}{\#endif }\textcolor{comment}{/* configUSE\_TRACE\_FACILITY */}\textcolor{preprocessor}{}}
+\DoxyCodeLine{00741 \textcolor{comment}{/*-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/*/}}
+\DoxyCodeLine{00742 }
+\DoxyCodeLine{00743 \textcolor{preprocessor}{\#if ( configUSE\_TRACE\_FACILITY == 1 )}}
+\DoxyCodeLine{00744 }
+\DoxyCodeLine{00745     \textcolor{keywordtype}{void} vEventGroupSetNumber( \textcolor{keywordtype}{void} * xEventGroup, UBaseType\_t uxEventGroupNumber )}
+\DoxyCodeLine{00746     \{}
+\DoxyCodeLine{00747         ( ( EventGroup\_t * ) xEventGroup )-\/>uxEventGroupNumber = uxEventGroupNumber; \textcolor{comment}{/*lint !e9087 !e9079 EventGroupHandle\_t is a pointer to an EventGroup\_t, but EventGroupHandle\_t is kept opaque outside of this file for data hiding purposes. */}}
+\DoxyCodeLine{00748     \}}
+\DoxyCodeLine{00749 }
+\DoxyCodeLine{00750 \textcolor{preprocessor}{\#endif }\textcolor{comment}{/* configUSE\_TRACE\_FACILITY */}\textcolor{preprocessor}{}}
+\DoxyCodeLine{00751 \textcolor{comment}{/*-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/*/}}
+\DoxyCodeLine{00752 }
+\DoxyCodeLine{00753 }
+
+\end{DoxyCode}

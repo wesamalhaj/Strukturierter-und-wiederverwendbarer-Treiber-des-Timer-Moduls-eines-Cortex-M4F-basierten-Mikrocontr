@@ -1,0 +1,238 @@
+\doxysection{gptm.\+c}
+\label{gptm_8c_source}\index{hal/gptm/src/gptm.c@{hal/gptm/src/gptm.c}}
+
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00001 \textcolor{comment}{/*}}
+\DoxyCodeLine{00002 \textcolor{comment}{ * gptm.c}}
+\DoxyCodeLine{00003 \textcolor{comment}{ *}}
+\DoxyCodeLine{00004 \textcolor{comment}{ *  Created on: 07.04.2022}}
+\DoxyCodeLine{00005 \textcolor{comment}{ *}}
+\DoxyCodeLine{00006 \textcolor{comment}{ */}}
+\DoxyCodeLine{00007 }
+\DoxyCodeLine{00008 \textcolor{preprocessor}{\#include <stdlib.h>}}
+\DoxyCodeLine{00009 \textcolor{preprocessor}{\#include <stdbool.h>}}
+\DoxyCodeLine{00010 }
+\DoxyCodeLine{00011 \textcolor{preprocessor}{\#include "{}hal/nvic/halNvic.h"{}}}
+\DoxyCodeLine{00012 \textcolor{preprocessor}{\#include "{}hal/sysctl/halSysctl.h"{}}}
+\DoxyCodeLine{00013 }
+\DoxyCodeLine{00014 \textcolor{preprocessor}{\#include "{}hal/gptm/halGptmShiCores.h"{}}}
+\DoxyCodeLine{00015 \textcolor{preprocessor}{\#include "{}hal/gptm/halGptmGptmSubtimerShiCores.h"{}}}
+\DoxyCodeLine{00016 \textcolor{preprocessor}{\#include "{}hal/gptm/halGptm.h"{}}}
+\DoxyCodeLine{00017 }
+\DoxyCodeLine{00018 \textcolor{preprocessor}{\#include "{}params/gptm/paramsGptm.h"{}}}
+\DoxyCodeLine{00019 }
+\DoxyCodeLine{00020 \textcolor{keyword}{struct }HalGptmCompare16BitMode \{}
+\DoxyCodeLine{00021     \textcolor{keyword}{enum} HalGptmCores gptmCore\_;}
+\DoxyCodeLine{00022     \textcolor{keyword}{enum} HalGptmSubtimerCores gptmSubtimer\_;}
+\DoxyCodeLine{00023 \};}
+\DoxyCodeLine{00024 \textcolor{keywordtype}{unsigned} \textcolor{keywordtype}{int} paramsGptm16BitCompareModeHandlesCount\_ = 0;}
+\DoxyCodeLine{00025 \textcolor{keyword}{static} \textcolor{keyword}{struct }HalGptmCompare16BitMode gptm16BitCompareModeHandles\_[paramsGptmMaximal16BitCompareModeHandlesCount];}
+\DoxyCodeLine{00026 }
+\DoxyCodeLine{00027 \textcolor{keyword}{struct }GptmCoreState\_ \{}
+\DoxyCodeLine{00028     \textcolor{keywordtype}{bool} poweredUp\_;}
+\DoxyCodeLine{00029 \};}
+\DoxyCodeLine{00030 \textcolor{keyword}{static} \textcolor{keyword}{struct }GptmCoreState\_ coreStates\_[halGptmCoreCount];}
+\DoxyCodeLine{00031 }
+\DoxyCodeLine{00032 \textcolor{keyword}{enum} GptmCompareModeInterruptTypeCount\_ \{}
+\DoxyCodeLine{00033     gptmCompareModeInterruptTypeCount\_ = 2}
+\DoxyCodeLine{00034 \};}
+\DoxyCodeLine{00038 \textcolor{keyword}{enum} GptmCompareModeInterruptType\_ \{}
+\DoxyCodeLine{00039     gptmCompareModeMatchInterrupt\_ = 0,}
+\DoxyCodeLine{00040     gptmCompareModeTimeoutInterrupt\_ = 1}
+\DoxyCodeLine{00041 \};}
+\DoxyCodeLine{00042 }
+\DoxyCodeLine{00043 \textcolor{comment}{// ISR definitions}}
+\DoxyCodeLine{00044 }
+\DoxyCodeLine{00045 \textcolor{keyword}{static} \textcolor{keywordtype}{void} gptmGenericISR\_(\textcolor{keyword}{enum} HalGptmCores \textcolor{keyword}{const} core, \textcolor{keyword}{enum} HalGptmSubtimerCores \textcolor{keyword}{const} subtimer);}
+\DoxyCodeLine{00046 \textcolor{keyword}{static} \textcolor{keywordtype}{void} gptm0AISR\_(\textcolor{keywordtype}{void});}
+\DoxyCodeLine{00047 \textcolor{keyword}{static} \textcolor{keywordtype}{void} gptm0BISR\_(\textcolor{keywordtype}{void});}
+\DoxyCodeLine{00048 \textcolor{keyword}{static} \textcolor{keywordtype}{void} gptm1AISR\_(\textcolor{keywordtype}{void});}
+\DoxyCodeLine{00049 \textcolor{keyword}{static} \textcolor{keywordtype}{void} gptm1BISR\_(\textcolor{keywordtype}{void});}
+\DoxyCodeLine{00050 \textcolor{keyword}{static} \textcolor{keywordtype}{void} gptm2AISR\_(\textcolor{keywordtype}{void});}
+\DoxyCodeLine{00051 \textcolor{keyword}{static} \textcolor{keywordtype}{void} gptm2BISR\_(\textcolor{keywordtype}{void});}
+\DoxyCodeLine{00052 \textcolor{keyword}{static} \textcolor{keywordtype}{void} gptm3AISR\_(\textcolor{keywordtype}{void});}
+\DoxyCodeLine{00053 \textcolor{keyword}{static} \textcolor{keywordtype}{void} gptm3BISR\_(\textcolor{keywordtype}{void});}
+\DoxyCodeLine{00054 \textcolor{keyword}{static} \textcolor{keywordtype}{void} gptm4AISR\_(\textcolor{keywordtype}{void});}
+\DoxyCodeLine{00055 \textcolor{keyword}{static} \textcolor{keywordtype}{void} gptm4BISR\_(\textcolor{keywordtype}{void});}
+\DoxyCodeLine{00056 \textcolor{keyword}{static} \textcolor{keywordtype}{void} gptm5AISR\_(\textcolor{keywordtype}{void});}
+\DoxyCodeLine{00057 \textcolor{keyword}{static} \textcolor{keywordtype}{void} gptm5BISR\_(\textcolor{keywordtype}{void});}
+\DoxyCodeLine{00058 \textcolor{keyword}{static} \textcolor{keywordtype}{void} gptm6AISR\_(\textcolor{keywordtype}{void});}
+\DoxyCodeLine{00059 \textcolor{keyword}{static} \textcolor{keywordtype}{void} gptm6BISR\_(\textcolor{keywordtype}{void});}
+\DoxyCodeLine{00060 \textcolor{keyword}{static} \textcolor{keywordtype}{void} gptm7AISR\_(\textcolor{keywordtype}{void});}
+\DoxyCodeLine{00061 \textcolor{keyword}{static} \textcolor{keywordtype}{void} gptm7BISR\_(\textcolor{keywordtype}{void});}
+\DoxyCodeLine{00062 }
+\DoxyCodeLine{00066 \textcolor{keyword}{static} void (* gptmIsrHadlers\_[halGptmCoreCount][halGptmSubtimerCoreCount][gptmCompareModeInterruptTypeCount\_])(void);}
+\DoxyCodeLine{00067 }
+\DoxyCodeLine{00071 \textcolor{keyword}{static} \textcolor{keywordtype}{void} gptmGenericISR\_(\textcolor{keyword}{enum} HalGptmCores \textcolor{keyword}{const} core, \textcolor{keyword}{enum} HalGptmSubtimerCores \textcolor{keyword}{const} subtimer) \{}
+\DoxyCodeLine{00072 }
+\DoxyCodeLine{00073     \textcolor{comment}{// todo: determine the type based on the HW registers ?}}
+\DoxyCodeLine{00074     \textcolor{keyword}{enum} GptmCompareModeInterruptType\_ \textcolor{keyword}{const} type = gptmCompareModeMatchInterrupt\_;}
+\DoxyCodeLine{00075 }
+\DoxyCodeLine{00076     \textcolor{comment}{// call the handler provided by the user}}
+\DoxyCodeLine{00077     gptmIsrHadlers\_[core][subtimer][type]();}
+\DoxyCodeLine{00078 }
+\DoxyCodeLine{00079 \}}
+\DoxyCodeLine{00080 }
+\DoxyCodeLine{00081 \textcolor{keyword}{static} \textcolor{keywordtype}{void} gptm0AISR\_(\textcolor{keywordtype}{void}) \{}
+\DoxyCodeLine{00082     gptmGenericISR\_(halGptmTimer0Core, halGptmSubtimerACore);}
+\DoxyCodeLine{00083 \}}
+\DoxyCodeLine{00084 }
+\DoxyCodeLine{00085 \textcolor{keyword}{static} \textcolor{keywordtype}{void} gptm0BISR\_(\textcolor{keywordtype}{void}) \{}
+\DoxyCodeLine{00086     gptmGenericISR\_(halGptmTimer0Core, halGptmSubtimerBCore);}
+\DoxyCodeLine{00087 \}}
+\DoxyCodeLine{00088 }
+\DoxyCodeLine{00089 \textcolor{comment}{// todo: further ISR for remaining interrupts}}
+\DoxyCodeLine{00090 \textcolor{keyword}{static} \textcolor{keywordtype}{void} gptm1AISR\_(\textcolor{keywordtype}{void}) \{}
+\DoxyCodeLine{00091     gptmGenericISR\_(halGptmTimer1Core, halGptmSubtimerACore);}
+\DoxyCodeLine{00092 \}}
+\DoxyCodeLine{00093 }
+\DoxyCodeLine{00094 \textcolor{keyword}{static} \textcolor{keywordtype}{void} gptm1BISR\_(\textcolor{keywordtype}{void}) \{}
+\DoxyCodeLine{00095     gptmGenericISR\_(halGptmTimer1Core, halGptmSubtimerBCore);}
+\DoxyCodeLine{00096 \}}
+\DoxyCodeLine{00097 }
+\DoxyCodeLine{00098 \textcolor{keyword}{static} \textcolor{keywordtype}{void} gptm2AISR\_(\textcolor{keywordtype}{void}) \{}
+\DoxyCodeLine{00099     gptmGenericISR\_(halGptmTimer2Core, halGptmSubtimerACore);}
+\DoxyCodeLine{00100 \}}
+\DoxyCodeLine{00101 }
+\DoxyCodeLine{00102 \textcolor{keyword}{static} \textcolor{keywordtype}{void} gptm2BISR\_(\textcolor{keywordtype}{void}) \{}
+\DoxyCodeLine{00103     gptmGenericISR\_(halGptmTimer2Core, halGptmSubtimerBCore);}
+\DoxyCodeLine{00104 \}}
+\DoxyCodeLine{00105 }
+\DoxyCodeLine{00106 \textcolor{keyword}{static} \textcolor{keywordtype}{void} gptm3AISR\_(\textcolor{keywordtype}{void}) \{}
+\DoxyCodeLine{00107     gptmGenericISR\_(halGptmTimer3Core, halGptmSubtimerACore);}
+\DoxyCodeLine{00108 \}}
+\DoxyCodeLine{00109 }
+\DoxyCodeLine{00110 \textcolor{keyword}{static} \textcolor{keywordtype}{void} gptm3BISR\_(\textcolor{keywordtype}{void}) \{}
+\DoxyCodeLine{00111     gptmGenericISR\_(halGptmTimer3Core, halGptmSubtimerBCore);}
+\DoxyCodeLine{00112 \}}
+\DoxyCodeLine{00113 }
+\DoxyCodeLine{00114 \textcolor{keyword}{static} \textcolor{keywordtype}{void} gptm4AISR\_(\textcolor{keywordtype}{void}) \{}
+\DoxyCodeLine{00115     gptmGenericISR\_(halGptmTimer4Core, halGptmSubtimerACore);}
+\DoxyCodeLine{00116 \}}
+\DoxyCodeLine{00117 }
+\DoxyCodeLine{00118 \textcolor{keyword}{static} \textcolor{keywordtype}{void} gptm4BISR\_(\textcolor{keywordtype}{void}) \{}
+\DoxyCodeLine{00119     gptmGenericISR\_(halGptmTimer4Core, halGptmSubtimerBCore);}
+\DoxyCodeLine{00120 \}}
+\DoxyCodeLine{00121 }
+\DoxyCodeLine{00122 \textcolor{keyword}{static} \textcolor{keywordtype}{void} gptm5AISR\_(\textcolor{keywordtype}{void}) \{}
+\DoxyCodeLine{00123     gptmGenericISR\_(halGptmTimer5Core, halGptmSubtimerACore);}
+\DoxyCodeLine{00124 \}}
+\DoxyCodeLine{00125 }
+\DoxyCodeLine{00126 \textcolor{keyword}{static} \textcolor{keywordtype}{void} gptm5BISR\_(\textcolor{keywordtype}{void}) \{}
+\DoxyCodeLine{00127     gptmGenericISR\_(halGptmTimer5Core, halGptmSubtimerBCore);}
+\DoxyCodeLine{00128 \}}
+\DoxyCodeLine{00129 }
+\DoxyCodeLine{00130 \textcolor{keyword}{static} \textcolor{keywordtype}{void} gptm6AISR\_(\textcolor{keywordtype}{void}) \{}
+\DoxyCodeLine{00131     gptmGenericISR\_(halGptmTimer6Core, halGptmSubtimerACore);}
+\DoxyCodeLine{00132 \}}
+\DoxyCodeLine{00133 }
+\DoxyCodeLine{00134 \textcolor{keyword}{static} \textcolor{keywordtype}{void} gptm6BISR\_(\textcolor{keywordtype}{void}) \{}
+\DoxyCodeLine{00135     gptmGenericISR\_(halGptmTimer6Core, halGptmSubtimerBCore);}
+\DoxyCodeLine{00136 \}}
+\DoxyCodeLine{00137 }
+\DoxyCodeLine{00138 \textcolor{keyword}{static} \textcolor{keywordtype}{void} gptm7AISR\_(\textcolor{keywordtype}{void}) \{}
+\DoxyCodeLine{00139     gptmGenericISR\_(halGptmTimer7Core, halGptmSubtimerACore);}
+\DoxyCodeLine{00140 \}}
+\DoxyCodeLine{00141 }
+\DoxyCodeLine{00142 \textcolor{keyword}{static} \textcolor{keywordtype}{void} gptm7BISR\_(\textcolor{keywordtype}{void}) \{}
+\DoxyCodeLine{00143     gptmGenericISR\_(halGptmTimer7Core, halGptmSubtimerBCore);}
+\DoxyCodeLine{00144 \}}
+\DoxyCodeLine{00145 }
+\DoxyCodeLine{00149 \textcolor{keyword}{static} void (* \textcolor{keyword}{const} gptmIsr\_[halGptmCoreCount][halGptmSubtimerCoreCount])(void) = \{}
+\DoxyCodeLine{00150     [halGptmTimer0Core][halGptmSubtimerACore] = gptm0AISR\_,}
+\DoxyCodeLine{00151     [halGptmTimer0Core][halGptmSubtimerBCore] = gptm0BISR\_,}
+\DoxyCodeLine{00152     \textcolor{comment}{// todo: further cores and subtimers}}
+\DoxyCodeLine{00153     [halGptmTimer1Core][halGptmSubtimerACore] = gptm1AISR\_,}
+\DoxyCodeLine{00154     [halGptmTimer1Core][halGptmSubtimerBCore] = gptm1BISR\_,}
+\DoxyCodeLine{00155     [halGptmTimer2Core][halGptmSubtimerACore] = gptm2AISR\_,}
+\DoxyCodeLine{00156     [halGptmTimer2Core][halGptmSubtimerBCore] = gptm2BISR\_}
+\DoxyCodeLine{00157     [halGptmTimer3Core][halGptmSubtimerACore] = gptm3AISR\_,}
+\DoxyCodeLine{00158     [halGptmTimer3Core][halGptmSubtimerBCore] = gptm3BISR\_,}
+\DoxyCodeLine{00159     [halGptmTimer4Core][halGptmSubtimerACore] = gptm4AISR\_,}
+\DoxyCodeLine{00160     [halGptmTimer4Core][halGptmSubtimerBCore] = gptm4BISR\_,}
+\DoxyCodeLine{00161     [halGptmTimer5Core][halGptmSubtimerACore] = gptm5AISR\_,}
+\DoxyCodeLine{00162     [halGptmTimer5Core][halGptmSubtimerBCore] = gptm5BISR\_,}
+\DoxyCodeLine{00163     [halGptmTimer6Core][halGptmSubtimerACore] = gptm6AISR\_,}
+\DoxyCodeLine{00164     [halGptmTimer6Core][halGptmSubtimerBCore] = gptm6BISR\_,}
+\DoxyCodeLine{00165     [halGptmTimer7Core][halGptmSubtimerACore] = gptm7AISR\_,}
+\DoxyCodeLine{00166     [halGptmTimer7Core][halGptmSubtimerBCore] = gptm7BISR\_,}
+\DoxyCodeLine{00167 }
+\DoxyCodeLine{00168 \};}
+\DoxyCodeLine{00169 }
+\DoxyCodeLine{00173 \textcolor{keyword}{static} \textcolor{keyword}{const} \textcolor{keyword}{enum} HalNvicException gptmExceptions\_[halGptmCoreCount][halGptmSubtimerCoreCount] = \{}
+\DoxyCodeLine{00174     [halGptmTimer0Core][halGptmSubtimerACore] = halNvicTimer0AException,}
+\DoxyCodeLine{00175     [halGptmTimer0Core][halGptmSubtimerBCore] = halNvicTimer0BException}
+\DoxyCodeLine{00176     \textcolor{comment}{// todo: further exceptions}}
+\DoxyCodeLine{00177 \};}
+\DoxyCodeLine{00178 }
+\DoxyCodeLine{00179 }
+\DoxyCodeLine{00180 }
+\DoxyCodeLine{00185 \textcolor{keywordtype}{void} halGptmDriverInit(\textcolor{keywordtype}{void}) \{}
+\DoxyCodeLine{00186 }
+\DoxyCodeLine{00187     \textcolor{keywordtype}{unsigned} \textcolor{keywordtype}{int} coreId;}
+\DoxyCodeLine{00188     \textcolor{keywordflow}{for} (coreId = 0; coreId < halGptmCoreCount; ++coreId) \{}
+\DoxyCodeLine{00189         coreStates\_[coreId].poweredUp\_ = \textcolor{keyword}{false};}
+\DoxyCodeLine{00190     \}}
+\DoxyCodeLine{00191 }
+\DoxyCodeLine{00192 \}}
+\DoxyCodeLine{00193 }
+\DoxyCodeLine{00194 HalGptmCompare16BitModeHandle halGptmConfigure16BitCompareMode(}
+\DoxyCodeLine{00195         \textcolor{keyword}{enum} HalGptmCores gptmCore,}
+\DoxyCodeLine{00196         \textcolor{keyword}{enum} HalGptmSubtimerCores gptmSubtimer,}
+\DoxyCodeLine{00197         \textcolor{keywordtype}{long} \textcolor{keywordtype}{double} matchInNs,}
+\DoxyCodeLine{00198         \textcolor{keywordtype}{long} \textcolor{keywordtype}{double} timeoutInNs,}
+\DoxyCodeLine{00199         \textcolor{keywordtype}{void} (*matchCallbackFunction)(\textcolor{keywordtype}{void}),}
+\DoxyCodeLine{00200         \textcolor{keywordtype}{void} (*timeoutCallbackFunction)(\textcolor{keywordtype}{void})}
+\DoxyCodeLine{00201         ) \{}
+\DoxyCodeLine{00202 }
+\DoxyCodeLine{00203     \textcolor{keywordflow}{if} (paramsGptmMaximal16BitCompareModeHandlesCount == paramsGptm16BitCompareModeHandlesCount\_) \{}
+\DoxyCodeLine{00204         \textcolor{keywordflow}{return} NULL;}
+\DoxyCodeLine{00205     \}}
+\DoxyCodeLine{00206 }
+\DoxyCodeLine{00207     \textcolor{keyword}{struct }HalGptmCompare16BitMode * handle = \&gptm16BitCompareModeHandles\_[paramsGptm16BitCompareModeHandlesCount\_];}
+\DoxyCodeLine{00208     ++paramsGptm16BitCompareModeHandlesCount\_;}
+\DoxyCodeLine{00209     handle-\/>gptmCore\_ = gptmCore;}
+\DoxyCodeLine{00210     handle-\/>gptmSubtimer\_ = gptmSubtimer;}
+\DoxyCodeLine{00211     gptmIsrHadlers\_[gptmCore][gptmSubtimer][gptmCompareModeMatchInterrupt\_] = matchCallbackFunction;}
+\DoxyCodeLine{00212     gptmIsrHadlers\_[gptmCore][gptmSubtimer][gptmCompareModeTimeoutInterrupt\_] = timeoutCallbackFunction;}
+\DoxyCodeLine{00213 }
+\DoxyCodeLine{00214     \textcolor{comment}{// power up the cycle if not done so yet}}
+\DoxyCodeLine{00215     \textcolor{keywordflow}{if} (!coreStates\_[gptmCore].poweredUp\_) \{}
+\DoxyCodeLine{00216         \textcolor{comment}{// ... call sysctl functions ...}}
+\DoxyCodeLine{00217         coreStates\_[gptmCore].poweredUp\_ = \textcolor{keyword}{true};}
+\DoxyCodeLine{00218     \}}
+\DoxyCodeLine{00219 }
+\DoxyCodeLine{00220     \textcolor{comment}{// configure the timer, down, possibly with prescaler}}
+\DoxyCodeLine{00221     \textcolor{comment}{// depending on the cpu freq.}}
+\DoxyCodeLine{00222     \textcolor{comment}{// load reg, match reg}}
+\DoxyCodeLine{00223     \textcolor{comment}{// use halSysCtlGetCpuFreq()}}
+\DoxyCodeLine{00224 }
+\DoxyCodeLine{00225     \textcolor{comment}{// do not start the timer, is done separately}}
+\DoxyCodeLine{00226 }
+\DoxyCodeLine{00227     \textcolor{comment}{// install interrupt handler}}
+\DoxyCodeLine{00228     halNvicInstallISR(gptmIsr\_[gptmCore][gptmSubtimer], gptmExceptions\_[gptmCore][gptmSubtimer]);}
+\DoxyCodeLine{00229     \textcolor{comment}{// activate the interrupt}}
+\DoxyCodeLine{00230     halNvicEnableInterrupt(gptmExceptions\_[gptmCore][gptmSubtimer]);}
+\DoxyCodeLine{00231 }
+\DoxyCodeLine{00232     \textcolor{keywordflow}{return} handle;}
+\DoxyCodeLine{00233 }
+\DoxyCodeLine{00234 \}}
+\DoxyCodeLine{00235 }
+\DoxyCodeLine{00236 \textcolor{keywordtype}{void} halGptmCompareModeActivate(HalGptmCompare16BitModeHandle gptmHandle, \textcolor{keywordtype}{bool} \textcolor{keyword}{const} activate, \textcolor{keywordtype}{bool} \textcolor{keyword}{const} oneShot) \{}
+\DoxyCodeLine{00237 }
+\DoxyCodeLine{00238     \textcolor{keywordflow}{if} (activate) \{}
+\DoxyCodeLine{00239         \textcolor{comment}{// start the timer}}
+\DoxyCodeLine{00240         \textcolor{keywordflow}{if} (oneShot) \{}
+\DoxyCodeLine{00241             \textcolor{comment}{// one shot}}
+\DoxyCodeLine{00242         \}}
+\DoxyCodeLine{00243         \textcolor{keywordflow}{else} \{}
+\DoxyCodeLine{00244             \textcolor{comment}{// periodic}}
+\DoxyCodeLine{00245         \}}
+\DoxyCodeLine{00246     \}}
+\DoxyCodeLine{00247     \textcolor{keywordflow}{else} \{}
+\DoxyCodeLine{00248         \textcolor{comment}{// stop the timer}}
+\DoxyCodeLine{00249     \}}
+\DoxyCodeLine{00250 }
+\DoxyCodeLine{00251 \}}
+
+\end{DoxyCode}

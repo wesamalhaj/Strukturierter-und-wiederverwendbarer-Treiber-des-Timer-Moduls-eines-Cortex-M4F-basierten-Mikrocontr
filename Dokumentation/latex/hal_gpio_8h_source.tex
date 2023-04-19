@@ -1,0 +1,93 @@
+\doxysection{hal\+Gpio.\+h}
+\label{hal_gpio_8h_source}\index{hal/gpio/include/public/hal/gpio/halGpio.h@{hal/gpio/include/public/hal/gpio/halGpio.h}}
+
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00001 \textcolor{preprocessor}{\#ifndef HAL\_GPIO\_HALGPIO\_H\_}}
+\DoxyCodeLine{00002 \textcolor{preprocessor}{\#define HAL\_GPIO\_HALGPIO\_H\_}}
+\DoxyCodeLine{00003 }
+\DoxyCodeLine{00004 \textcolor{preprocessor}{\#include <stdint.h>}}
+\DoxyCodeLine{00005 }
+\DoxyCodeLine{00006 \textcolor{preprocessor}{\#include "{}hal/gpio/halGpioShiCores.h"{}}}
+\DoxyCodeLine{00007 }
+\DoxyCodeLine{00008 }
+\DoxyCodeLine{00009 \textcolor{comment}{//*****************************************************************************}}
+\DoxyCodeLine{00010 \textcolor{comment}{//}}
+\DoxyCodeLine{00011 \textcolor{comment}{// GPIO pin ids / masks}}
+\DoxyCodeLine{00012 \textcolor{comment}{//}}
+\DoxyCodeLine{00013 \textcolor{comment}{//*****************************************************************************}}
+\DoxyCodeLine{00014 }
+\DoxyCodeLine{00015 \textcolor{keyword}{enum} HalGpioPin \{}
+\DoxyCodeLine{00016     halGpioPin0 = 0x01,}
+\DoxyCodeLine{00017     halGpioPin1 = 0x02,}
+\DoxyCodeLine{00018     halGpioPin2 = 0x04,}
+\DoxyCodeLine{00019     halGpioPin3 = 0x08,}
+\DoxyCodeLine{00020     halGpioPin4 = 0x10,}
+\DoxyCodeLine{00021     halGpioPin5 = 0x20,}
+\DoxyCodeLine{00022     halGpioPin6 = 0x40,}
+\DoxyCodeLine{00023     halGpioPin7 = 0x80,}
+\DoxyCodeLine{00024     halGpioAllPins  = 0xFF}
+\DoxyCodeLine{00025 \};}
+\DoxyCodeLine{00026 }
+\DoxyCodeLine{00027 }
+\DoxyCodeLine{00028 \textcolor{keyword}{enum} HalGpioPinDirection \{}
+\DoxyCodeLine{00029     halGpioPinInput = 0,}
+\DoxyCodeLine{00030     halGpioPinOutput = 1}
+\DoxyCodeLine{00031 \};}
+\DoxyCodeLine{00032 }
+\DoxyCodeLine{00033 }
+\DoxyCodeLine{00034 \textcolor{keyword}{enum} HalGpioDigitalPinFunctions \{}
+\DoxyCodeLine{00035     halGpioU2RxPA6 = 0,}
+\DoxyCodeLine{00036     halGpioU2TxPA7 = 1,}
+\DoxyCodeLine{00037     halGpioU2RxPD4 = 2,}
+\DoxyCodeLine{00038     halGpioU2TxPD5 = 3,}
+\DoxyCodeLine{00039     halGpioI2c0SCLPB2 = 4,}
+\DoxyCodeLine{00040     halGpioI2c0SDAPB3 = 5,}
+\DoxyCodeLine{00041     halGpioI2c3SCLPK4 = 6,}
+\DoxyCodeLine{00042     halGpioI2c4SDAPK5 = 7}
+\DoxyCodeLine{00043 \};}
+\DoxyCodeLine{00044 }
+\DoxyCodeLine{00045 }
+\DoxyCodeLine{00046 \textcolor{keyword}{enum} HalGpioDriveStrength \{}
+\DoxyCodeLine{00047     halGpio2mA = 0,}
+\DoxyCodeLine{00048     halGpio4mA = 1,}
+\DoxyCodeLine{00049     halGpio8mA = 2,}
+\DoxyCodeLine{00050 \};}
+\DoxyCodeLine{00051 }
+\DoxyCodeLine{00052 }
+\DoxyCodeLine{00053 \textcolor{keyword}{enum} HalGpioInterruptType \{}
+\DoxyCodeLine{00054     halGpioFallingEdge = 0,}
+\DoxyCodeLine{00055     halGpioRisingEdge = 1,}
+\DoxyCodeLine{00056     halGpioBothEdges = 2,}
+\DoxyCodeLine{00057     halGpioLowLevel = 3,}
+\DoxyCodeLine{00058     halGpioHighLevel = 4,}
+\DoxyCodeLine{00059 \};}
+\DoxyCodeLine{00060 }
+\DoxyCodeLine{00061 }
+\DoxyCodeLine{00062 }
+\DoxyCodeLine{00063 \textcolor{keywordtype}{void} halGpioSetDigitalPinFunction(\textcolor{keyword}{enum} HalGpioDigitalPinFunctions \textcolor{keyword}{const} pin);}
+\DoxyCodeLine{00064 \textcolor{keywordtype}{void} halGpioPinSetAsSimpleDigitalIO(\textcolor{keyword}{enum} HalGpioCores port, \textcolor{keyword}{enum} HalGpioPin pin, \textcolor{keyword}{enum} HalGpioPinDirection direction);}
+\DoxyCodeLine{00065 }
+\DoxyCodeLine{00066 \textcolor{keywordtype}{void} halGpioPinSetDriveStrength(\textcolor{keyword}{enum} HalGpioCores port, \textcolor{keyword}{enum} HalGpioPin pin, \textcolor{keyword}{enum} HalGpioDriveStrength driveStrength);}
+\DoxyCodeLine{00067 \textcolor{keywordtype}{void} halGpioPinSetPullUp(\textcolor{keyword}{enum} HalGpioCores port, \textcolor{keyword}{enum} HalGpioPin pin);}
+\DoxyCodeLine{00068 \textcolor{keywordtype}{void} halGpioPinSetPullDown(\textcolor{keyword}{enum} HalGpioCores port, \textcolor{keyword}{enum} HalGpioPin pin);}
+\DoxyCodeLine{00069 }
+\DoxyCodeLine{00070 \textcolor{keywordtype}{void} halGpioPinSetInterruptSensitivity(\textcolor{keyword}{enum} HalGpioCores port, \textcolor{keyword}{enum} HalGpioPin pin, \textcolor{keyword}{enum} HalGpioInterruptType type);}
+\DoxyCodeLine{00071 \textcolor{keywordtype}{void} halGpioPortSetISR(\textcolor{keyword}{enum} HalGpioCores port, \textcolor{keywordtype}{void} (*interruptHandler)(\textcolor{keywordtype}{void}));}
+\DoxyCodeLine{00072 \textcolor{keywordtype}{void} halGpioPinSetISR(\textcolor{keyword}{enum} HalGpioCores port, \textcolor{keyword}{enum} HalGpioPin pin, \textcolor{keywordtype}{void} (*interruptHandler)(\textcolor{keywordtype}{void}));}
+\DoxyCodeLine{00073 \textcolor{keywordtype}{void} halGpioPinActivateInterrupt(\textcolor{keyword}{enum} HalGpioCores port, \textcolor{keyword}{enum} HalGpioPin pin);}
+\DoxyCodeLine{00074 }
+\DoxyCodeLine{00075 uint8\_t halGpioPortReadUnmaskedInterrupt(\textcolor{keyword}{enum} HalGpioCores port);}
+\DoxyCodeLine{00076 uint8\_t halGpioPortReadRawInterrupt(\textcolor{keyword}{enum} HalGpioCores port);}
+\DoxyCodeLine{00077 \textcolor{keywordtype}{void} halGpioPortClearInterrupt(\textcolor{keyword}{enum} HalGpioCores port, uint8\_t value);}
+\DoxyCodeLine{00078 }
+\DoxyCodeLine{00079 \textcolor{keywordtype}{void} halGpioPortWrite(\textcolor{keyword}{enum} HalGpioCores port, uint8\_t value);}
+\DoxyCodeLine{00080 \textcolor{keywordtype}{void} halGpioPinWrite(\textcolor{keyword}{enum} HalGpioCores \textcolor{keyword}{const} port, \textcolor{keyword}{enum} HalGpioPin \textcolor{keyword}{const} pin, uint8\_t \textcolor{keyword}{const} value);}
+\DoxyCodeLine{00081 }
+\DoxyCodeLine{00082 uint8\_t halGpioPortRead(\textcolor{keyword}{enum} HalGpioCores port);}
+\DoxyCodeLine{00083 uint8\_t halGpioPinRead(\textcolor{keyword}{enum} HalGpioCores port, \textcolor{keyword}{enum} HalGpioPin pin);}
+\DoxyCodeLine{00084 }
+\DoxyCodeLine{00085 }
+\DoxyCodeLine{00086 }
+\DoxyCodeLine{00087 \textcolor{preprocessor}{\#endif}}
+
+\end{DoxyCode}
